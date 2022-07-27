@@ -3,9 +3,19 @@
  *  @date 2022/7/25 18:56
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-declare type BoxDesc = {
+declare type BorderGap = Partial<{
   top: number;
   right: number;
   bottom: number;
   left: number;
+}> | number
+
+declare type Bar = {
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  date: number;
+  DT: Date;
+  volume: number;
 }

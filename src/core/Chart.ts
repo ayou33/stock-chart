@@ -5,13 +5,4 @@
  */
 class Chart {}
 
-export type Margin = Partial<{
-  top: number;
-  right: number;
-  bottom: number;
-  left: number;
-}>
-
-export type Padding = Margin
-
 export default Chart

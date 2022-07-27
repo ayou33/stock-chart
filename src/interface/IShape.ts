@@ -4,7 +4,15 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 interface IShape {
+  points: Bar[];
+
   draw (): IShape;
+
+  highlight (): IShape;
+
+  focus (): IShape;
+
+  remove (): IShape;
 }
 
 export default IShape

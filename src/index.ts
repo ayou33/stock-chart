@@ -3,72 +3,54 @@
  *  @date 2022/7/25 16:32
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { Margin, Padding } from './core/Chart'
 import DataSource from './core/DataSource'
-import MainAxis, { MainAxisOptions } from './core/MainAxis'
-import Series, { SeriesOptions } from './core/Series'
+import MainAxis from './core/MainAxis'
+import Series from './core/Series'
 import Drawing from './extend/Drawing'
 import Indicator from './extend/Indicator'
+import Marker from './extend/Marker'
 import extend from './helper/extend'
-
-export type StockChartOptions = {
-  container: string;
-  display: {
-    theme: 'light';
-    crosshair: boolean;
-  },
-  layout: {
-    margin: Margin;
-    padding: Padding;
-    defaultSeries: SeriesOptions;
-    mainAxis: MainAxisOptions;
-  },
-  format: {},
-  event: {},
-}
-
-const defaultOptions: StockChartOptions = {
-  container: 'jo',
-  display: {
-    theme: 'light',
-    crosshair: true,
-  },
-  layout: {
-    margin: {},
-    padding: {},
-    defaultSeries: {
-      position: 'right',
-    },
-    mainAxis: {
-      height: 100,
-    },
-  },
-  format: {},
-  event: {},
-}
+import stockChartOptions, { StockChartOptions } from './options'
 
 class StockChart {
-  private readonly container: string
   private readonly options: StockChartOptions
-  private readonly canvas: HTMLCanvasElement
-  private readonly offlineCanvas: HTMLCanvasElement
+  private readonly container: Element
+  private readonly canvas = document.createElement('canvas')
+  private readonly context: CanvasRenderingContext2D
   private readonly series: Series
   private readonly mainAxis: MainAxis
   private readonly dataSource: DataSource
 
-  private drawing: Drawing
-  private indicator: Indicator
+  private drawing: Drawing | null = null
+  private indicator: Indicator | null = null
+  private marker: Marker | null = null
 
   constructor (mixed: string | StockChartOptions) {
-    if (typeof mixed === 'string') {
-      this.options = defaultOptions
-      this.container = mixed
-    } else {
-      this.options = extend(defaultOptions, mixed)
-      this.container = this.options.container
+    const containerOptions = typeof mixed === 'string' ? { container: mixed } : mixed
+
+    this.options = extend(stockChartOptions, containerOptions)
+
+    const el = document.querySelector(this.options.container)
+
+    if (el === null) {
+      throw new ReferenceError('Invalid container reference!')
     }
 
-    console.log(this.options)
+    this.container = el
+
+    const context = this.canvas.getContext('2d')
+
+    if (context === null) {
+      throw new ReferenceError('Invalid canvas rendering context')
+    }
+
+    this.context = context
+
+    this.mainAxis = new MainAxis()
+
+    this.series = new Series()
+
+    this.dataSource = new DataSource()
   }
 
   setData () {
