@@ -19,3 +19,5 @@ declare type Bar = {
   DT: Date;
   volume: number;
 }
+
+declare type Vector = [x: number, y: number]
