@@ -21,6 +21,7 @@ export const seriesOptions: SeriesOptions = {
 
 export type StockChartOptions = {
   container: string;
+  symbol: string;
   display: {
     theme: 'light';
     crosshair: boolean;
@@ -37,6 +38,7 @@ export type StockChartOptions = {
 
 export const stockChartOptions: StockChartOptions = {
   container: '',
+  symbol: '',
   display: {
     theme: 'light',
     crosshair: true,

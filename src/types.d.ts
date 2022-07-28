@@ -21,3 +21,9 @@ declare type Bar = {
 }
 
 declare type Vector = [x: number, y: number]
+
+declare type First<T> = T extends [infer P, ...infer Rest] ? P : never
+
+declare type Rest<T> = T extends [infer P, ...infer Rest] ? Rest : never
+
+declare type Extent = [from: number, to: number]

@@ -6,40 +6,67 @@
 import DataSource from './core/DataSource'
 import Scene from './core/Scene'
 import extend from './helper/extend'
+import IDataFeed from './interface/IDataFeed'
 import stockChartOptions, { StockChartOptions } from './options'
 
 class StockChart {
   private readonly options: StockChartOptions
-  private readonly container: Element
   private readonly dataSource: DataSource
   private readonly scene: Scene
+
+  public symbol = ''
 
   constructor (mixed: string | StockChartOptions) {
     const containerOptions = typeof mixed === 'string' ? { container: mixed } : mixed
 
     this.options = extend(stockChartOptions, containerOptions)
 
-    const el = document.querySelector(this.options.container)
+    this.dataSource = new DataSource(this.options)
 
-    if (el === null) {
-      throw new ReferenceError('Invalid container reference!')
-    }
+    this.dataSource.on('set', (_, a) => {
+      console.log('jojo', a)
+    })
 
-    this.container = el
+    this.dataSource.on('beforeSet', (_, a) => {
+      console.log('jojo before', a)
+    })
 
-    const context = this.canvas.getContext('2d')
+    this.dataSource.set([
+      {
+        open: 1,
+        high: 1,
+        low: 1,
+        close: 1,
+        date: 1,
+        DT: new Date(),
+        volume: 1,
+      },
+    ])
 
-    if (context === null) {
-      throw new ReferenceError('Invalid canvas rendering context')
-    }
-
-    this.dataSource = new DataSource()
-
-    this.scene = new Scene()
+    this.scene = new Scene(this.options)
   }
 
   setData (data: Bar[]) {
     this.dataSource.set(data)
+  }
+
+  addSeries () {
+    this.scene.addSeries()
+  }
+
+  attach (dataFeed: IDataFeed) {
+    this.dataSource.bind(dataFeed)
+  }
+
+  load (symbol: string, force = false) {
+    if (symbol !== this.symbol || force) {
+      this.symbol = symbol
+      this.dataSource.load(symbol)
+    }
+
+  }
+
+  resize () {
   }
 }
 

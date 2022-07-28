@@ -159,6 +159,10 @@ is-core-module@^2.9.0:
   dependencies:
     has "^1.0.3"
 
+"lunzi@https://github.com/ayou-ok/lunzi":
+  version "1.0.0"
+  resolved "https://github.com/ayou-ok/lunzi#04846be3fb3e8597a871e98ad6948608eb89c4b2"
+
 nanoid@^3.3.4:
   version "3.3.4"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.4.tgz#730b67e3cd09e2deacf03c027c81c9d9dbc5e8ab"
