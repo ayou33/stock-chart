@@ -3,8 +3,39 @@
  *  @date 2022/7/28 17:35
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+
+/**
+ * S - second
+ * M - minute
+ * H - hour
+ * d - day
+ * w - week
+ * m - month
+ * s - season
+ * y - year
+ */
+export enum Resolution {
+  S1,
+  S5,
+  M1,
+  M5,
+  M15,
+  M30,
+  H1,
+  H4,
+  d1,
+  w1,
+  m1,
+  s1,
+  y1,
+}
+
 export type SymbolDescriber = {
   name: string;
+  symbol: string;
+  exchange: string;
+  resolutions: Resolution[];
+  description: string,
 }
 
 export type FeedSnapshot = {
@@ -14,11 +45,11 @@ export type FeedSnapshot = {
 interface IDataFeed {
   resolveSymbol (symbol: string): Promise<SymbolDescriber>;
 
-  readBars (symbol: SymbolDescriber): Promise<FeedSnapshot>;
+  read (symbol: SymbolDescriber): Promise<FeedSnapshot>;
 
-  watch (): void;
+  subscribe (symbol: SymbolDescriber): Fn
 
-  unwatch (): void;
+  unSubscribe (): void
 }
 
 export default IDataFeed

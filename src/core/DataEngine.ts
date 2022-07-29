@@ -27,7 +27,7 @@ class DataEngine  extends Event<'load'> {
 
     if (this._symbol && this._dataFeed !== null) {
       const symbol = await this._dataFeed.resolveSymbol(this._symbol)
-      const result = await this._dataFeed.readBars(symbol)
+      const result = await this._dataFeed.read(symbol)
 
       this.emit('load', result)
 

@@ -3,14 +3,14 @@
  *  @date 2022/7/25 18:56
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-declare type BorderGap = Partial<{
+type BorderGap = Partial<{
   top: number;
   right: number;
   bottom: number;
   left: number;
 }> | number
 
-declare type Bar = {
+type Bar = {
   open: number;
   high: number;
   low: number;
@@ -20,10 +20,16 @@ declare type Bar = {
   volume: number;
 }
 
-declare type Vector = [x: number, y: number]
+type Vector = [x: number, y: number]
 
-declare type First<T> = T extends [infer P, ...infer Rest] ? P : never
+type First<T> = T extends [infer P, ...infer Rest] ? P : never
 
-declare type Rest<T> = T extends [infer P, ...infer Rest] ? Rest : never
+type Rest<T> = T extends [infer P, ...infer Rest] ? Rest : never
 
-declare type Extent = [from: number, to: number]
+type RestParams<T> = Rest<Parameters<T>>
+
+type Extent = [from: number, to: number]
+
+type Fn = () => void
+
+type AnyFn = (...args: unknown[]) => unknown
