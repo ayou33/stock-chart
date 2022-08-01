@@ -6,40 +6,42 @@
  */
 import { clone, last } from 'ramda'
 import Event from '../base/Event'
-import IDataFeed from '../interface/IDataFeed'
+import IDataFeed, { Resolution } from '../interface/IDataFeed'
 import { StockChartOptions } from '../options'
 import DataEngine from './DataEngine'
+import { ReversedArray } from 'lunzi'
 
 export type DataSourceEventTypes =
   'beforeSet' | 'set' |
   'beforeChange' | 'change'
 
-export enum ChangeLevel {
+export enum UpdateLevel {
   NONE,
   TICK,
   EXTENT,
   SPAN,
-  UPDATE,
+  ALL,
 }
 
-export type ChangeDescribe = {
-  level: ChangeLevel,
+export type UpdatePayload = {
+  level: UpdateLevel,
   bars: Bar[];
-  latest: Bar;
+  latest?: Bar;
   extent: Extent;
   span: Extent;
   domain: number[];
-  lastChange: ChangeDescribe | null;
+  lastChange: UpdatePayload | null;
 }
 
 class DataSource extends Event<DataSourceEventTypes> {
   private readonly _dataEngine: DataEngine
-  private readonly _bars: Bar[] = []
+  private readonly _bars: ReversedArray<Bar> = new ReversedArray()
   private readonly _extent: Extent = [-1, 1]
   private readonly _span: Extent = [0, 1]
   private readonly _domain: number[] = []
-  private _lastest: Bar | null = null
-  private _lastChange: ChangeDescribe | null = null
+
+  private _latest: Bar | null = null
+  private _lastChange: UpdatePayload | null = null
 
   constructor (options: StockChartOptions) {
     super()
@@ -49,15 +51,23 @@ class DataSource extends Event<DataSourceEventTypes> {
     this._dataEngine.on('load', (_, bars: Bar[]) => {
       this.set(bars)
     })
+
+    this._dataEngine.on('refresh', (_, bar: Bar) => {
+      this.refresh(bar)
+    })
+
+    this._dataEngine.on('append', (_, bar: Bar) => {
+      this.append(bar)
+    })
   }
 
-  makeChangePayload (level: ChangeLevel): ChangeDescribe {
-    const bars = clone(this._bars)
+  makeUpdatePayload (level: UpdateLevel): UpdatePayload {
+    const bars = clone<Bar[]>(this._bars.value())
 
     const change = {
       level,
       bars,
-      latest: last(bars) as Bar,
+      latest: last(bars),
       extent: [0, 1] as Extent,
       span: [0, 1] as Extent,
       domain: [1],
@@ -70,19 +80,28 @@ class DataSource extends Event<DataSourceEventTypes> {
   }
 
   set (data: Bar[]) {
-    this.emit('beforeSet', this.makeChangePayload(ChangeLevel.NONE))
+    this.emit('beforeSet', this.makeUpdatePayload(UpdateLevel.NONE))
 
-    this._bars.splice(0, this._bars.length, ...data)
+    this._bars.unshift(data)
 
-    this.emit('set', this.makeChangePayload(ChangeLevel.UPDATE))
+    this.emit('set', this.makeUpdatePayload(UpdateLevel.ALL))
   }
 
-  bind (dataFeed: IDataFeed) {
-    this._dataEngine.bind(dataFeed)
+  refresh (bar: Bar) {
+    this._latest = bar
   }
 
-  load (symbol: string) {
-    this._dataEngine.load(symbol)
+  append (bar: Bar) {
+    this._latest = bar
+    this._bars.push(this._latest)
+  }
+
+  attach (dataFeed: IDataFeed) {
+    this._dataEngine.attach(dataFeed)
+  }
+
+  load (symbol: string, resolution: Resolution) {
+    this._dataEngine.load(symbol, resolution)
   }
 }
 

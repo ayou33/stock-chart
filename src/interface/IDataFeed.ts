@@ -45,11 +45,11 @@ export type FeedSnapshot = {
 interface IDataFeed {
   resolveSymbol (symbol: string): Promise<SymbolDescriber>;
 
-  read (symbol: SymbolDescriber): Promise<FeedSnapshot>;
+  read (symbol: SymbolDescriber, resolution: Resolution): Promise<FeedSnapshot>;
 
-  subscribe (symbol: SymbolDescriber): Fn
+  subscribe (symbol: SymbolDescriber, streamCallback: (bar: Bar) => void): Fn
 
-  unSubscribe (): void
+  unSubscribe (symbol: SymbolDescriber): void
 }
 
 export default IDataFeed

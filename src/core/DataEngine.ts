@@ -4,12 +4,14 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import Event from '../base/Event'
-import IDataFeed from '../interface/IDataFeed'
+import IDataFeed, { Resolution, SymbolDescriber } from '../interface/IDataFeed'
 import { StockChartOptions } from '../options'
 
-class DataEngine  extends Event<'load'> {
+export type DataEvents = 'load' | 'refresh' | 'append'
+
+class DataEngine  extends Event<DataEvents> {
   private _dataFeed: IDataFeed | null = null
-  private _symbol: string = ''
+  private _symbol: SymbolDescriber | null = null
   private readonly options: StockChartOptions
 
   constructor (options: StockChartOptions) {
@@ -18,24 +20,34 @@ class DataEngine  extends Event<'load'> {
     this.options = options
   }
 
-  bind (dataFeed: IDataFeed) {
+  attach (dataFeed: IDataFeed) {
     this._dataFeed = dataFeed
   }
 
-  async load (symbol: string) {
-    this._symbol = symbol
+  async load (symbolCode: string, resolution: Resolution) {
+    if (symbolCode && this._dataFeed !== null) {
+      const symbol = await this._dataFeed.resolveSymbol(symbolCode)
+      const result = await this._dataFeed.read(symbol, resolution)
 
-    if (this._symbol && this._dataFeed !== null) {
-      const symbol = await this._dataFeed.resolveSymbol(this._symbol)
-      const result = await this._dataFeed.read(symbol)
+      if (symbol !== this._symbol) {
+        if (this._symbol) this._dataFeed.unSubscribe(this._symbol)
+
+        this._symbol = symbol
+      }
 
       this.emit('load', result)
+
+      this._dataFeed.subscribe(symbol, bar => {
+        this.stream(bar)
+      })
 
       return result
     }
 
     return Promise.reject('No symbol or dataFeed provide!')
   }
+
+  private stream (bar: Bar) {}
 }
 
 export default DataEngine

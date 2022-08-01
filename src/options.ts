@@ -19,6 +19,24 @@ export const seriesOptions: SeriesOptions = {
   position: 'right',
 }
 
+export type LayoutOptions = {
+  axisHeight: number;
+  seriesWidth: number;
+  borderWidth: number;
+  axisBorderWidth?: number;
+  seriesBorderWidth?: number;
+  padding: BorderGap;
+}
+
+export const layoutOptions: LayoutOptions = {
+  axisHeight: 20,
+  seriesWidth: 20,
+  borderWidth: 2,
+  axisBorderWidth: 2,
+  seriesBorderWidth: 2,
+  padding: 0,
+}
+
 export type StockChartOptions = {
   container: string;
   symbol: string;
@@ -26,12 +44,7 @@ export type StockChartOptions = {
     theme: 'light';
     crosshair: boolean;
   },
-  layout: {
-    margin: BorderGap;
-    padding: BorderGap;
-    defaultSeries: SeriesOptions;
-    mainAxis: MainAxisOptions;
-  },
+  layout: LayoutOptions,
   format: {},
   event: {},
 }
@@ -43,12 +56,7 @@ export const stockChartOptions: StockChartOptions = {
     theme: 'light',
     crosshair: true,
   },
-  layout: {
-    margin: {},
-    padding: {},
-    mainAxis: mainAxisOptions,
-    defaultSeries: seriesOptions,
-  },
+  layout: layoutOptions,
   format: {},
   event: {},
 }

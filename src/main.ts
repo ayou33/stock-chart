@@ -5,4 +5,16 @@
  */
 import StockChart from './index'
 
-new StockChart('#app')
+const chart = new StockChart('#app')
+
+chart.setData([
+  {
+    open: 1,
+    high: 1,
+    low: 1,
+    close: 1,
+    date: 1,
+    DT: new Date(),
+    volume: 1,
+  },
+])
