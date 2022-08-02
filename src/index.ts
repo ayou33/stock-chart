@@ -10,9 +10,9 @@ import IDataFeed, { Resolution } from './interface/IDataFeed'
 import stockChartOptions, { StockChartOptions } from './options'
 
 class StockChart {
-  private readonly options: StockChartOptions
-  private readonly dataSource: DataSource
-  private readonly scene: Scene
+  private readonly _options: StockChartOptions
+  private readonly _dataSource: DataSource
+  private readonly _scene: Scene
 
   public symbol = ''
   public resolution = Resolution.S1
@@ -20,37 +20,37 @@ class StockChart {
   constructor (mixed: string | StockChartOptions) {
     const containerOptions = typeof mixed === 'string' ? { container: mixed } : mixed
 
-    this.options = extend(stockChartOptions, containerOptions)
+    this._options = extend(stockChartOptions, containerOptions)
 
-    this.scene = new Scene(this.options)
+    this._scene = new Scene(this._options)
 
-    this.dataSource = new DataSource(this.options)
+    this._dataSource = new DataSource(this._options)
 
-    this.dataSource.on('set', (_, update) => {
-      this.scene.draw(update)
+    this._dataSource.on('set', (_, update) => {
+      this._scene.draw(update)
     })
 
-    this.dataSource.on('beforeSet', (_, a) => {
+    this._dataSource.on('beforeSet', (_, a) => {
       console.log('jojo before', a)
     })
   }
 
   setData (data: Bar[]) {
-    this.dataSource.set(data)
+    this._dataSource.set(data)
   }
 
   addSeries () {
-    this.scene.addSeries()
+    this._scene.addSeries()
   }
 
   attach (dataFeed: IDataFeed) {
-    this.dataSource.attach(dataFeed)
+    this._dataSource.attach(dataFeed)
   }
 
   load (symbol: string, force = false) {
     if (symbol !== this.symbol || force) {
       this.symbol = symbol
-      this.dataSource.load(symbol, this.resolution)
+      this._dataSource.load(symbol, this.resolution)
     }
   }
 

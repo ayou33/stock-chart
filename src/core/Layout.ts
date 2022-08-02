@@ -3,44 +3,45 @@
  *  @date 2022/8/1 17:15
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import Table from './Table'
+
 export type LayoutDimensions = {
 }
 
 class Layout {
   private readonly _el: HTMLTableElement
-  private _diemnsions: DOMRect
+  private readonly _table: Table
+  private _dimensions: DOMRect
   private _seriesWidth = 50
   private _axisHeight = 50
 
   constructor (dimensions: DOMRect) {
-    this._diemnsions = dimensions
+    this._dimensions = dimensions
+
     this._el = document.createElement('table')
 
-    this._el.innerHTML = `
-      <tbody>
-        <tr>
-          <td class="series-container left"></td>
-          <td class="chart-container"></td>
-          <td class="series-container right"></td>
-        </tr>
-        <tr>
-          <td class="placeholder"></td>
-          <td class="main-axis"></td>
-          <td class="placeholder"></td>
-        </tr>
-      </tbody>
-    `
+    this._el.style.borderCollapse = 'collapse'
+
+    this._table = new Table(dimensions.width, dimensions.height, [
+      [{}, { width: this._seriesWidth }],
+      [{ height: this._axisHeight }, {}]
+    ])
+
+    this._el.appendChild(this._table.render())
+
+    // this.style(this._dimensions)
   }
 
-  style (rect: DOMRect) {
-    this._el.style.cssText = `
-      width: ${rect.width}px;
-      height: ${rect.height}px;
-    `
+  style (dimensions: DOMRect) {
+    this._dimensions = dimensions
   }
 
   node () {
     return this._el
+  }
+
+  chart () {
+    return this._table.locate(0, 0)
   }
 
   mainAxis () {
@@ -60,7 +61,10 @@ class Layout {
   }
 
   resize (dimensions: DOMRect) {
-    this._diemnsions = dimensions
+    if (dimensions !== this._dimensions) {
+      this._dimensions = dimensions
+      this.style(this._dimensions)
+    }
   }
 }
 
