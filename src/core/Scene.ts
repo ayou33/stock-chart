@@ -5,17 +5,18 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import debouce from 'lodash.debounce'
+import Crosshair from '../extend/Crosshair'
 import Drawing from '../extend/Drawing'
 import Indicator from '../extend/Indicator'
 import Marker from '../extend/Marker'
 import aa from '../helper/aa'
 import extend from '../helper/extend'
+import IRenderer from '../interface/IRenderer'
+import ISeries from '../interface/ISeries'
 import { stockChartOptions, StockChartOptions } from '../options'
-import Chart from './Chart'
 import { UpdatePayload } from './DataSource'
 import Layout from './Layout'
 import MainAxis from './MainAxis'
-import Series from './Series'
 
 class Scene {
   private readonly _options: StockChartOptions
@@ -24,8 +25,10 @@ class Scene {
   private readonly _canvas: HTMLCanvasElement
   private readonly _context: CanvasRenderingContext2D
   private readonly _mainAxis = new MainAxis()
-  private readonly _series: Series[] = []
-  private readonly _charts: Chart[] = []
+  private readonly _series: ISeries[] = []
+  private readonly _charts: IRenderer[] = []
+
+  private _payload: UpdatePayload | null = null
   private _drawing: Drawing | null = null
   private _indicator: Indicator | null = null
   private _marker: Marker | null = null
@@ -55,43 +58,72 @@ class Scene {
 
     this._context = context
 
-    this.build()
+    this.render()
 
     this.onResize = debouce(this.onResize.bind(this), 1000 / 6)
 
     window.addEventListener('resize', this.onResize)
   }
 
-  measureLayout () {
-    return {}
+  private buildChart () {
+    const container = this._layout.chart()
+    this._canvas.width = container.width
+    this._canvas.height = container.height
+    aa(this._context, container.width, container.height)
+    container.node.appendChild(this._canvas)
+    this._charts.push(new Crosshair({
+      container,
+      xAxis: this._mainAxis,
+      yAxis: this._series[0],
+    }).render())
   }
 
-  build () {
-    const cell = this._layout.chart()
-    this._canvas.width = cell.width
-    this._canvas.height = cell.height
-    aa(this._context, cell.width, cell.height)
-    cell.dom.appendChild(this._canvas)
+  private buildSeries () {}
+
+  private buildMainAxis () {}
+
+  render () {
+    this.buildChart()
+    this.buildSeries()
+    this.buildMainAxis()
   }
 
-  draw (update: UpdatePayload) {
-    console.log('jojo', update, this._canvas)
+  private drawCharts () {
+    const chart = this._layout.chart()
     this._context.beginPath()
     this._context.strokeStyle = 'black'
     this._context.lineWidth = 1
     this._context.moveTo(0, 0)
-    this._context.lineTo(1064, 1183.33)
+    this._context.lineTo(chart.width, chart.height)
     this._context.stroke()
+  }
 
-    // this.mainAxis.draw()
-    // this.series.forEach(s => s.draw())
-    // this.charts.forEach(c => c.draw())
+  private drawSeries () {}
+
+  private drawMainAxis () {}
+
+  draw (update: UpdatePayload) {
+    this._payload = update
+
+    this.drawCharts()
+    this.drawSeries()
+    this.drawMainAxis()
   }
 
   addSeries () {}
 
-  onResize () {
-    console.log('jojo on resize')
+  addIndicator () {}
+
+  addDrawing () {}
+
+  addMarker () {}
+
+  private onResize () {
+    this._layout.resize(this._container.getBoundingClientRect())
+    this.render()
+    if (this._payload) {
+      this.draw(this._payload)
+    }
   }
 }
 

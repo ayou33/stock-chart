@@ -5,20 +5,8 @@
  */
 import idMaker from '../helper/idMaker'
 
-type CellDescriber = Partial<{
-  width: number;
-  height: number;
-}>
-
-export type TableCell = {
-  id: number;
-  declaredWidth?: number;
-  declaredHeight?: number;
-  dom: HTMLTableCellElement;
-} & Required<CellDescriber>
-
 class Table {
-  private readonly _table: TableCell[][]
+  private readonly _table: ContainerCell[][]
   private _id = idMaker()
   private _width: number
   private _height: number
@@ -51,7 +39,7 @@ class Table {
             ?? r[ci - 1]?.height // ref pre-column height
             ?? ((this._height - this._appliedHeight) / this._flexedRow),
           id: this._id.next(),
-          dom: document.createElement('td'),
+          node: document.createElement('td'),
         })))
   }
 
@@ -65,14 +53,14 @@ class Table {
     }))
   }
 
-  addRow (index: number, height?: number): TableCell[] {
+  addRow (index: number, height?: number): ContainerCell[] {
     const isRowFlexed = undefined === height
     this._flexedRow += isRowFlexed ? 1 : 0
     this._appliedHeight += isRowFlexed ? 0 : height
     const flexHeight = (this._height - this._appliedHeight) / this._flexedColumn
     const rowHeight = isRowFlexed ? flexHeight : height
 
-    const row: TableCell[] = []
+    const row: ContainerCell[] = []
     for (let i = 0, l = this._table[0].length; i < l; i++) {
       const cell = this._table[0][i]
 
@@ -82,7 +70,7 @@ class Table {
         declaredHeight: height,
         declaredWidth: cell.declaredWidth,
         id: this._id.next(),
-        dom: document.createElement('td'),
+        node: document.createElement('td'),
       })
     }
 
@@ -94,7 +82,7 @@ class Table {
     return row
   }
 
-  removeRow (index: number): TableCell[] {
+  removeRow (index: number): ContainerCell[] {
     const rowIndex = index >= 0 ? index : this._table.length + index
     const dropped = this._table[index]
     const isRowFlexed = undefined === dropped[0].declaredHeight
@@ -107,7 +95,7 @@ class Table {
     return dropped
   }
 
-  addColumn (index: number, width?: number): TableCell[] {
+  addColumn (index: number, width?: number): ContainerCell[] {
     const columnIndex = index >= 0 ? index : this._table[0].length + index
     const isColumnFlexed = undefined === width
     this._flexedColumn += isColumnFlexed ? 1 : 0
@@ -115,18 +103,18 @@ class Table {
     const flexWidth = (this._width - this._appliedWidth) / this._flexedColumn
     const columnWidth = isColumnFlexed ? flexWidth : width
 
-    const column: TableCell[] = []
+    const column: ContainerCell[] = []
 
     for (let i = 0, l = this._table.length; i < l; i++) {
       const row = this._table[i]
       const cell = row[0]
-      const newCell: TableCell = {
+      const newCell: ContainerCell = {
         width: columnWidth,
         height: cell.height,
         declaredWidth: width,
         declaredHeight: cell.declaredHeight,
         id: this._id.next(),
-        dom: document.createElement('td'),
+        node: document.createElement('td'),
       }
       column.push(newCell)
       row.splice(columnIndex, 0, newCell)
@@ -137,9 +125,9 @@ class Table {
     return column
   }
 
-  removeColumn (index: number): TableCell[] {
+  removeColumn (index: number): ContainerCell[] {
     const columnIndex = index >= 0 ? index : this._table[0].length + index
-    const column: TableCell[] = []
+    const column: ContainerCell[] = []
     const isColumnFlex = undefined === this._table[0][columnIndex].declaredWidth
     this._flexedColumn -= isColumnFlex ? 1 : 0
     this._appliedWidth -= isColumnFlex ? 0 : this._table[0][columnIndex].width
@@ -163,12 +151,12 @@ class Table {
     this._table.map(r => {
       const row = document.createElement('tr')
       r.map(c => {
-        c.dom.style.cssText = `
+        c.node.style.cssText = `
           width: ${c.width}px;
           height: ${c.height}px;
           padding: 0;
         `
-        row.appendChild(c.dom)
+        row.appendChild(c.node)
       })
       fragment.appendChild(row)
     })

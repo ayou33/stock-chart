@@ -3,6 +3,9 @@
  *  @date 2022/7/26 11:25
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import IMainAxis from './interface/IMainAxis'
+import ISeries from './interface/ISeries'
+
 export type MainAxisOptions = {
   height: number;
 }
@@ -62,3 +65,11 @@ export const stockChartOptions: StockChartOptions = {
 }
 
 export default stockChartOptions
+
+export type RendererOptions = {
+  container: ContainerCell;
+  yAxis: ISeries;
+  xAxis: IMainAxis;
+  context?: CanvasRenderingContext2D;
+  autoStroke?: boolean;
+}

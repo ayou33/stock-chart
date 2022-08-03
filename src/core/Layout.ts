@@ -20,7 +20,11 @@ class Layout {
 
     this._el = document.createElement('table')
 
-    this._el.style.borderCollapse = 'collapse'
+    this._el.style.cssText = `
+      border: none;
+      border-collapse: collapse;
+      border-spacing: 0;
+    `
 
     this._table = new Table(dimensions.width, dimensions.height, [
       [{}, { width: this._seriesWidth }],
@@ -63,7 +67,7 @@ class Layout {
   resize (dimensions: DOMRect) {
     if (dimensions !== this._dimensions) {
       this._dimensions = dimensions
-      this.style(this._dimensions)
+      this._table.resize(this._dimensions.width, this._dimensions.height)
     }
   }
 }
