@@ -3,8 +3,7 @@
  *  @date 2022/7/26 11:25
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import IMainAxis from './interface/IMainAxis'
-import ISeries from './interface/ISeries'
+import IAxis from './interface/IAxis'
 
 export type MainAxisOptions = {
   height: number;
@@ -68,8 +67,8 @@ export default stockChartOptions
 
 export type RendererOptions = {
   container: ContainerCell;
-  yAxis: ISeries;
-  xAxis: IMainAxis;
+  yAxis: IAxis;
+  xAxis: IAxis;
   context?: CanvasRenderingContext2D;
   autoStroke?: boolean;
 }

@@ -4,9 +4,9 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import { RendererOptions } from '../options'
-import AbstractRenderer from '../super/AbstractRenderer'
+import AbstractChart from '../super/AbstractChart'
 
-class Crosshair extends AbstractRenderer implements AbstractRenderer {
+class Crosshair extends AbstractChart implements AbstractChart {
   private readonly _width: number
   private readonly _height: number
 
@@ -33,28 +33,31 @@ class Crosshair extends AbstractRenderer implements AbstractRenderer {
     this.canvas.addEventListener('mouseleave', () => {
       this.clean()
     })
+
+    this.autoStroke = true
   }
 
   paint (x: number, y: number) {
     this.clean()
+    const ctx = this.context
 
-    this.context.beginPath()
-    this.context.moveTo(x, 0)
-    this.context.lineTo(x, this._height)
+    ctx.beginPath()
+    ctx.moveTo(x, 0)
+    ctx.lineTo(x, this._height)
 
-    this.context.moveTo(0, y)
-    this.context.lineTo(this._width, y)
+    ctx.moveTo(0, y)
+    ctx.lineTo(this._width, y)
 
-    this.context.stroke()
+
+    if (this.autoStroke) {
+      ctx.stroke()
+    }
+
+    console.log(this.yAxis.invert(-50))
 
     return this
   }
 
-  clean () {
-    this.context.clearRect(0, 0, this._width, this._height)
-
-    return this
-  }
 }
 
 export default Crosshair

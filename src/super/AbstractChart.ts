@@ -5,21 +5,19 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import { createAAContext } from '../helper/aa'
-import IMainAxis from '../interface/IMainAxis'
-import IRenderer from '../interface/IRenderer'
-import ISeries from '../interface/ISeries'
+import IAxis from '../interface/IAxis'
+import IChart from '../interface/IChart'
 import { RendererOptions } from '../options'
 
-abstract class AbstractRenderer<T = unknown> implements IRenderer {
-  private _enable = true
-
+abstract class AbstractChart<T = unknown> implements IChart {
   options: RendererOptions & T
   autoStroke = true
-
+  xAxis: IAxis
+  yAxis: IAxis
   canvas: HTMLCanvasElement
   context: CanvasRenderingContext2D
-  xAxis: IMainAxis
-  yAxis: ISeries
+
+  private _enable = true
 
   protected constructor (options: RendererOptions & T) {
     this.options = options
@@ -82,6 +80,18 @@ abstract class AbstractRenderer<T = unknown> implements IRenderer {
 
     return this
   }
+
+  clean (): this {
+    this.context.clearRect(0, 0, this.options.container.width, this.options.container.height)
+
+    return this
+  }
+
+  remove (): this {
+    this.options.container.node.removeChild(this.canvas)
+
+    return this
+  }
 }
 
-export default AbstractRenderer
+export default AbstractChart

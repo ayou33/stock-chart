@@ -11,12 +11,13 @@ import Indicator from '../extend/Indicator'
 import Marker from '../extend/Marker'
 import aa from '../helper/aa'
 import extend from '../helper/extend'
-import IRenderer from '../interface/IRenderer'
-import ISeries from '../interface/ISeries'
+import IAxis from '../interface/IAxis'
+import IChart from '../interface/IChart'
 import { stockChartOptions, StockChartOptions } from '../options'
 import { UpdatePayload } from './DataSource'
 import Layout from './Layout'
 import MainAxis from './MainAxis'
+import Series from './Series'
 
 class Scene {
   private readonly _options: StockChartOptions
@@ -25,8 +26,8 @@ class Scene {
   private readonly _canvas: HTMLCanvasElement
   private readonly _context: CanvasRenderingContext2D
   private readonly _mainAxis = new MainAxis()
-  private readonly _series: ISeries[] = []
-  private readonly _charts: IRenderer[] = []
+  private readonly _series: IAxis[] = []
+  private readonly _charts: IChart[] = []
 
   private _payload: UpdatePayload | null = null
   private _drawing: Drawing | null = null
@@ -71,10 +72,13 @@ class Scene {
     this._canvas.height = container.height
     aa(this._context, container.width, container.height)
     container.node.appendChild(this._canvas)
+    const y = new Series()
+    y.domain([0, container.height])
+    y.range([0, 100])
     this._charts.push(new Crosshair({
       container,
       xAxis: this._mainAxis,
-      yAxis: this._series[0],
+      yAxis: y,
     }).render())
   }
 

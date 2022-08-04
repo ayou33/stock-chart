@@ -1,18 +1,22 @@
 /**
+ *  canvas绘图接口
  *  Shape.ts of project stock-chart
  *  @date 2022/7/25 17:58
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-interface IShape {
-  points: Bar[];
+import IRenderer from './IRenderer'
 
-  draw (): IShape;
+interface IShape extends IRenderer {
+  canvas: HTMLCanvasElement;
+  context: CanvasRenderingContext2D;
 
-  highlight (): IShape;
+  hide (): this;
 
-  focus (): IShape;
+  show (): this;
 
-  remove (): IShape;
+  remove (): this;
+
+  clean (): this;
 }
 
 export default IShape
