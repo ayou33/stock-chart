@@ -66,18 +66,21 @@ class Band {
   /**
    * 一个step的宽度 = bandWidth + paddingInner
    * paddingInner在band右侧
+   * [0, 1]
    * @private
    */
   private _paddingInner = 0
 
   /**
    * paddingOuter的距离为 paddingOuter * step 根据指定的align分布在range的两端
+   * [0, 1]
    * @private
    */
   private _paddingOuter = 0
 
   /**
    * align为0时所有的paddingOuter分布在range最右端,1分布在最左端，0.5平均分布在两端
+   * [0, 1]
    * @private
    */
   private _align = 0.5
@@ -87,6 +90,7 @@ class Band {
    * 0 左边线
    * 0.5 中线
    * 1 右边线
+   * [0, 1]
    * @private
    */
   private _valueAlign = 0
@@ -137,7 +141,7 @@ class Band {
      */
     if (ExtendMode.RIGHT === this._extendMode) {
       this._rangeStart = this._range[START] + this._step * this._align * this._paddingOuter
-      this._rangeStop = this._rangeStart + this._domain.length * this._step - this._step + this._paddingInner
+      this._rangeStop = this._rangeStart + this._domain.length * this._step - this._step * this._paddingInner
       this._range[STOP] = this._rangeStop + this._step * (1 - this._align) * this._paddingOuter
     }
   }
