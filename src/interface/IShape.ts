@@ -16,7 +16,7 @@ interface IShape extends IRenderer {
 
   remove (): this;
 
-  clean (): this;
+  clear (): this;
 }
 
 export default IShape

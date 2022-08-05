@@ -4,8 +4,9 @@
  *  @date 2022/7/25 17:23
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { clone, last } from 'ramda'
+import { clone, last, pluck } from 'ramda'
 import Event from '../base/Event'
+import { extent } from '../helper/extent'
 import IDataFeed, { Resolution } from '../interface/IDataFeed'
 import { StockChartOptions } from '../options'
 import DataEngine from './DataEngine'
@@ -68,9 +69,9 @@ class DataSource extends Event<DataSourceEventTypes> {
       level,
       bars,
       latest: last(bars),
-      extent: [0, 1] as Extent,
-      span: [0, 1] as Extent,
-      domain: [1],
+      extent: extent(bars, d => d.low, d => d.high),
+      span: (bars.length ? [bars[0].date, last(bars)?.date] : []) as Extent,
+      domain: pluck('date', bars),
       lastChange: this._lastChange,
     }
 

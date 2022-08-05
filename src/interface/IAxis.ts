@@ -9,6 +9,12 @@ interface IAxis {
   invert (rangeValue: number): number;
 
   transform (): this;
+
+  render (): this;
+
+  clear (): this;
+
+  focus (position: number): this;
 }
 
 export default IAxis

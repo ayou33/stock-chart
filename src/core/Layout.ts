@@ -5,9 +5,6 @@
  */
 import Table from './Table'
 
-export type LayoutDimensions = {
-}
-
 class Layout {
   private readonly _el: HTMLTableElement
   private readonly _table: Table
@@ -32,12 +29,6 @@ class Layout {
     ])
 
     this._el.appendChild(this._table.render())
-
-    // this.style(this._dimensions)
-  }
-
-  style (dimensions: DOMRect) {
-    this._dimensions = dimensions
   }
 
   node () {
@@ -49,19 +40,11 @@ class Layout {
   }
 
   mainAxis () {
-    return this._el.querySelector('.main-axis')
+    return this._table.locate(1, 0)
   }
 
-  series (selector?: string) {
-    return this._el.querySelector(`.series-container${selector}`)
-  }
-
-  indicator () {
-    return this._el.querySelector('.individual-indicator')
-  }
-
-  indicatorSeries (selector?: string) {
-    return this._el.querySelector(`.indicator-series-container${selector}`)
+  series () {
+    return this._table.locate(0, 1)
   }
 
   resize (dimensions: DOMRect) {

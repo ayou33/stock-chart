@@ -10,13 +10,13 @@ class Linear {
   private _clamp = false
 
   /**
-   * 坐标域 - input
+   * 映射值 - input
    * @private
    */
   private _domain: Extent = [0, 1]
 
   /**
-   * 值域 - output
+   * 坐标值 - output
    * @private
    */
   private _range: Extent = [0, 1]
@@ -24,8 +24,8 @@ class Linear {
   private _rangeStep = 1
 
   private update () {
-    this._rangeStep = (this._range[STOP] - this._range[START]) /
-      (this._domain[STOP] - this._domain[START])
+    this._rangeStep = (this._domain[STOP] - this._domain[START]) / (this._range[STOP] - this._range[START])
+
   }
 
   domain (domain?: Extent): Extent {
@@ -35,28 +35,6 @@ class Linear {
     }
 
     return this._domain
-  }
-
-  /**
-   * calc range from domain
-   * @param domainValue
-   */
-  value (domainValue: number): number {
-    const range = (domainValue - this._domain[START]) * this._rangeStep
-
-    if (this._clamp) {
-      return Math.max(this._range[START], Math.min(this._range[STOP], range))
-    }
-
-    return range
-  }
-
-  /**
-   * calc domain from range
-   * @param rangeValue
-   */
-  invert (rangeValue: number): number {
-    return (rangeValue - this._range[START]) / this._rangeStep
   }
 
   range (range?: Extent): Extent {
@@ -74,6 +52,28 @@ class Linear {
     }
 
     return this._clamp
+  }
+
+  /**
+   * calc range from domain
+   * @param domainValue
+   */
+  value (domainValue: number): number {
+    const range = this._range[START] + (domainValue - this._domain[START]) / this._rangeStep
+
+    if (this._clamp) {
+      return Math.max(this._range[START], Math.min(this._range[STOP], range))
+    }
+
+    return range
+  }
+
+  /**
+   * calc domain from range
+   * @param rangeValue
+   */
+  invert (rangeValue: number): number {
+    return this._domain[START] + (rangeValue - this._range[START]) * this._rangeStep
   }
 }
 

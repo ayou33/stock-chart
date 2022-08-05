@@ -6,6 +6,7 @@
 import IAxis from './interface/IAxis'
 
 export type MainAxisOptions = {
+  container: ContainerCell;
   height: number;
 }
 
@@ -13,11 +14,15 @@ export const mainAxisOptions: MainAxisOptions = {
   height: 100,
 }
 
-export type SeriesOptions = {
-  position: 'right';
+type RequiredSeriesOptions = {
+  container: ContainerCell
 }
 
-export const seriesOptions: SeriesOptions = {
+export type SeriesOptions = OptionsOf<RequiredSeriesOptions, {
+  position: 'right',
+}>
+
+export const seriesOptions: SeriesOptions['partial'] = {
   position: 'right',
 }
 

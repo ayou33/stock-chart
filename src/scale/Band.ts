@@ -247,7 +247,7 @@ class Band {
 
     if (index === -1) return NaN
 
-    return this._rangeStart + index + (this._bandWidth * this._valueAlign)
+    return this._rangeStart + index * this._step + (this._bandWidth * this._valueAlign)
   }
 
   /**

@@ -6,7 +6,7 @@
 import { RendererOptions } from '../options'
 import AbstractChart from '../super/AbstractChart'
 
-class Crosshair extends AbstractChart implements AbstractChart {
+class Crosshair extends AbstractChart<'focus'> implements AbstractChart<'focus'> {
   private readonly _width: number
   private readonly _height: number
 
@@ -31,14 +31,16 @@ class Crosshair extends AbstractChart implements AbstractChart {
     })
 
     this.canvas.addEventListener('mouseleave', () => {
-      this.clean()
+      this.clear()
     })
 
     this.autoStroke = true
   }
 
   paint (x: number, y: number) {
-    this.clean()
+    if ('number' !== typeof x) return this
+
+    this.clear()
     const ctx = this.context
 
     ctx.beginPath()
@@ -53,11 +55,10 @@ class Crosshair extends AbstractChart implements AbstractChart {
       ctx.stroke()
     }
 
-    console.log(this.yAxis.invert(-50))
+    this.emit('focus', x, y)
 
     return this
   }
-
 }
 
 export default Crosshair

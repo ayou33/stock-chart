@@ -4,12 +4,13 @@
  *  @date 2022/8/3 15:13
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import Event from '../base/Event'
 import { createAAContext } from '../helper/aa'
 import IAxis from '../interface/IAxis'
 import IChart from '../interface/IChart'
 import { RendererOptions } from '../options'
 
-abstract class AbstractChart<T = unknown> implements IChart {
+abstract class AbstractChart<E extends string, T = unknown> extends Event<E> implements IChart {
   options: RendererOptions & T
   autoStroke = true
   xAxis: IAxis
@@ -20,6 +21,8 @@ abstract class AbstractChart<T = unknown> implements IChart {
   private _enable = true
 
   protected constructor (options: RendererOptions & T) {
+    super()
+
     this.options = options
 
     this.autoStroke = options.autoStroke ?? !options.context
@@ -81,7 +84,7 @@ abstract class AbstractChart<T = unknown> implements IChart {
     return this
   }
 
-  clean (): this {
+  clear (): this {
     this.context.clearRect(0, 0, this.options.container.width, this.options.container.height)
 
     return this

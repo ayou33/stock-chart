@@ -14,18 +14,26 @@ class Event<T extends string = string> {
 
   on (type: T, ...rest: RestParams<typeof this.emitter.on>) {
     this.emitter.on(type, ...rest)
+
+    return this
   }
 
   once (type: T, ...rest: RestParams<typeof this.emitter.once>) {
     this.emitter.once(type, ...rest)
+
+    return this
   }
 
   off (type: T, ...rest: RestParams<typeof this.emitter.off>) {
     this.emitter.off(type, ...rest)
+
+    return this
   }
 
   emit (type: T, ...rest: RestParams<typeof this.emitter.emit>) {
     this.emitter.emit(type, ...rest)
+
+    return this
   }
 }
 
