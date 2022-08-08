@@ -12,8 +12,11 @@ import Linear from '../scale/Linear'
 
 class Series extends Linear implements IAxis {
   private readonly _context: CanvasRenderingContext2D
-  private _tickSize = 10
   private readonly _options: SeriesOptions['define']
+
+  private _tickSize = 10
+  private _tickFormat: (value: number, pos: number) => string = (v: number) => v.toString()
+  private _tickPred: (index: number, value: number, pos: number) => boolean = () => true
 
   constructor (options: SeriesOptions['call']) {
     super()
@@ -37,7 +40,7 @@ class Series extends Linear implements IAxis {
     ctx.textAlign = 'start'
 
     for (let y = range[0] + 10; y < range[1]; y += step) {
-      ctx.fillText(this.invert(y).toString(), 0, y)
+      ctx.fillText(this._tickFormat(this.invert(y), y), 0, y)
     }
 
     ctx.restore()
@@ -69,6 +72,28 @@ class Series extends Linear implements IAxis {
 
   clear () {
     this._context.clearRect(0, 0, this._options.container.width, this._options.container.height)
+    return this
+  }
+
+  rerender () {
+    this.clear()
+    this.render()
+  }
+
+  tickFormat (format: (value: number, pos: number) => string): this {
+    this._tickFormat = format
+    this.rerender()
+    return this
+  }
+
+  ticks (count: number): this
+  ticks (decide: (index: number, value: number, pos: number) => boolean): this
+  ticks (mixed: number | ((index: number, value: number, pos: number) => boolean)): this {
+    if ('number' === typeof mixed) {
+      this._tickPred = () => true
+    } else {
+      this._tickPred = mixed
+    }
     return this
   }
 }

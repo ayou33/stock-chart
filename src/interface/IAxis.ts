@@ -17,6 +17,12 @@ interface IAxis {
   focus (position: number): this;
 
   blur (): this;
+
+  ticks (count: number): this;
+
+  ticks (decide: (index: number, value: number, pos: number) => boolean): this;
+
+  tickFormat (format: (value: number, pos: number) => string): this;
 }
 
 export default IAxis

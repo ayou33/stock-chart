@@ -9,8 +9,8 @@ class Layout {
   private readonly _el: HTMLTableElement
   private readonly _table: Table
   private _dimensions: DOMRect
-  private _seriesWidth = 50
-  private _axisHeight = 50
+  private _seriesWidth = 60
+  private _axisHeight = 20
 
   constructor (dimensions: DOMRect) {
     this._dimensions = dimensions

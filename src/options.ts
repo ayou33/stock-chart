@@ -11,12 +11,13 @@ type RequiredMainAxisOptions = {
 
 type OptionalMainAxisOptions = Partial<{
   height: number;
+  fontSize: number;
 }>
 
 export type MainAxisOptions = OptionsOf<RequiredMainAxisOptions, OptionalMainAxisOptions>
 
 export const mainAxisOptions: Required<OptionalMainAxisOptions> = {
-  height: 100,
+  height: 20,
 }
 
 type RequiredSeriesOptions = {
@@ -49,6 +50,12 @@ export const layoutOptions: LayoutOptions = {
   axisBorderWidth: 2,
   seriesBorderWidth: 2,
   padding: 0,
+}
+
+export type CrosshairOptions = {
+  dashArray: number[];
+  color: string;
+  lineWidth: number;
 }
 
 export type StockChartOptions = {
