@@ -3,8 +3,8 @@
  *  @date 2022/7/25 18:20
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import IShape from './IShape'
+import ICanvas from './ICanvas'
 
-interface IChart extends IShape {}
+interface IChart extends ICanvas {}
 
 export default IChart

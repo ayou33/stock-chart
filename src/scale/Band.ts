@@ -55,7 +55,7 @@ class Band {
    * 可见图形的宽度
    * @private
    */
-  private _bandWidth = 1
+  private _bandWidth = 6
 
   /**
    * bandWidth + paddingInner
@@ -69,7 +69,7 @@ class Band {
    * [0, 1]
    * @private
    */
-  private _paddingInner = 0
+  private _paddingInner = 0.25
 
   /**
    * paddingOuter的距离为 paddingOuter * step 根据指定的align分布在range的两端
@@ -259,9 +259,9 @@ class Band {
 
     const index = Math.floor((x - this._rangeStart) / this._step)
 
-    if (index > this._range.length - 1) return NaN
+    if (index > this._domain.length - 1) return NaN
 
-    return this._range[index]
+    return this._domain[index]
   }
 }
 

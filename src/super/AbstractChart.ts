@@ -4,13 +4,13 @@
  *  @date 2022/8/3 15:13
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import Event from '../base/Event'
 import { createAAContext } from '../helper/aa'
 import IAxis from '../interface/IAxis'
 import IChart from '../interface/IChart'
 import { RendererOptions } from '../options'
+import AbstractShape from './AbstractShape'
 
-abstract class AbstractChart<E extends string, T = unknown> extends Event<E> implements IChart {
+abstract class AbstractChart<E extends string, T = unknown> extends AbstractShape<E> implements IChart {
   options: RendererOptions & T
   autoStroke = true
   xAxis: IAxis
@@ -18,9 +18,9 @@ abstract class AbstractChart<E extends string, T = unknown> extends Event<E> imp
   canvas: HTMLCanvasElement
   context: CanvasRenderingContext2D
 
-  private _enable = true
+  protected _enable = true
 
-  protected constructor (options: RendererOptions & T) {
+  constructor (options: RendererOptions & T) {
     super()
 
     this.options = options

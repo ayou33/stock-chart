@@ -5,6 +5,6 @@
  */
 import { mergeAll } from 'ramda'
 
-const extend = <T extends any[]> (...args: T): T[0] => mergeAll(args)
+const extend = <T extends any[]> (...args: T) => mergeAll(args)
 
 export default extend

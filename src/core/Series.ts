@@ -5,8 +5,9 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import { createAAContext } from '../helper/aa'
+import extend from '../helper/extend'
 import IAxis from '../interface/IAxis'
-import { SeriesOptions } from '../options'
+import { seriesOptions, SeriesOptions } from '../options'
 import Linear from '../scale/Linear'
 
 class Series extends Linear implements IAxis {
@@ -17,7 +18,7 @@ class Series extends Linear implements IAxis {
   constructor (options: SeriesOptions['call']) {
     super()
 
-    this._options = options
+    this._options = extend(seriesOptions, options)
 
     this._context = createAAContext(options.container?.width, options.container?.height)
 
@@ -35,7 +36,7 @@ class Series extends Linear implements IAxis {
     ctx.textBaseline = 'middle'
     ctx.textAlign = 'start'
 
-    for (let y = range[0]; y < range[1]; y += step) {
+    for (let y = range[0] + 10; y < range[1]; y += step) {
       ctx.fillText(this.invert(y).toString(), 0, y)
     }
 
@@ -51,7 +52,18 @@ class Series extends Linear implements IAxis {
   focus (y: number): this {
     this.clear()
     this.render()
-    this._context.fillText(this.invert(y), 0, y)
+    this._context.save()
+    this._context.textBaseline = 'middle'
+    this._context.textAlign = 'start'
+    this._context.fillText(this.invert(y).toString(), 0, y)
+    this._context.restore()
+    return this
+  }
+
+  blur () {
+    this.clear()
+    this.render()
+
     return this
   }
 

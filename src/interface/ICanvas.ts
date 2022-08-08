@@ -6,7 +6,7 @@
  */
 import IRenderer from './IRenderer'
 
-interface IShape extends IRenderer {
+interface ICanvas extends IRenderer {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
 
@@ -19,4 +19,4 @@ interface IShape extends IRenderer {
   clear (): this;
 }
 
-export default IShape
+export default ICanvas

@@ -3,8 +3,8 @@
  *  @date 2022/7/25 18:23
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import IShape from './IShape'
+import ICanvas from './ICanvas'
 
-interface IDrawing extends IShape {}
+interface IDrawing extends ICanvas {}
 
 export default IDrawing

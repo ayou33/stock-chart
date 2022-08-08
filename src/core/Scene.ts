@@ -5,6 +5,7 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import debounce from 'lodash.debounce'
+import Candle from '../chart/Candle'
 import Crosshair from '../extend/Crosshair'
 import Drawing from '../extend/Drawing'
 import Indicator from '../extend/Indicator'
@@ -70,6 +71,13 @@ class Scene {
   private buildChart () {
     const container = this._layout.chart()
 
+    const chart = new Candle({
+      container,
+      xAxis: this._mainAxis,
+      yAxis: this._series.default,
+    })
+      .render()
+
     const crosshair = new Crosshair({
       container,
       xAxis: this._mainAxis,
@@ -80,8 +88,12 @@ class Scene {
         this._mainAxis.focus(x)
         this._series.default.focus(y)
       })
+      .on('blur', () => {
+        this._mainAxis.blur()
+        this._series.default.blur()
+      })
 
-    this._charts.push(crosshair)
+    this._charts.push(chart, crosshair)
   }
 
   render () {
@@ -112,13 +124,17 @@ class Scene {
     this.drawCharts(update)
   }
 
-  addSeries () {}
+  addSeries () {
+  }
 
-  addIndicator () {}
+  addIndicator () {
+  }
 
-  addDrawing () {}
+  addDrawing () {
+  }
 
-  addMarker () {}
+  addMarker () {
+  }
 
   private onResize () {
     this._layout.resize(this._container.getBoundingClientRect())

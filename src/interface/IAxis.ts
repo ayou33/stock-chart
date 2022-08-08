@@ -15,6 +15,8 @@ interface IAxis {
   clear (): this;
 
   focus (position: number): this;
+
+  blur (): this;
 }
 
 export default IAxis

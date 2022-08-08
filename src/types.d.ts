@@ -49,8 +49,8 @@ type RecursivePartial<T> = {
 }
 
 interface OptionsOf<R, O> {
-  define: RecursiveRequired<R> & RecursiveRequired<O>;
-  call: R & RecursivePartial<O>;
+  define: R & RecursiveRequired<O>;
+  call: R & O;
   partial: RecursivePartial<O> & RecursivePartial<R>;
 }
 
