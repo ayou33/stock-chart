@@ -2,6 +2,7 @@
   "dependencies": {
     "lodash.debounce": "^4.0.8",
     "lunzi": "https://github.com/ayou-ok/lunzi",
+    "nanie": "https://github.com/ayou-ok/nanie",
     "ramda": "^0.28.0",
     "vite": "^3.0.2"
   },

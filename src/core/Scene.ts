@@ -92,9 +92,8 @@ class Scene {
         this._mainAxis.blur()
         this._series.default.blur()
       })
-      .on('transform', (_, t: number, confirm: () => void) => {
-        this._mainAxis.transform(t, confirm)
-        // this._series.default.transform(t, confirm)
+      .on('transform', () => {
+        if (this._data) this.draw(this._data)
       })
 
     this._charts.push(chart, crosshair)

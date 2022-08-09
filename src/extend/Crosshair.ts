@@ -1,32 +1,22 @@
 /**
  *  Crosshair.ts of project stock-chart
- *  @date 2022/8/3 15:08
+ *  @date 2022/8/9 11:27
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import { RendererOptions } from '../options'
-import AbstractChart from '../super/AbstractChart'
+import Gesture from './Gesture'
 
-export type CrosshairEvents = 'focus' | 'blur' | 'transform'
+export type CrosshairEvents = 'focus' | 'blur'
 
-class Crosshair extends AbstractChart<CrosshairEvents> implements AbstractChart<CrosshairEvents> {
+class Crosshair extends Gesture<CrosshairEvents> {
   private readonly _width: number
   private readonly _height: number
 
   constructor (options: RendererOptions) {
     super(options)
 
-    options.container.node.style.position = 'relative'
-
     this._width = options.container.width
     this._height = options.container.height
-
-    this.canvas.style.cssText += `
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    `
 
     this.canvas.addEventListener('mousemove', (e) => {
       this.drawCrosshair(e.clientX, e.clientY)
@@ -36,18 +26,6 @@ class Crosshair extends AbstractChart<CrosshairEvents> implements AbstractChart<
       this.emit('blur')
       this.clear()
     })
-
-    this.canvas.addEventListener('mousedown', () => {
-
-    })
-
-    this.canvas.addEventListener('mousemove', () => {
-      this.emit('transform', 1, (a: string) => {
-        console.log('transform confirmed msg', 1, a)
-      })
-    })
-
-    this.autoStroke = true
   }
 
   private drawCrosshair (x: number, y: number) {
@@ -68,14 +46,6 @@ class Crosshair extends AbstractChart<CrosshairEvents> implements AbstractChart<
     }
 
     this.emit('focus', x, y)
-  }
-
-  paint () {
-    return this
-  }
-
-  getElement (): HTMLElement {
-    return this.canvas
   }
 }
 
