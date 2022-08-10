@@ -3,12 +3,14 @@
  *  @date 2022/8/4 15:50
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import Transform from 'nanie/src/Transform'
+
 interface IAxis {
   value (domainValue: number): number;
 
   invert (rangeValue: number): number;
 
-  transform (): this;
+  transform (transform: Transform): this;
 
   render (): this;
 

@@ -255,7 +255,7 @@ class Band {
    * @param x
    */
   invert (x: number): number {
-    if (x < this._range[START] || x > this._range[STOP]) return NaN
+    if (x < this._rangeStart || x > this._rangeStop) return NaN
 
     const index = Math.floor((x - this._rangeStart) / this._step)
 

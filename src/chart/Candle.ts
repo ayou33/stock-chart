@@ -36,6 +36,7 @@ class Candle extends AbstractChart<CandleChartEvents> implements AbstractChart<C
   paint (update: UpdatePayload): this {
     const ctx = this.context
     ctx.save()
+    ctx.beginPath()
 
     for (let i = 0, l = update.bars.length; i < l; i++) {
       const bar = update.bars[i]

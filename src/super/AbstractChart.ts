@@ -45,7 +45,10 @@ abstract class AbstractChart<E extends string, T = unknown> extends AbstractShap
   abstract paint (...args: unknown[]): this
 
   draw (...args: unknown[]) {
-    if (this._enable) this.paint(...args)
+    if (this._enable) {
+      this.clear()
+      this.paint(...args)
+    }
 
     return this
   }

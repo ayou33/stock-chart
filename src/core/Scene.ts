@@ -47,9 +47,13 @@ class Scene {
 
     this._container.appendChild(this._layout.node())
 
+    const mainAxisContainer = this._layout.mainAxis()
+
     this._mainAxis = new MainAxis({
-      container: this._layout.mainAxis(),
+      container: mainAxisContainer,
     })
+
+    this._mainAxis.range([-Infinity, mainAxisContainer.width])
 
     this.render()
 
@@ -111,7 +115,6 @@ class Scene {
 
   private drawMainAxis (update: UpdatePayload) {
     this._mainAxis.domain(update.domain)
-    this._mainAxis.range([-Infinity, this._layout.mainAxis().width])
     this._mainAxis.render()
   }
 

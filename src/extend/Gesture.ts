@@ -3,7 +3,7 @@
  *  @date 2022/8/3 15:08
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import NaNie from 'nanie'
+import nanie from 'nanie'
 import { RendererOptions } from '../options'
 import AbstractChart from '../super/AbstractChart'
 
@@ -30,7 +30,11 @@ class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T> i
       // this.emit('transform')
     })
 
-    new NaNie(this.canvas)
+    nanie(this.canvas, e => {
+      this.xAxis.transform(e.transform)
+      this.yAxis.transform(e.transform)
+      this.emit('transform')
+    })
 
     this.autoStroke = true
   }

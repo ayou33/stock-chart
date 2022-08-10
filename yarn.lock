@@ -1858,7 +1858,7 @@ ms@2.1.2:
 
 "nanie@https://github.com/ayou-ok/nanie":
   version "1.0.0"
-  resolved "https://github.com/ayou-ok/nanie#932d83e02683a170eea6a522beefc72c8b1463ea"
+  resolved "https://github.com/ayou-ok/nanie#7051e26a512759b21b73fec7eb02b89d8e78ded6"
 
 nanoid@^3.3.4:
   version "3.3.4"

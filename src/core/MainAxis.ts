@@ -9,10 +9,13 @@ import extend from '../helper/extend'
 import IAxis from '../interface/IAxis'
 import { mainAxisOptions, MainAxisOptions } from '../options'
 import Band from '../scale/Band'
+import Transform from 'nanie/src/Transform'
 
 class MainAxis extends Band implements IAxis {
   private readonly _options: MainAxisOptions['define']
   private readonly _context: CanvasRenderingContext2D
+
+  private _transform = new Transform()
 
   constructor (options: MainAxisOptions['call']) {
     super()
@@ -24,7 +27,15 @@ class MainAxis extends Band implements IAxis {
     options.container.node.appendChild(this._context.canvas)
   }
 
-  transform (): this {
+  range (range?: Extent) {
+    return super.range(range)
+  }
+
+  transform (transform: Transform): this {
+    const diff = this._transform.diff(transform)
+    this._transform = transform
+    const range = this.range()
+    this.range([range[0] + diff.x, range[1] + diff.x])
     return this
   }
 
@@ -68,6 +79,16 @@ class MainAxis extends Band implements IAxis {
   blur () {
     this.clear()
     this.render()
+    return this
+  }
+
+  tickFormat (format: (value: number, pos: number) => string): this {
+    return this
+  }
+
+  ticks (count: number): this
+  ticks (decide: (index: number, value: number, pos: number) => boolean): this
+  ticks (count: number | ((index: number, value: number, pos: number) => boolean)): this {
     return this
   }
 }
