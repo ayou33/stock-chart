@@ -27,12 +27,7 @@ class StockChart {
     this._dataSource = new DataSource(this._options)
 
     this._dataSource.on('set', (_, update) => {
-      console.log('jojo set')
       this._scene.draw(update)
-    })
-
-    this._dataSource.on('beforeSet', (_, a) => {
-      console.log('jojo before', a)
     })
   }
 

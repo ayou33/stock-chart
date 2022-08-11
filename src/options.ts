@@ -4,6 +4,7 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import IAxis from './interface/IAxis'
+import IMainAxis from './interface/IMainAxis'
 
 type RequiredMainAxisOptions = {
   container: ContainerCell;
@@ -87,7 +88,7 @@ export default stockChartOptions
 export type RendererOptions = {
   container: ContainerCell;
   yAxis: IAxis;
-  xAxis: IAxis;
+  xAxis: IMainAxis;
   context?: CanvasRenderingContext2D;
   autoStroke?: boolean;
 }

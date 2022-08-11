@@ -17,11 +17,10 @@ export type DataSourceEventTypes =
   'beforeChange' | 'change'
 
 export enum UpdateLevel {
-  NONE,
-  TICK,
-  EXTENT,
-  SPAN,
-  ALL,
+  NONE, // 仅重绘
+  ALL, // 更新配置并重绘
+  EXTENT, // y轴范围更新
+  DATA, // x轴数据更新
 }
 
 export type UpdatePayload = {
@@ -37,9 +36,6 @@ export type UpdatePayload = {
 class DataSource extends Event<DataSourceEventTypes> {
   private readonly _dataEngine: DataEngine
   private readonly _bars: ReversedArray<Bar> = new ReversedArray()
-  private readonly _extent: Extent = [-1, 1]
-  private readonly _span: Extent = [0, 1]
-  private readonly _domain: number[] = []
 
   private _latest: Bar | null = null
   private _lastChange: UpdatePayload | null = null

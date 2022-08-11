@@ -10,7 +10,7 @@ abstract class AbstractShape<E extends string> extends Event<E> {
 
   abstract getElement (): HTMLElement
 
-  private buildRect (el?: HTMLElement) {
+  protected buildRect (el?: HTMLElement) {
     const element = el ?? this.getElement()
     const rect = element.getBoundingClientRect()
 

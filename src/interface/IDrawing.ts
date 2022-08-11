@@ -4,7 +4,8 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import ICanvas from './ICanvas'
+import IRenderer from './IRenderer'
 
-interface IDrawing extends ICanvas {}
+interface IDrawing extends IRenderer, ICanvas {}
 
 export default IDrawing

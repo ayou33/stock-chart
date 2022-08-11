@@ -4,24 +4,20 @@
  *  @date 2022/8/3 15:13
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { createAAContext } from '../helper/aa'
 import IAxis from '../interface/IAxis'
 import IChart from '../interface/IChart'
+import IMainAxis from '../interface/IMainAxis'
 import { RendererOptions } from '../options'
-import AbstractShape from './AbstractShape'
+import AbstractCanvas from './AbstractCanvas'
 
-abstract class AbstractChart<E extends string, T = unknown> extends AbstractShape<E> implements IChart {
+abstract class AbstractChart<E extends string, T = unknown> extends AbstractCanvas<E> implements IChart {
   options: RendererOptions & T
   autoStroke = true
-  xAxis: IAxis
+  xAxis: IMainAxis
   yAxis: IAxis
-  canvas: HTMLCanvasElement
-  context: CanvasRenderingContext2D
-
-  protected _enable = true
 
   constructor (options: RendererOptions & T) {
-    super()
+    super(options.container)
 
     this.options = options
 
@@ -29,11 +25,8 @@ abstract class AbstractChart<E extends string, T = unknown> extends AbstractShap
 
     if (options.context) {
       this.context = options.context
-    } else {
-      this.context = createAAContext(options.container.width, options.container.height)
+      this.canvas = this.context.canvas
     }
-
-    this.canvas = this.context.canvas
 
     this.yAxis = options.yAxis
 
@@ -43,61 +36,6 @@ abstract class AbstractChart<E extends string, T = unknown> extends AbstractShap
   }
 
   abstract paint (...args: unknown[]): this
-
-  draw (...args: unknown[]) {
-    if (this._enable) {
-      this.clear()
-      this.paint(...args)
-    }
-
-    return this
-  }
-
-  render () {
-    this.options.container.node.appendChild(this.canvas)
-
-    return this
-  }
-
-  enable (show = false): this {
-    this._enable = true
-
-    if (show) this.show()
-
-    return this
-  }
-
-  hide (): this {
-    this.canvas.style.display = 'none'
-
-    return this
-  }
-
-  show (): this {
-    this.canvas.style.display = 'block'
-
-    return this
-  }
-
-  disable (hide = false): this {
-    this._enable = false
-
-    if (hide) this.hide()
-
-    return this
-  }
-
-  clear (): this {
-    this.context.clearRect(0, 0, this.options.container.width, this.options.container.height)
-
-    return this
-  }
-
-  remove (): this {
-    this.options.container.node.removeChild(this.canvas)
-
-    return this
-  }
 }
 
 export default AbstractChart

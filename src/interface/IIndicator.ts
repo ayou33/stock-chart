@@ -4,7 +4,8 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import ICanvas from './ICanvas'
+import IRenderer from './IRenderer'
 
-interface IIndicator extends ICanvas {}
+interface IIndicator extends IRenderer, ICanvas {}
 
 export default IIndicator

@@ -24,7 +24,7 @@ class Event<T extends string = string> {
     return this
   }
 
-  off (type: T, ...rest: RestParams<typeof this._emitter.off>) {
+  off (type: T | '*', ...rest: RestParams<typeof this._emitter.off>) {
     this._emitter.off(type, ...rest)
 
     return this

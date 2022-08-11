@@ -23,17 +23,16 @@ class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T> i
       bottom: 0;
       left: 0;
     `
-    this.canvas.addEventListener('mousemove', () => {
-      // this.xAxis.transform()
-      // this.yAxis.transform()
-      // // this.drawCrosshair()
-      // this.emit('transform')
-    })
 
-    nanie(this.canvas, e => {
-      this.xAxis.transform(e.transform)
-      this.yAxis.transform(e.transform)
-      this.emit('transform')
+    nanie(this.canvas, (e) => {
+      if (e.type === 'zoom') {
+        const event = e.sourceEvent as MouseEvent
+        this.pointer(event.clientX, event.clientY)
+        // console.log(this.pointer(event.clientX, event.clientY))
+        this.xAxis.transform(e.transform)
+        this.yAxis.transform(e.transform)
+        this.emit('transform')
+      }
     })
 
     this.autoStroke = true
@@ -41,10 +40,6 @@ class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T> i
 
   paint () {
     return this
-  }
-
-  getElement (): HTMLElement {
-    return this.canvas
   }
 }
 

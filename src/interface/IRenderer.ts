@@ -5,18 +5,11 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import IAxis from './IAxis'
+import IMainAxis from './IMainAxis'
 
 interface IRenderer {
   yAxis: IAxis;
-  xAxis: IAxis;
-
-  draw (...args: unknown[]): this;
-
-  render (): this;
-
-  disable (): this;
-
-  enable (): this;
+  xAxis: IMainAxis;
 }
 
 export default IRenderer

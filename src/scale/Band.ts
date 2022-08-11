@@ -4,6 +4,8 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  *  @see https://github.com/d3/d3-scale/blob/v4.0.2/README.md#band-scales
  */
+import IScale from '../interface/IScale'
+
 const START = 0
 const STOP = 1
 
@@ -17,7 +19,7 @@ export enum ExtendMode {
   RIGHT,
 }
 
-class Band {
+class Band implements IScale<number[]>{
   /**
    * 一个完整的range内包含
    *  两侧的paddingOuter
@@ -219,6 +221,8 @@ class Band {
         this._extendMode = ExtendMode.LEFT
       } else if (Math.abs(range[STOP]) === Infinity) {
         this._extendMode = ExtendMode.RIGHT
+      } else {
+        this._extendMode = ExtendMode.SHRINK
       }
 
       this._range = range
@@ -232,6 +236,7 @@ class Band {
     if (undefined !== domain) {
       this._domain = [...new Set(domain)]
       this._domainIndex = this.generateDomainIndex()
+      this.updateRange()
     }
 
     return this._domain

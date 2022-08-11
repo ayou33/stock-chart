@@ -4,50 +4,34 @@
  *  @date 2022/7/25 17:13
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { createAAContext } from '../helper/aa'
-import extend from '../helper/extend'
-import IAxis from '../interface/IAxis'
-import { mainAxisOptions, MainAxisOptions } from '../options'
+import IMainAxis from '../interface/IMainAxis'
+import { MainAxisOptions } from '../options'
 import Band from '../scale/Band'
 import Transform from 'nanie/src/Transform'
+import AbstractAxis from '../super/AbstractAxis'
 
-class MainAxis extends Band implements IAxis {
-  private readonly _options: MainAxisOptions['define']
-  private readonly _context: CanvasRenderingContext2D
-
+class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMainAxis {
   private _transform = new Transform()
 
   constructor (options: MainAxisOptions['call']) {
-    super()
-
-    this._options = extend(mainAxisOptions, options)
-
-    this._context = createAAContext(options.container?.width, options.container?.height)
-
-    options.container.node.appendChild(this._context.canvas)
+    super(options.container)
   }
 
-  range (range?: Extent) {
-    return super.range(range)
+  makeScale () {
+    return new Band()
   }
 
-  transform (transform: Transform): this {
-    const diff = this._transform.diff(transform)
-    this._transform = transform
-    const range = this.range()
-    this.range([range[0] + diff.x, range[1] + diff.x])
-    return this
+  bandWidth (width?: number) {
+    return this.scale.bandWidth(width)
   }
 
-  clear (): this {
-    this._context.clearRect(0, 0, this._options.container.width, this._options.container.height)
-    return this
+  step (step?: number) {
+    return this.scale.step(step)
   }
 
-  render (): this {
-    this.clear()
+  paint (): this {
     const domain = this.domain()
-    const ctx = this._context
+    const ctx = this.context
     ctx.save()
     ctx.textBaseline = 'top'
     ctx.textAlign = 'center'
@@ -59,26 +43,32 @@ class MainAxis extends Band implements IAxis {
     }
 
     ctx.restore()
+
+    return this
+  }
+
+  transform (transform: Transform): this {
+    const diff = this._transform.diff(transform)
+    this._transform = transform
+    const range = this.range()
+    const step = this.scale.step() * diff.k
+    this.scale.step(step)
+    this.range([range[0] * diff.k + diff.x, range[1] * diff.k + diff.x])
+    // console.log(range, diff, this.range())
     return this
   }
 
   focus (x: number): this {
     this.clear()
-    this.render()
+    this.draw()
 
     const date = this.invert(x)
-    this._context.save()
-    this._context.textBaseline = 'top'
-    this._context.textAlign = 'center'
-    this._context.fillText(new Date(date).toLocaleString(), x, 0)
-    this._context.restore()
+    this.context.save()
+    this.context.textBaseline = 'top'
+    this.context.textAlign = 'center'
+    this.context.fillText(new Date(date).toLocaleString(), x, 0)
+    this.context.restore()
 
-    return this
-  }
-
-  blur () {
-    this.clear()
-    this.render()
     return this
   }
 

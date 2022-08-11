@@ -5,7 +5,6 @@
  *  柱状图
  */
 import { UpdatePayload } from '../core/DataSource'
-import Band from '../scale/Band'
 import AbstractChart from '../super/AbstractChart'
 
 type CandleChartEvents = ''
@@ -21,7 +20,7 @@ class Candle extends AbstractChart<CandleChartEvents> implements AbstractChart<C
     const top = this.yAxis.value(isRaise ? bar.close : bar.open)
     const bottom = this.yAxis.value(isRaise ? bar.open : bar.close)
     const height = Math.abs(top - bottom)
-    const width = (this.xAxis as unknown as Band).bandWidth()
+    const width = this.xAxis.bandWidth()
     const x = this.xAxis.value(bar.date)
 
     ctx.save()

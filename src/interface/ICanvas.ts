@@ -4,11 +4,19 @@
  *  @date 2022/7/25 17:58
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import IRenderer from './IRenderer'
-
-interface ICanvas extends IRenderer {
+interface ICanvas {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
+
+  render (): this;
+
+  disable (hide?: boolean): this;
+
+  enable (show?: boolean): this;
+
+  draw (...args: unknown[]): this;
+
+  paint (...args: unknown[]): this;
 
   hide (): this;
 
@@ -17,6 +25,8 @@ interface ICanvas extends IRenderer {
   remove (): this;
 
   clear (): this;
+
+  resize (): this;
 }
 
 export default ICanvas

@@ -7,14 +7,11 @@
 import debounce from 'lodash.debounce'
 import Candle from '../chart/Candle'
 import Crosshair from '../extend/Crosshair'
-import Drawing from '../extend/Drawing'
-import Indicator from '../extend/Indicator'
-import Marker from '../extend/Marker'
 import extend from '../helper/extend'
 import IAxis from '../interface/IAxis'
 import IChart from '../interface/IChart'
 import { stockChartOptions, StockChartOptions } from '../options'
-import { UpdatePayload } from './DataSource'
+import { UpdateLevel, UpdatePayload } from './DataSource'
 import Layout from './Layout'
 import MainAxis from './MainAxis'
 import Series from './Series'
@@ -27,10 +24,7 @@ class Scene {
   private readonly _series: Record<'default' | string, IAxis> = {}
   private readonly _charts: IChart[] = []
 
-  private _data: UpdatePayload | null = null
-  private _drawing: Drawing | null = null
-  private _indicator: Indicator | null = null
-  private _marker: Marker | null = null
+  private _update: UpdatePayload | null = null
 
   constructor (options: StockChartOptions) {
     this._options = extend(stockChartOptions, options)
@@ -53,8 +47,6 @@ class Scene {
       container: mainAxisContainer,
     })
 
-    this._mainAxis.range([-Infinity, mainAxisContainer.width])
-
     this.render()
 
     this.onResize = debounce(this.onResize.bind(this), 1000 / 6)
@@ -62,17 +54,21 @@ class Scene {
     window.addEventListener('resize', this.onResize)
   }
 
-  private buildSeries () {
+  private renderSeries () {
     const container = this._layout.series()
-    const y = new Series({
+    const defaultSeries = new Series({
       container,
     })
-    y.range([0, container.height])
-    y.render()
-    this._series.default = y
+    defaultSeries.range([0, container.height])
+    defaultSeries.draw()
+    this._series.default = defaultSeries
   }
 
-  private buildChart () {
+  private renderMainAxis () {
+    this._mainAxis.range([-Infinity, this._layout.mainAxis().width])
+  }
+
+  private renderChart () {
     const container = this._layout.chart()
 
     const chart = new Candle({
@@ -97,56 +93,65 @@ class Scene {
         this._series.default.blur()
       })
       .on('transform', () => {
-        if (this._data) this.draw(this._data)
+        if (this._update) {
+          this._update.level = UpdateLevel.NONE
+          this.draw(this._update)
+        }
       })
 
     this._charts.push(chart, crosshair)
   }
 
+  clear () {
+    for (let k in this._series) {
+      this._series[k].remove()
+    }
+
+    this._charts.map(c => c.remove())
+
+    this._charts.length = 0
+  }
+
   render () {
-    this.buildSeries()
-    this.buildChart()
+    this.renderMainAxis()
+    this.renderSeries()
+    this.renderChart()
   }
 
-  private drawSeries (update: UpdatePayload) {
-    (this._series.default as Series).domain(update.extent)
-    this._series.default.render()
-  }
+  config (update: UpdatePayload) {
+    if (update.level === UpdateLevel.EXTENT) {
+      (this._series.default as Series).domain(update.extent)
+    }
 
-  private drawMainAxis (update: UpdatePayload) {
-    this._mainAxis.domain(update.domain)
-    this._mainAxis.render()
-  }
+    if (update.level === UpdateLevel.DATA) {
+      this._mainAxis.domain(update.domain)
+    }
 
-  private drawCharts (update: UpdatePayload) {
-    this._charts.map(c => c.draw(update))
+    if (update.level === UpdateLevel.ALL) {
+      (this._series.default as Series).domain(update.extent)
+      this._mainAxis.domain(update.domain)
+    }
   }
 
   draw (update: UpdatePayload) {
-    this._data = update
+    this._update = update
 
-    this.drawSeries(update)
-    this.drawMainAxis(update)
-    this.drawCharts(update)
-  }
+    this.config(update)
 
-  addSeries () {
-  }
-
-  addIndicator () {
-  }
-
-  addDrawing () {
-  }
-
-  addMarker () {
+    this._series.default.draw()
+    this._mainAxis.draw()
+    this._charts.map(c => c.draw(update))
   }
 
   private onResize () {
     this._layout.resize(this._container.getBoundingClientRect())
+
+    this.clear()
     this.render()
-    if (this._data) {
-      this.draw(this._data)
+
+    if (this._update) {
+      this._update.level = UpdateLevel.ALL
+      this.draw(this._update)
     }
   }
 }

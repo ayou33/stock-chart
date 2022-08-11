@@ -4,7 +4,8 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import ICanvas from './ICanvas'
+import IRenderer from './IRenderer'
 
-interface IChart extends ICanvas {}
+interface IChart extends IRenderer, ICanvas {}
 
 export default IChart

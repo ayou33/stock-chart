@@ -4,17 +4,18 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import Transform from 'nanie/src/Transform'
+import ICanvas from './ICanvas'
 
-interface IAxis {
+interface IAxis<T = Extent> extends ICanvas {
+  range (range?: Extent): Extent;
+
+  domain (domain?: T): T;
+
   value (domainValue: number): number;
 
   invert (rangeValue: number): number;
 
   transform (transform: Transform): this;
-
-  render (): this;
-
-  clear (): this;
 
   focus (position: number): this;
 
