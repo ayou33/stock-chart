@@ -27,9 +27,8 @@ class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T> i
     nanie(this.canvas, (e) => {
       if (e.type === 'zoom') {
         const event = e.sourceEvent as MouseEvent
-        this.pointer(event.clientX, event.clientY)
-        // console.log(this.pointer(event.clientX, event.clientY))
-        this.xAxis.transform(e.transform)
+        const p = this.pointer(event.clientX, event.clientY)
+        this.xAxis.transform(e.transform, p[0])
         this.yAxis.transform(e.transform)
         this.emit('transform')
       }

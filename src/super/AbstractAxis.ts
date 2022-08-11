@@ -41,7 +41,7 @@ abstract class AbstractAxis<E extends string, U = Extent, T extends IScale = ISc
   abstract ticks (decide: (index: number, value: number, pos: number) => boolean): this
   abstract ticks (count: number | ((index: number, value: number, pos: number) => boolean)): this
 
-  abstract transform (transform: Transform): this
+  abstract transform (transform: Transform, ref?: number): this
 
   domain (domain?: U): U {
     return this.scale.domain(domain)

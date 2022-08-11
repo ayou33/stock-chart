@@ -15,7 +15,7 @@ interface IAxis<T = Extent> extends ICanvas {
 
   invert (rangeValue: number): number;
 
-  transform (transform: Transform): this;
+  transform (transform: Transform, ref?: number): this;
 
   focus (position: number): this;
 

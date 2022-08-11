@@ -47,14 +47,21 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     return this
   }
 
-  transform (transform: Transform): this {
+  transform (transform: Transform, ref: number): this {
     const diff = this._transform.diff(transform)
-    this._transform = transform
     const range = this.range()
-    const step = this.scale.step() * diff.k
-    this.scale.step(step)
-    this.range([range[0] * diff.k + diff.x, range[1] * diff.k + diff.x])
-    // console.log(range, diff, this.range())
+
+    this._transform = transform
+
+    let nextRange: Extent = [range[0] + diff.x, range[1] + diff.x]
+
+    if (diff.k !== 1 && ref) {
+      const scale = diff.k - 1
+      nextRange = [range[0] + scale * (range[0] - ref), range[1] + scale * (range[1] - ref)]
+    }
+
+    this.range(nextRange)
+
     return this
   }
 

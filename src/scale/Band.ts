@@ -150,8 +150,16 @@ class Band implements IScale<number[]>{
 
   bandWidth (width?: number): number {
     if (undefined !== width && width > 0) {
+      if (this._extendMode === ExtendMode.SHRINK) {
+        if (width > this._step) return this._bandWidth
+
+        this._paddingInner = (this._step - width) / this._step
+      } else {
+        this._step = width * (1 + this._paddingInner)
+      }
+
       this._bandWidth = width
-      this._step = this._bandWidth * (1 + this._paddingInner)
+
       this.updateRange()
     }
 
@@ -160,8 +168,10 @@ class Band implements IScale<number[]>{
 
   step (step?: number): number {
     if (undefined !== step && step > 0) {
+      this._bandWidth = step * (1 - this._paddingInner)
+
       this._step = step
-      this._bandWidth = this._step * (1 - this._paddingInner)
+
       this.updateRange()
     }
 
@@ -170,8 +180,14 @@ class Band implements IScale<number[]>{
 
   paddingInner (padding?: number) {
     if (undefined !== padding && isValid0To1(padding)) {
+      if (this._extendMode === ExtendMode.SHRINK) {
+        this._bandWidth = this._step * (1 - padding)
+      } else {
+        this._step = this._bandWidth * (1 + padding)
+      }
+
       this._paddingInner = padding
-      this._step = this._bandWidth * (1 + this._paddingInner)
+
       this.updateRange()
     }
 
@@ -226,7 +242,15 @@ class Band implements IScale<number[]>{
       }
 
       this._range = range
-      this.updateRange()
+
+      /**
+       * 缩放模式 自动计算step与bandWidth
+       */
+      if (this._extendMode === ExtendMode.SHRINK) {
+        this.step((this._range[STOP] - this._range[START]) / (this._domain.length + this._paddingInner * 2))
+      } else {
+        this.updateRange()
+      }
     }
 
     return this._range

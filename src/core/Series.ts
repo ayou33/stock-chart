@@ -4,8 +4,8 @@
  *  @date 2022/7/25 17:12
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import Transform from 'nanie/src/Transform'
 import IAxis from '../interface/IAxis'
-import IScale from '../interface/IScale'
 import { SeriesOptions } from '../options'
 import Linear from '../scale/Linear'
 import AbstractAxis from '../super/AbstractAxis'
@@ -14,6 +14,7 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
   private _tickSize = 10
   private _tickFormat: (value: number, pos: number) => string = (v: number) => v.toString()
   private _tickPred: (index: number, value: number, pos: number) => boolean = () => true
+  private _transform = new Transform()
 
   constructor (options: SeriesOptions['call']) {
     super(options.container)
@@ -43,7 +44,15 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
     return this
   }
 
-  transform (): this {
+  transform (transform: Transform, ref: number): this {
+    const diff = this._transform.diff(transform)
+
+    this._transform = transform
+
+    if (diff.k !== 1 && !ref) return this
+
+    const range = this.range()
+    this.range([range[0] + diff.y, range[1] + diff.y])
     return this
   }
 
