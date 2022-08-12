@@ -35,10 +35,6 @@ class StockChart {
     this._dataSource.set(data)
   }
 
-  addSeries () {
-    this._scene.addSeries()
-  }
-
   attach (dataFeed: IDataFeed) {
     this._dataSource.attach(dataFeed)
   }

@@ -16,33 +16,31 @@ class Candle extends AbstractChart<CandleChartEvents> implements AbstractChart<C
 
   private drawBar (bar: Bar, ctx: CanvasRenderingContext2D) {
     const isRaise = bar.open < bar.close
-    const color = isRaise ? 'green' : 'red'
+    const color = isRaise ? '#00B167' : '#F24A3A'
     const top = this.yAxis.value(isRaise ? bar.close : bar.open)
     const bottom = this.yAxis.value(isRaise ? bar.open : bar.close)
     const height = Math.abs(top - bottom)
     const width = this.xAxis.bandWidth()
     const x = this.xAxis.value(bar.date)
 
-    ctx.save()
     ctx.strokeStyle = color
+    ctx.fillStyle = color
     ctx.moveTo(x + width / 2, this.yAxis.value(bar.low))
     ctx.lineTo(x + width / 2, this.yAxis.value(bar.high))
-    ctx.fillStyle = color
     ctx.fillRect(x, top, width, height)
-    ctx.restore()
   }
 
   paint (update: UpdatePayload): this {
     const ctx = this.context
     ctx.save()
-    ctx.beginPath()
 
     for (let i = 0, l = update.bars.length; i < l; i++) {
       const bar = update.bars[i]
+      ctx.beginPath()
       this.drawBar(bar, ctx)
+      ctx.stroke()
     }
 
-    ctx.stroke()
     ctx.restore()
 
     return this

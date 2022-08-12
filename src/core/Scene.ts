@@ -7,28 +7,24 @@
 import debounce from 'lodash.debounce'
 import Candle from '../chart/Candle'
 import Crosshair from '../extend/Crosshair'
-import extend from '../helper/extend'
 import IAxis from '../interface/IAxis'
 import IChart from '../interface/IChart'
-import { stockChartOptions, StockChartOptions } from '../options'
+import { StockChartOptions } from '../options'
 import { UpdateLevel, UpdatePayload } from './DataSource'
 import Layout from './Layout'
 import MainAxis from './MainAxis'
 import Series from './Series'
 
 class Scene {
-  private readonly _options: StockChartOptions
   private readonly _container: Element
   private readonly _layout: Layout
   private readonly _mainAxis
   private readonly _series: Record<'default' | string, IAxis> = {}
   private readonly _charts: IChart[] = []
 
-  private _update: UpdatePayload | null = null
+  private _lastUpdate: UpdatePayload | null = null
 
   constructor (options: StockChartOptions) {
-    this._options = extend(stockChartOptions, options)
-
     const el = document.querySelector(options.container)
 
     if (el === null) {
@@ -60,7 +56,6 @@ class Scene {
       container,
     })
     defaultSeries.range([0, container.height])
-    defaultSeries.draw()
     this._series.default = defaultSeries
   }
 
@@ -71,7 +66,7 @@ class Scene {
   private renderChart () {
     const container = this._layout.chart()
 
-    const chart = new Candle({
+    const candle = new Candle({
       container,
       xAxis: this._mainAxis,
       yAxis: this._series.default,
@@ -93,23 +88,13 @@ class Scene {
         this._series.default.blur()
       })
       .on('transform', () => {
-        if (this._update) {
-          this._update.level = UpdateLevel.NONE
-          this.draw(this._update)
+        if (this._lastUpdate) {
+          this._lastUpdate.level = UpdateLevel.ALL
+          this.draw()
         }
       })
 
-    this._charts.push(chart, crosshair)
-  }
-
-  clear () {
-    for (let k in this._series) {
-      this._series[k].remove()
-    }
-
-    this._charts.map(c => c.remove())
-
-    this._charts.length = 0
+    this._charts.push(candle, crosshair)
   }
 
   render () {
@@ -118,41 +103,23 @@ class Scene {
     this.renderChart()
   }
 
-  config (update: UpdatePayload) {
-    if (update.level === UpdateLevel.EXTENT) {
-      (this._series.default as Series).domain(update.extent)
+  draw (update?: UpdatePayload) {
+    if (update) {
+      this._lastUpdate = update
     }
 
-    if (update.level === UpdateLevel.DATA) {
-      this._mainAxis.domain(update.domain)
+    if (this._lastUpdate) {
+      this._mainAxis.draw(this._lastUpdate)
+      this._series.default.draw(this._lastUpdate)
+      this._charts.map(c => c.draw(this._lastUpdate as UpdatePayload))
     }
-
-    if (update.level === UpdateLevel.ALL) {
-      (this._series.default as Series).domain(update.extent)
-      this._mainAxis.domain(update.domain)
-    }
-  }
-
-  draw (update: UpdatePayload) {
-    this._update = update
-
-    this.config(update)
-
-    this._series.default.draw()
-    this._mainAxis.draw()
-    this._charts.map(c => c.draw(update))
   }
 
   private onResize () {
     this._layout.resize(this._container.getBoundingClientRect())
-
-    this.clear()
-    this.render()
-
-    if (this._update) {
-      this._update.level = UpdateLevel.ALL
-      this.draw(this._update)
-    }
+    this._mainAxis.resize()
+    this._series.default.resize()
+    this._charts.map(c => c.resize())
   }
 }
 

@@ -4,6 +4,7 @@
  *  @date 2022/8/3 15:13
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import { UpdatePayload } from '../core/DataSource'
 import IAxis from '../interface/IAxis'
 import IChart from '../interface/IChart'
 import IMainAxis from '../interface/IMainAxis'
@@ -35,7 +36,7 @@ abstract class AbstractChart<E extends string, T = unknown> extends AbstractCanv
     return this
   }
 
-  abstract paint (...args: unknown[]): this
+  abstract paint (update: UpdatePayload): this
 }
 
 export default AbstractChart

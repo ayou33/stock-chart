@@ -4,9 +4,22 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import Event from '../base/Event'
+import IInjectable, { InjectHandler, injectTypes, InjectTypes } from '../interface/IInjectable'
 
-abstract class AbstractShape<E extends string> extends Event<E> {
+abstract class AbstractShape<E extends string> extends Event<E> implements IInjectable {
   private _bounding: { left: number, top: number } | null = null
+
+  protected readonly beforeInjections: Record<InjectTypes, InjectHandler[]> = {
+    draw: [],
+    paint: [],
+    resize: [],
+  }
+
+  protected readonly afterInjections: Record<InjectTypes, InjectHandler[]> = {
+    draw: [],
+    paint: [],
+    resize: [],
+  }
 
   abstract getElement (): HTMLElement
 
@@ -36,6 +49,53 @@ abstract class AbstractShape<E extends string> extends Event<E> {
 
     return [clientX, clientY]
   }
+
+  abstract applyInjection (name: InjectTypes, type: 'before' | 'after'): this
+
+  injectBefore (name: InjectTypes, handler: InjectHandler): this {
+    this.beforeInjections[name].push(handler)
+
+    return this
+  }
+
+  injectAfter (name: InjectTypes, handler: InjectHandler): this {
+    this.afterInjections[name].push(handler)
+
+    return this
+  }
+
+  ejectBefore (name: InjectTypes, handler?: InjectHandler | undefined): this {
+    if (handler) {
+      this.beforeInjections[name] = this.beforeInjections[name].filter(h => h === handler)
+    } else {
+      this.beforeInjections[name] = []
+    }
+    return this
+  }
+
+  ejectAfter (name: InjectTypes, handler?: InjectHandler | undefined): this {
+    if (handler) {
+      this.afterInjections[name] = this.afterInjections[name].filter(h => h === handler)
+    } else {
+      this.afterInjections[name] = []
+    }
+    return this
+  }
+
+  ejectAll (name: InjectTypes | '*'): this {
+    if (name === '*') {
+      injectTypes.map(type => {
+        this.ejectBefore(type)
+        this.ejectAfter(type)
+      })
+    } else {
+      this.ejectBefore(name)
+      this.ejectAfter(name)
+    }
+
+    return this
+  }
+
 }
 
 export default AbstractShape

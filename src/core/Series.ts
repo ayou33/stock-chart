@@ -9,6 +9,7 @@ import IAxis from '../interface/IAxis'
 import { SeriesOptions } from '../options'
 import Linear from '../scale/Linear'
 import AbstractAxis from '../super/AbstractAxis'
+import { UpdatePayload } from './DataSource'
 
 class Series extends AbstractAxis<'transform'> implements IAxis {
   private _tickSize = 10
@@ -24,7 +25,9 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
     return new Linear()
   }
 
-  paint (): this {
+  paint (update: UpdatePayload): this {
+    this.domain(update.extent)
+
     const range = this.range()
     const step = (range[1] - range[0]) / this._tickSize
     const ctx = this.context

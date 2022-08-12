@@ -4,7 +4,10 @@
  *  @date 2022/7/25 17:58
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-interface ICanvas {
+import { UpdatePayload } from '../core/DataSource'
+import IInjectable from './IInjectable'
+
+interface ICanvas extends IInjectable {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
 
@@ -14,9 +17,9 @@ interface ICanvas {
 
   enable (show?: boolean): this;
 
-  draw (...args: unknown[]): this;
+  draw (update?: UpdatePayload): this;
 
-  paint (...args: unknown[]): this;
+  paint (update: UpdatePayload): this;
 
   hide (): this;
 

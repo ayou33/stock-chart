@@ -9,7 +9,7 @@ export const aa = (context: CanvasRenderingContext2D, width: number, height: num
   const w = width ?? canvas.width
   const h = height ?? canvas.height
 
-  canvas.style.cssText = `
+  canvas.style.cssText += `
     display: block;
     width: ${w}px;
     height: ${h}px;

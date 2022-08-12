@@ -3,16 +3,19 @@
  *  @date 2022/8/11 16:39
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { createAAContext } from '../helper/aa'
+import { UpdatePayload } from '../core/DataSource'
+import { aa, createAAContext } from '../helper/aa'
 import ICanvas from '../interface/ICanvas'
+import IInjectable, { InjectPosition, InjectTypes } from '../interface/IInjectable'
 import AbstractShape from './AbstractShape'
 
-abstract class AbstractCanvas<E extends string> extends AbstractShape<E> implements ICanvas {
+abstract class AbstractCanvas<E extends string> extends AbstractShape<E> implements ICanvas, IInjectable {
   protected readonly container: ContainerCell
   canvas: HTMLCanvasElement
   context: CanvasRenderingContext2D
 
-  private _enable = true
+  disabled = false
+  lastUpdate: UpdatePayload | null = null
 
   protected constructor (container: ContainerCell) {
     super()
@@ -25,7 +28,7 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
   }
 
   enable (show = false): this {
-    this._enable = true
+    this.disabled = false
 
     if (show) this.show()
 
@@ -33,18 +36,28 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
   }
 
   disable (hide = false): this {
-    this._enable = false
+    this.disabled = true
 
     if (hide) this.hide()
 
     return this
   }
 
-  draw (...args: unknown[]): this {
-    if (this._enable) {
-      this.clear()
-      this.paint(...args)
+  draw (update?: UpdatePayload): this {
+    if (!this.disabled) {
+      this.applyInjection('draw', 'before')
+      if (update) this.lastUpdate = update
+
+      if (this.lastUpdate) {
+        this.clear()
+        this.applyInjection('paint', 'before')
+        this.paint(this.lastUpdate)
+        this.applyInjection('paint', 'after')
+      }
+
+      this.applyInjection('draw', 'after')
     }
+
     return this
   }
 
@@ -74,13 +87,21 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
 
   remove (): this {
     this.off('*')
+    this.ejectAll('*')
     this.container.node.removeChild(this.canvas)
 
     return this
   }
 
   resize () {
+    this.applyInjection('resize', 'before')
+
     this.buildRect()
+
+    aa(this.context, this.container.width, this.container.height)
+
+    this.applyInjection('resize', 'after')
+
     this.draw()
 
     return this
@@ -90,7 +111,15 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
     return this.canvas
   }
 
-  abstract paint (...args: unknown[]): this
+  applyInjection (name: InjectTypes, position: InjectPosition): this {
+    const handlers = position === 'before' ? this.beforeInjections[name] : this.afterInjections[name]
+
+    handlers.map(fn => fn(this.context, this.lastUpdate, this.container))
+
+    return this
+  }
+
+  abstract paint (update: UpdatePayload): this
 }
 
 export default AbstractCanvas

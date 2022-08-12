@@ -9,6 +9,7 @@ import { MainAxisOptions } from '../options'
 import Band from '../scale/Band'
 import Transform from 'nanie/src/Transform'
 import AbstractAxis from '../super/AbstractAxis'
+import { UpdatePayload } from './DataSource'
 
 class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMainAxis {
   private _transform = new Transform()
@@ -29,8 +30,8 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     return this.scale.step(step)
   }
 
-  paint (): this {
-    const domain = this.domain()
+  paint (update: UpdatePayload): this {
+    const domain = this.domain(update.domain)
     const ctx = this.context
     ctx.save()
     ctx.textBaseline = 'top'

@@ -18,6 +18,7 @@ export type DataSourceEventTypes =
 
 export enum UpdateLevel {
   NONE, // 仅重绘
+  STREAM, // 更新最新一条数据
   ALL, // 更新配置并重绘
   EXTENT, // y轴范围更新
   DATA, // x轴数据更新
@@ -25,10 +26,9 @@ export enum UpdateLevel {
 
 export type UpdatePayload = {
   level: UpdateLevel,
-  bars: Bar[];
   latest?: Bar;
+  bars: Bar[];
   extent: Extent;
-  span: Extent;
   domain: number[];
   lastChange: UpdatePayload | null;
 }
@@ -68,7 +68,6 @@ class DataSource extends Event<DataSourceEventTypes> {
       bars,
       latest: last(bars),
       extent: ex.reverse() as Extent,
-      span: (bars.length ? [bars[0].date, last(bars)?.date] : []) as Extent,
       domain: pluck('date', bars),
       lastChange: this._lastChange,
     }

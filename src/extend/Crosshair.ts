@@ -29,7 +29,7 @@ class Crosshair extends Gesture<CrosshairEvents> {
   }
 
   private drawCrosshair (x: number, y: number) {
-    if (!this._enable) return
+    if (this.disabled) return
 
     this.clear()
     const ctx = this.context
