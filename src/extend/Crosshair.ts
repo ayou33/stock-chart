@@ -9,8 +9,8 @@ import Gesture from './Gesture'
 export type CrosshairEvents = 'focus' | 'blur'
 
 class Crosshair extends Gesture<CrosshairEvents> {
-  private readonly _width: number
-  private readonly _height: number
+  private _width: number
+  private _height: number
 
   constructor (options: RendererOptions) {
     super(options)
@@ -25,6 +25,11 @@ class Crosshair extends Gesture<CrosshairEvents> {
     this.canvas.addEventListener('mouseleave', () => {
       this.emit('blur')
       this.clear()
+    })
+
+    this.injectAfter('resize', () => {
+      this._width = options.container.width
+      this._height = options.container.height
     })
   }
 

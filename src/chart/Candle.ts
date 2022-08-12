@@ -25,9 +25,9 @@ class Candle extends AbstractChart<CandleChartEvents> implements AbstractChart<C
 
     ctx.strokeStyle = color
     ctx.fillStyle = color
-    ctx.moveTo(x + width / 2, this.yAxis.value(bar.low))
-    ctx.lineTo(x + width / 2, this.yAxis.value(bar.high))
-    ctx.fillRect(x, top, width, height)
+    ctx.moveTo(x, this.yAxis.value(bar.low))
+    ctx.lineTo(x, this.yAxis.value(bar.high))
+    ctx.fillRect(x - width / 2, top, width, height)
   }
 
   paint (update: UpdatePayload): this {

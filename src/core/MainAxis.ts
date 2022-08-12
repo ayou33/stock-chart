@@ -5,7 +5,7 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import IMainAxis from '../interface/IMainAxis'
-import { MainAxisOptions } from '../options'
+import { StockChartOptions } from '../options'
 import Band from '../scale/Band'
 import Transform from 'nanie/src/Transform'
 import AbstractAxis from '../super/AbstractAxis'
@@ -14,8 +14,12 @@ import { UpdatePayload } from './DataSource'
 class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMainAxis {
   private _transform = new Transform()
 
-  constructor (options: MainAxisOptions['call']) {
-    super(options.container)
+  constructor (container: ContainerCell, options: StockChartOptions) {
+    super(container)
+
+    this.injectAfter('resize', () => {
+      this.range([-Infinity, container.width])
+    })
   }
 
   makeScale () {
@@ -31,16 +35,16 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
   }
 
   paint (update: UpdatePayload): this {
-    const domain = this.domain(update.domain)
+    // @todo update level判断
+    this.domain(update.domain)
+
     const ctx = this.context
     ctx.save()
     ctx.textBaseline = 'top'
     ctx.textAlign = 'center'
 
-    for (let i = 0, l = domain.length; i < l; i++) {
-      if (i % 20 === 0) {
-        ctx.fillText(new Date(domain[i]).toLocaleString(), this.value(domain[i]), 0)
-      }
+    for (let i = 0; i < this.container.width; i += 90) {
+      ctx.fillText(this.invert(i).toString(), i, 0)
     }
 
     ctx.restore()

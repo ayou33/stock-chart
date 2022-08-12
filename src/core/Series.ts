@@ -6,7 +6,7 @@
  */
 import Transform from 'nanie/src/Transform'
 import IAxis from '../interface/IAxis'
-import { SeriesOptions } from '../options'
+import { StockChartOptions } from '../options'
 import Linear from '../scale/Linear'
 import AbstractAxis from '../super/AbstractAxis'
 import { UpdatePayload } from './DataSource'
@@ -17,8 +17,12 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
   private _tickPred: (index: number, value: number, pos: number) => boolean = () => true
   private _transform = new Transform()
 
-  constructor (options: SeriesOptions['call']) {
-    super(options.container)
+  constructor (container: ContainerCell, options: StockChartOptions) {
+    super(container)
+
+    this.injectAfter('resize', () => {
+      this.range([0, container.height])
+    })
   }
 
   makeScale () {
@@ -60,13 +64,14 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
   }
 
   focus (y: number): this {
-    this.clear()
-    this.draw()
+    this.rerender()
+
     this.context.save()
     this.context.textBaseline = 'middle'
     this.context.textAlign = 'start'
     this.context.fillText(this.invert(y).toString(), 0, y)
     this.context.restore()
+
     return this
   }
 

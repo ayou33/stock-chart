@@ -95,7 +95,7 @@ class Band implements IScale<number[]>{
    * [0, 1]
    * @private
    */
-  private _valueAlign = 0
+  private _valueAlign = 0.5
 
   /**
    * range扩展模式

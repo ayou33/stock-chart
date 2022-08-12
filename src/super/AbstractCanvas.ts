@@ -44,19 +44,20 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
   }
 
   draw (update?: UpdatePayload): this {
+    this.applyInject('update', 'before')
+
     if (!this.disabled) {
-      this.applyInjection('draw', 'before')
       if (update) this.lastUpdate = update
 
       if (this.lastUpdate) {
+        this.applyInject('draw', 'before')
         this.clear()
-        this.applyInjection('paint', 'before')
         this.paint(this.lastUpdate)
-        this.applyInjection('paint', 'after')
+        this.applyInject('draw', 'after')
       }
-
-      this.applyInjection('draw', 'after')
     }
+
+    this.applyInject('update', 'after')
 
     return this
   }
@@ -94,13 +95,13 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
   }
 
   resize () {
-    this.applyInjection('resize', 'before')
+    this.applyInject('resize', 'before')
 
     this.buildRect()
 
     aa(this.context, this.container.width, this.container.height)
 
-    this.applyInjection('resize', 'after')
+    this.applyInject('resize', 'after')
 
     this.draw()
 
@@ -111,7 +112,7 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
     return this.canvas
   }
 
-  applyInjection (name: InjectTypes, position: InjectPosition): this {
+  applyInject (name: InjectTypes, position: InjectPosition): this {
     const handlers = position === 'before' ? this.beforeInjections[name] : this.afterInjections[name]
 
     handlers.map(fn => fn(this.context, this.lastUpdate, this.container))

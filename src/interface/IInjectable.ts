@@ -5,7 +5,7 @@
  */
 import { UpdatePayload } from '../core/DataSource'
 
-export const injectTypes = ['draw', 'paint', 'resize'] as const
+export const injectTypes = ['update', 'draw', 'resize'] as const
 
 export type InjectTypes = typeof injectTypes[number]
 
@@ -19,7 +19,7 @@ interface IInjectable {
 
   injectAfter (name: InjectTypes, handler: InjectHandler): this;
 
-  applyInjection (name: InjectTypes, position: InjectPosition): this;
+  applyInject (name: InjectTypes, position: InjectPosition): this;
 
   ejectBefore (name: InjectTypes, handler?: InjectHandler): this;
 

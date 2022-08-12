@@ -10,14 +10,14 @@ abstract class AbstractShape<E extends string> extends Event<E> implements IInje
   private _bounding: { left: number, top: number } | null = null
 
   protected readonly beforeInjections: Record<InjectTypes, InjectHandler[]> = {
+    update: [],
     draw: [],
-    paint: [],
     resize: [],
   }
 
   protected readonly afterInjections: Record<InjectTypes, InjectHandler[]> = {
+    update: [],
     draw: [],
-    paint: [],
     resize: [],
   }
 
@@ -50,7 +50,7 @@ abstract class AbstractShape<E extends string> extends Event<E> implements IInje
     return [clientX, clientY]
   }
 
-  abstract applyInjection (name: InjectTypes, type: 'before' | 'after'): this
+  abstract applyInject (name: InjectTypes, type: 'before' | 'after'): this
 
   injectBefore (name: InjectTypes, handler: InjectHandler): this {
     this.beforeInjections[name].push(handler)

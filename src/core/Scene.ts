@@ -16,6 +16,7 @@ import MainAxis from './MainAxis'
 import Series from './Series'
 
 class Scene {
+  private readonly _options: StockChartOptions
   private readonly _container: Element
   private readonly _layout: Layout
   private readonly _mainAxis
@@ -25,6 +26,8 @@ class Scene {
   private _lastUpdate: UpdatePayload | null = null
 
   constructor (options: StockChartOptions) {
+    this._options = options
+
     const el = document.querySelector(options.container)
 
     if (el === null) {
@@ -39,9 +42,7 @@ class Scene {
 
     const mainAxisContainer = this._layout.mainAxis()
 
-    this._mainAxis = new MainAxis({
-      container: mainAxisContainer,
-    })
+    this._mainAxis = new MainAxis(mainAxisContainer, this._options)
 
     this.render()
 
@@ -52,9 +53,7 @@ class Scene {
 
   private renderSeries () {
     const container = this._layout.series()
-    const defaultSeries = new Series({
-      container,
-    })
+    const defaultSeries = new Series(container, this._options)
     defaultSeries.range([0, container.height])
     this._series.default = defaultSeries
   }

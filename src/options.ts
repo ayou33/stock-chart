@@ -6,19 +6,86 @@
 import IAxis from './interface/IAxis'
 import IMainAxis from './interface/IMainAxis'
 
+const BLACK = '#000'
+const WHITE = '#fff'
+
+type Color = string | CanvasGradient | CanvasPattern
+
+export type ThemeOptions = {
+  color: Color;
+  background: Color;
+  mountainColor: Color;
+  dashColor: Color;
+  activeColor: Color;
+  bullishColor: Color; // 看多颜色
+  bearishColor: Color;
+  lineWidth: number;
+  dashWidth: number;
+  dashArray: number[];
+  fontSize: number;
+}
+
+const themeOptions: ThemeOptions = {
+  fontSize: 10,
+  lineWidth: 1,
+  dashWidth: 1,
+  dashArray: [8, 2, 2, 2],
+  bullishColor: '#00B167', // 看多颜色
+  bearishColor: '#F24A3A',
+  color: BLACK,
+  background: 'rgba(0, 0, 0, 0.1)',
+  dashColor: '#F19231',
+  activeColor: '#326BFE',
+  mountainColor: '#E6EDFE',
+}
+
+type AxisOptions = {
+  tick: false | number; // 不显示或者设置大小
+  tickColor: Color;
+  tickCount: number;
+  tickInterval: number;
+  labelSize: number;
+  labelPadding: number;
+  border: false | number;
+  borderColor: Color;
+  currentLabel: false | {
+    color: Color;
+    background: Color;
+    fontSize: number;
+    padding: number;
+  };
+}
+
+const axisOptions: AxisOptions = {
+  tick: 4,
+  tickColor: themeOptions.color,
+  tickCount: 0,
+  tickInterval: 50,
+  labelSize: themeOptions.fontSize,
+  labelPadding: 0,
+  border: false,
+  borderColor: themeOptions.color,
+  currentLabel: {
+    color: WHITE,
+    background: themeOptions.dashColor,
+    fontSize: themeOptions.fontSize,
+    padding: 0,
+  },
+}
+
 type RequiredMainAxisOptions = {
   container: ContainerCell;
 }
 
 type OptionalMainAxisOptions = Partial<{
-  height: number;
-  fontSize: number;
-}>
+  position: 'top' | 'bottom';
+} & AxisOptions>
 
 export type MainAxisOptions = OptionsOf<RequiredMainAxisOptions, OptionalMainAxisOptions>
 
 export const mainAxisOptions: Required<OptionalMainAxisOptions> = {
-  height: 20,
+  position: 'bottom',
+  ...axisOptions,
 }
 
 type RequiredSeriesOptions = {
@@ -26,61 +93,66 @@ type RequiredSeriesOptions = {
 }
 
 type OptionalSeriesOptions = Partial<{
-  position: 'right',
-}>
+  position: 'right' | 'left';
+} & AxisOptions>
 
 export type SeriesOptions = OptionsOf<RequiredSeriesOptions, OptionalSeriesOptions>
 
 export const seriesOptions: Required<OptionalSeriesOptions> = {
   position: 'right',
+  ...axisOptions,
 }
 
 export type LayoutOptions = {
   axisHeight: number;
   seriesWidth: number;
-  borderWidth: number;
-  axisBorderWidth?: number;
-  seriesBorderWidth?: number;
   padding: BorderGap;
 }
 
 export const layoutOptions: LayoutOptions = {
   axisHeight: 20,
   seriesWidth: 20,
-  borderWidth: 2,
-  axisBorderWidth: 2,
-  seriesBorderWidth: 2,
   padding: 0,
 }
 
 export type CrosshairOptions = {
   dashArray: number[];
-  color: string;
+  color: Color;
   lineWidth: number;
+}
+
+export type GridOptions = {
+  horizontal: false | Color;
+  vertical: false | Color;
 }
 
 export type StockChartOptions = {
   container: string;
   symbol: string;
-  display: {
-    theme: 'light';
-    crosshair: boolean;
-  },
+  theme: 'light' | 'dark' | ThemeOptions;
+  crosshair: false | CrosshairOptions;
+  grid: false | GridOptions;
+  series: SeriesOptions['partial'];
+  axis: MainAxisOptions['partial'];
   layout: LayoutOptions,
-  format: {},
-  event: {},
 }
 
 export const stockChartOptions: StockChartOptions = {
   container: '',
   symbol: '',
-  display: {
-    theme: 'light',
-    crosshair: true,
+  theme: themeOptions,
+  crosshair: {
+    dashArray: themeOptions.dashArray,
+    color: themeOptions.dashColor,
+    lineWidth: themeOptions.dashWidth,
   },
+  grid: {
+    horizontal: themeOptions.background,
+    vertical: themeOptions.background,
+  },
+  series: seriesOptions,
+  axis: mainAxisOptions,
   layout: layoutOptions,
-  format: {},
-  event: {},
 }
 
 export default stockChartOptions
