@@ -5,20 +5,12 @@
  */
 import Event from '../base/Event'
 import IDataFeed, { Resolution, SymbolDescriber } from '../interface/IDataFeed'
-import { StockChartOptions } from '../options'
 
 export type DataEvents = 'load' | 'refresh' | 'append'
 
-class DataEngine  extends Event<DataEvents> {
+class DataEngine extends Event<DataEvents> {
   private _dataFeed: IDataFeed | null = null
   private _symbol: SymbolDescriber | null = null
-  private readonly options: StockChartOptions
-
-  constructor (options: StockChartOptions) {
-    super()
-
-    this.options = options
-  }
 
   attach (dataFeed: IDataFeed) {
     this._dataFeed = dataFeed
@@ -35,7 +27,7 @@ class DataEngine  extends Event<DataEvents> {
         this._symbol = symbol
       }
 
-      this.emit('load', result)
+      this.emit('load', symbol, result)
 
       this._dataFeed.subscribe(symbol, bar => {
         this.stream(bar)
@@ -47,7 +39,10 @@ class DataEngine  extends Event<DataEvents> {
     return Promise.reject('No symbol or dataFeed provide!')
   }
 
-  private stream (bar: Bar) {}
+  private stream (bar: Bar) {
+    this.emit('refresh', this._symbol, bar)
+    this.emit('append', this._symbol, bar)
+  }
 }
 
 export default DataEngine

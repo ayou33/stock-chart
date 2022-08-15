@@ -34,7 +34,7 @@ export type SymbolDescriber = {
   name: string;
   symbol: string;
   exchange: string;
-  resolutions: Resolution[];
+  resolution: Resolution;
   description: string,
 }
 

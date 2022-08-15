@@ -21,9 +21,7 @@ interface IAxis<T = Extent> extends ICanvas {
 
   blur (): this;
 
-  ticks (count: number): this;
-
-  ticks (decide: (index: number, value: number, pos: number) => boolean): this;
+  ticks (interval: number): this;
 
   tickFormat (format: (value: number, pos: number) => string): this;
 }

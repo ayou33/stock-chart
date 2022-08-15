@@ -40,36 +40,32 @@ const themeOptions: ThemeOptions = {
 }
 
 type AxisOptions = {
-  tick: false | number; // 不显示或者设置大小
-  tickColor: Color;
-  tickCount: number;
+  tick: null | number; // 不显示或者设置大小
   tickInterval: number;
   labelSize: number;
-  labelPadding: number;
-  border: false | number;
+  labelPadding: number; // padding-top
+  border: null | number;
   borderColor: Color;
-  currentLabel: false | {
+  currentLabel: {
     color: Color;
     background: Color;
     fontSize: number;
-    padding: number;
-  };
+    padding: BoxPadding;
+  } | null;
 }
 
 const axisOptions: AxisOptions = {
   tick: 4,
-  tickColor: themeOptions.color,
-  tickCount: 0,
-  tickInterval: 50,
+  tickInterval: 80,
   labelSize: themeOptions.fontSize,
   labelPadding: 0,
-  border: false,
+  border: 1,
   borderColor: themeOptions.color,
   currentLabel: {
     color: WHITE,
     background: themeOptions.dashColor,
     fontSize: themeOptions.fontSize,
-    padding: 0,
+    padding: 2,
   },
 }
 
@@ -101,12 +97,13 @@ export type SeriesOptions = OptionsOf<RequiredSeriesOptions, OptionalSeriesOptio
 export const seriesOptions: Required<OptionalSeriesOptions> = {
   position: 'right',
   ...axisOptions,
+  tickInterval: 60,
 }
 
 export type LayoutOptions = {
   axisHeight: number;
   seriesWidth: number;
-  padding: BorderGap;
+  padding: BoxPadding;
 }
 
 export const layoutOptions: LayoutOptions = {
@@ -122,18 +119,18 @@ export type CrosshairOptions = {
 }
 
 export type GridOptions = {
-  horizontal: false | Color;
-  vertical: false | Color;
+  horizontal: null | Color;
+  vertical: null | Color;
 }
 
 export type StockChartOptions = {
   container: string;
   symbol: string;
   theme: 'light' | 'dark' | ThemeOptions;
-  crosshair: false | CrosshairOptions;
-  grid: false | GridOptions;
-  series: SeriesOptions['partial'];
-  axis: MainAxisOptions['partial'];
+  crosshair: null | CrosshairOptions;
+  grid: null | GridOptions;
+  series: Required<OptionalSeriesOptions>;
+  axis: Required<OptionalMainAxisOptions>;
   layout: LayoutOptions,
 }
 

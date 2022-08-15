@@ -1805,7 +1805,7 @@ lru-cache@^6.0.0:
 
 "lunzi@https://github.com/ayou-ok/lunzi":
   version "1.0.0"
-  resolved "https://github.com/ayou-ok/lunzi#91f16d27a40de5c9a9824627d817731d62591bbe"
+  resolved "https://github.com/ayou-ok/lunzi#aeda765979cd19142dc4d5b01c90a499e07e9816"
 
 make-dir@^3.0.0:
   version "3.1.0"

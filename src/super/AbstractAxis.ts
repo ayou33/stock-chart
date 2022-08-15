@@ -37,9 +37,7 @@ abstract class AbstractAxis<E extends string, U = Extent, T extends IScale = ISc
 
   abstract tickFormat (format: (value: number, pos: number) => string): this
 
-  abstract ticks (count: number): this
-  abstract ticks (decide: (index: number, value: number, pos: number) => boolean): this
-  abstract ticks (count: number | ((index: number, value: number, pos: number) => boolean)): this
+  abstract ticks (interval: number): this
 
   abstract transform (transform: Transform, ref?: number): this
 

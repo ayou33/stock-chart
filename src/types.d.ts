@@ -3,12 +3,14 @@
  *  @date 2022/7/25 18:56
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-type BorderGap = Partial<{
+type BoxPaddingObject = {
   top: number;
   right: number;
   bottom: number;
   left: number;
-}> | number
+}
+
+type BoxPadding = Partial<BoxPaddingObject> | number
 
 type Bar = {
   open: number;

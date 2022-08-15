@@ -5,6 +5,7 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import Transform from 'nanie/src/Transform'
+import { background } from '../helper/typo'
 import IAxis from '../interface/IAxis'
 import { StockChartOptions } from '../options'
 import Linear from '../scale/Linear'
@@ -12,13 +13,20 @@ import AbstractAxis from '../super/AbstractAxis'
 import { UpdatePayload } from './DataSource'
 
 class Series extends AbstractAxis<'transform'> implements IAxis {
-  private _tickSize = 10
-  private _tickFormat: (value: number, pos: number) => string = (v: number) => v.toString()
-  private _tickPred: (index: number, value: number, pos: number) => boolean = () => true
+  private readonly _options: StockChartOptions
+
   private _transform = new Transform()
+
+  private _format: (value: number, pos: number) => string = (v: number) => v.toString()
+
+  private _tickInterval: number
 
   constructor (container: ContainerCell, options: StockChartOptions) {
     super(container)
+
+    this._options = options
+
+    this._tickInterval = this._options.series.tickInterval
 
     this.injectAfter('resize', () => {
       this.range([0, container.height])
@@ -32,20 +40,34 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
   paint (update: UpdatePayload): this {
     this.domain(update.extent)
 
+    const options = this._options.series
     const range = this.range()
-    const step = (range[1] - range[0]) / this._tickSize
     const ctx = this.context
+    const x = (options.tick ?? 0)
 
     this.clear()
 
     ctx.save()
+    ctx.beginPath()
     ctx.textBaseline = 'middle'
     ctx.textAlign = 'start'
 
-    for (let y = range[0] + 10; y < range[1]; y += step) {
-      ctx.fillText(this._tickFormat(this.invert(y), y), 0, y)
+    for (let y = range[0]; y < range[1]; y += this._tickInterval) {
+      if (this._options.series.tick) {
+        ctx.moveTo(0, y)
+        ctx.lineTo(this._options.series.tick, y)
+      }
+
+      ctx.fillText(this._format(this.invert(y), y), x, y + options.labelPadding)
     }
 
+    if (options.border) {
+      ctx.lineWidth = options.border
+      ctx.moveTo(0, 0)
+      ctx.lineTo(0, this.container.height)
+    }
+
+    ctx.stroke()
     ctx.restore()
 
     return this
@@ -64,14 +86,26 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
   }
 
   focus (y: number): this {
-    this.rerender()
+    if (this._options.series.currentLabel) {
+      this.rerender()
 
-    this.context.save()
-    this.context.textBaseline = 'middle'
-    this.context.textAlign = 'start'
-    this.context.fillText(this.invert(y).toString(), 0, y)
-    this.context.restore()
+      const ctx = this.context
+      const options = this._options.series.currentLabel
 
+      ctx.save()
+      ctx.beginPath()
+      ctx.textBaseline = 'middle'
+      ctx.textAlign = 'start'
+
+      const text = this.invert(y).toString()
+      ctx.fillStyle = options.background
+      background(ctx, text, 0, y, options.padding)
+
+      ctx.fillStyle = options.color
+      ctx.fillText(this.invert(y).toString(), 0, y)
+      ctx.restore()
+
+    }
     return this
   }
 
@@ -81,19 +115,13 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
   }
 
   tickFormat (format: (value: number, pos: number) => string): this {
-    this._tickFormat = format
+    this._format = format
     this.rerender()
     return this
   }
 
-  ticks (count: number): this
-  ticks (decide: (index: number, value: number, pos: number) => boolean): this
-  ticks (mixed: number | ((index: number, value: number, pos: number) => boolean)): this {
-    if ('number' === typeof mixed) {
-      this._tickPred = () => true
-    } else {
-      this._tickPred = mixed
-    }
+  ticks (interval: number): this {
+    this._tickInterval = interval
     return this
   }
 }

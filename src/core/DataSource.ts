@@ -7,8 +7,7 @@
 import { clone, last, pluck } from 'ramda'
 import Event from '../base/Event'
 import { extent } from '../helper/extent'
-import IDataFeed, { Resolution } from '../interface/IDataFeed'
-import { StockChartOptions } from '../options'
+import IDataFeed, { Resolution, SymbolDescriber } from '../interface/IDataFeed'
 import DataEngine from './DataEngine'
 import { ReversedArray } from 'lunzi'
 
@@ -25,6 +24,7 @@ export enum UpdateLevel {
 }
 
 export type UpdatePayload = {
+  symbol: SymbolDescriber | null;
   level: UpdateLevel,
   latest?: Bar;
   bars: Bar[];
@@ -37,24 +37,26 @@ class DataSource extends Event<DataSourceEventTypes> {
   private readonly _dataEngine: DataEngine
   private readonly _bars: ReversedArray<Bar> = new ReversedArray()
 
+  private _symbol: SymbolDescriber | null = null
   private _latest: Bar | null = null
   private _lastChange: UpdatePayload | null = null
 
-  constructor (options: StockChartOptions) {
+  constructor () {
     super()
 
-    this._dataEngine = new DataEngine(options)
+    this._dataEngine = new DataEngine()
 
-    this._dataEngine.on('load', (_, bars: Bar[]) => {
+    this._dataEngine.on('load', (_, symbol: SymbolDescriber, bars: Bar[]) => {
+      this._symbol = symbol
       this.set(bars)
     })
 
-    this._dataEngine.on('refresh', (_, bar: Bar) => {
-      this.refresh(bar)
+    this._dataEngine.on('refresh', (_, symbol: SymbolDescriber, bar: Bar) => {
+      if (symbol === this._symbol) this.refresh(bar)
     })
 
-    this._dataEngine.on('append', (_, bar: Bar) => {
-      this.append(bar)
+    this._dataEngine.on('append', (_, symbol: SymbolDescriber, bar: Bar) => {
+      if (symbol === this._symbol) this.append(bar)
     })
   }
 
@@ -64,6 +66,7 @@ class DataSource extends Event<DataSourceEventTypes> {
     const ex = extent(bars, d => d.low, d => d.high)
 
     const change = {
+      symbol: this._symbol,
       level,
       bars,
       latest: last(bars),
@@ -77,10 +80,14 @@ class DataSource extends Event<DataSourceEventTypes> {
     return change
   }
 
-  set (data: Bar[]) {
+  set (data: Bar[], symbol?: SymbolDescriber) {
     this.emit('beforeSet', this.makeUpdatePayload(UpdateLevel.NONE))
 
+    this._bars.empty()
     this._bars.unshift(data)
+    if (symbol) {
+      this._symbol = symbol
+    }
 
     this.emit('set', this.makeUpdatePayload(UpdateLevel.ALL))
   }

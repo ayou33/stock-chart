@@ -24,7 +24,7 @@ class StockChart {
 
     this._scene = new Scene(this._options)
 
-    this._dataSource = new DataSource(this._options)
+    this._dataSource = new DataSource()
 
     this._dataSource.on('set', (_, update) => {
       this._scene.draw(update)
@@ -32,7 +32,13 @@ class StockChart {
   }
 
   setData (data: Bar[]) {
-    this._dataSource.set(data)
+    this._dataSource.set(data, {
+      symbol: '',
+      name: '',
+      exchange: '',
+      description: '',
+      resolution: Resolution.M30,
+    })
   }
 
   attach (dataFeed: IDataFeed) {
