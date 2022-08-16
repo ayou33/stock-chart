@@ -89,6 +89,7 @@ class DataSource extends Event<DataSourceEventTypes> {
     if (symbol) {
       this._symbol = symbol
     }
+    this._dataEngine.continue(this._bars.first())
 
     this.emit('set', this.makeUpdatePayload(UpdateLevel.ALL))
   }
@@ -112,7 +113,6 @@ class DataSource extends Event<DataSourceEventTypes> {
 
   load (symbol: string) {
     this._dataEngine.load(symbol)
-
   }
 
   stream (patch: Patch) {

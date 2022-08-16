@@ -5,6 +5,7 @@
  */
 import { last } from 'ramda'
 import Event from '../base/Event'
+import createDataGenerator from '../helper/createDataGenerator'
 import { duration, durationMinute } from '../helper/timeFormat'
 import IDataFeed, { Periodicity, SymbolDescriber } from '../interface/IDataFeed'
 import { DataSourceOptions } from '../options'
@@ -23,7 +24,7 @@ class DataEngine extends Event<DataEvents> {
 
   private _duration = durationMinute
 
-  private _phaseEnd = 0
+  private generator = createDataGenerator(this.onPush.bind(this))
 
   constructor (options: DataSourceOptions) {
     super()
@@ -51,11 +52,17 @@ class DataEngine extends Event<DataEvents> {
   private rollup () {
   }
 
-  private stop () {}
+  private stop () {
+    this.generator.stop()
+  }
 
-  private continue (latest?: Bar) {
+  private onPush (bar: Bar, isCreate = false) {
+    console.log('jojo', bar, isCreate)
+  }
+
+  continue (latest?: Bar) {
     if (latest) {
-
+      this.generator.start(latest, this._duration)
     }
   }
 
@@ -83,13 +90,9 @@ class DataEngine extends Event<DataEvents> {
         this.continue(last(result.data))
       }
 
-      this._dataFeed.subscribe(symbol, subscription => {
-        if (this._symbol) {
-          this.stream({
-            symbol: this._symbol.symbol,
-            exchange: this._symbol.exchange,
-            ...subscription,
-          })
+      this._dataFeed.subscribe(symbol, patch => {
+        if (this._symbol?.symbol === patch.symbol && this._symbol.exchange === patch.exchange) {
+          this.generator.insert(patch.time, patch.price)
         }
       })
 
@@ -100,10 +103,8 @@ class DataEngine extends Event<DataEvents> {
   }
 
   stream (patch: Patch) {
-    if (patch.time > this._phaseEnd) {
-      this.emit('append', this._symbol, {})
-    } else {
-      this.emit('refresh', this._symbol, {})
+    if (this._symbol?.symbol === patch.symbol && this._symbol.exchange === patch.exchange) {
+      this.generator.insert(patch.time, patch.price)
     }
   }
 

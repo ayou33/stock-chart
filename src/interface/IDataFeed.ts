@@ -22,17 +22,12 @@ export type FeedSnapshot = {
   data: Bar[];
 }
 
-export type Subscription = {
-  time: number;
-  price: number;
-}
-
 interface IDataFeed {
   resolveSymbol (symbol: string): Promise<SymbolDescriber>;
 
   read (symbol: SymbolDescriber): Promise<FeedSnapshot>;
 
-  subscribe (symbol: SymbolDescriber, streamCallback: (subscription: Subscription) => void): Fn
+  subscribe (symbol: SymbolDescriber, streamCallback: (patch: Patch) => void): Fn
 
   unSubscribe (symbol: SymbolDescriber): void
 }
