@@ -7,8 +7,8 @@
 import { clone, last, pluck } from 'ramda'
 import Event from '../base/Event'
 import { extent } from '../helper/extent'
-import { duration, durationMinute } from '../helper/timeFormat'
 import IDataFeed, { Periodicity, SymbolDescriber } from '../interface/IDataFeed'
+import { DataSourceOptions } from '../options'
 import DataEngine from './DataEngine'
 import { ReversedArray } from 'lunzi'
 
@@ -42,10 +42,10 @@ class DataSource extends Event<DataSourceEventTypes> {
   private _latest: Bar | null = null
   private _lastChange: UpdatePayload | null = null
 
-  constructor () {
+  constructor (options: DataSourceOptions) {
     super()
 
-    this._dataEngine = new DataEngine()
+    this._dataEngine = new DataEngine(options)
 
     this._dataEngine.on('load', (_, symbol: SymbolDescriber, bars: Bar[]) => {
       this._symbol = symbol
@@ -106,7 +106,9 @@ class DataSource extends Event<DataSourceEventTypes> {
     this._dataEngine.attach(dataFeed)
   }
 
-  setPeriodicity (periodicity: Periodicity) {}
+  setPeriodicity (periodicity: Periodicity) {
+    this._dataEngine.setPeriodicity(periodicity)
+  }
 
   load (symbol: string) {
     this._dataEngine.load(symbol)

@@ -3,13 +3,16 @@
  *  @date 2022/7/28 17:28
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import { last } from 'ramda'
 import Event from '../base/Event'
 import { duration, durationMinute } from '../helper/timeFormat'
 import IDataFeed, { Periodicity, SymbolDescriber } from '../interface/IDataFeed'
+import { DataSourceOptions } from '../options'
 
 export type DataEvents = 'load' | 'refresh' | 'append'
 
 class DataEngine extends Event<DataEvents> {
+  private readonly _options: DataSourceOptions
   private _dataFeed: IDataFeed | null = null
   private _symbol: SymbolDescriber | null = null
   private _periodicity: Required<Periodicity> = {
@@ -21,6 +24,12 @@ class DataEngine extends Event<DataEvents> {
   private _duration = durationMinute
 
   private _phaseEnd = 0
+
+  constructor (options: DataSourceOptions) {
+    super()
+
+    this._options = options
+  }
 
   attach (dataFeed: IDataFeed) {
     this._dataFeed = dataFeed
@@ -42,6 +51,14 @@ class DataEngine extends Event<DataEvents> {
   private rollup () {
   }
 
+  private stop () {}
+
+  private continue (latest?: Bar) {
+    if (latest) {
+
+    }
+  }
+
   async load (symbolCode: string) {
     if (symbolCode && this._dataFeed !== null) {
       const symbol = await this._dataFeed.resolveSymbol(symbolCode)
@@ -61,6 +78,11 @@ class DataEngine extends Event<DataEvents> {
 
       this.emit('load', symbol, result)
 
+      if (this._options.autoFeed) {
+        this.stop()
+        this.continue(last(result.data))
+      }
+
       this._dataFeed.subscribe(symbol, subscription => {
         if (this._symbol) {
           this.stream({
@@ -77,12 +99,16 @@ class DataEngine extends Event<DataEvents> {
     return Promise.reject('No symbol or dataFeed provide!')
   }
 
-  private stream (patch: Patch) {
+  stream (patch: Patch) {
     if (patch.time > this._phaseEnd) {
       this.emit('append', this._symbol, {})
     } else {
       this.emit('refresh', this._symbol, {})
     }
+  }
+
+  setPeriodicity (periodicity: Periodicity) {
+    console.log(periodicity)
   }
 }
 

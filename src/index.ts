@@ -23,7 +23,7 @@ class StockChart {
 
     this._scene = new Scene(this._options)
 
-    this._dataSource = new DataSource()
+    this._dataSource = new DataSource(this._options.dataSource)
 
     this._dataSource.on('set', (_, update) => {
       this._scene.draw(update)
