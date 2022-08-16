@@ -5,7 +5,7 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import Transform from 'nanie/src/Transform'
-import { background } from '../helper/typo'
+import { background, fontSize } from '../helper/typo'
 import IAxis from '../interface/IAxis'
 import { StockChartOptions } from '../options'
 import Linear from '../scale/Linear'
@@ -51,6 +51,7 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
     ctx.beginPath()
     ctx.textBaseline = 'middle'
     ctx.textAlign = 'start'
+    ctx.font = fontSize(options.labelSize)
 
     for (let y = range[0]; y < range[1]; y += this._tickInterval) {
       if (this._options.series.tick) {
@@ -58,7 +59,7 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
         ctx.lineTo(this._options.series.tick, y)
       }
 
-      ctx.fillText(this._format(this.invert(y), y), x, y + options.labelPadding)
+      ctx.fillText(this._format(this.invert(y), y), x + options.labelPadding, y)
     }
 
     if (options.border) {
@@ -96,6 +97,7 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
       ctx.beginPath()
       ctx.textBaseline = 'middle'
       ctx.textAlign = 'start'
+      ctx.font = fontSize(options.fontSize)
 
       const text = this.invert(y).toString()
       ctx.fillStyle = options.background

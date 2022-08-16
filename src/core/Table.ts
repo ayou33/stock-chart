@@ -27,6 +27,10 @@ class Table {
       this._appliedHeight += table[i][0].height ?? (this._flexedRow++, 0)
     }
 
+    const flexWidth = (this._width - this._appliedWidth) / this._flexedColumn
+    const flexHeight = (this._height - this._appliedHeight) / this._flexedRow
+
+    // table init
     this._table = table.map(
       (r, ri) => r.map(
         (c, ci) => ({
@@ -34,23 +38,36 @@ class Table {
           declaredHeight: c.height,
           width: c.width
             ?? table[ri - 1]?.[ci].width // ref pre-row width
-            ?? ((this._width - this._appliedWidth) / this._flexedColumn),
+            ?? flexWidth,
           height: c.height
             ?? r[ci - 1]?.height // ref pre-column height
-            ?? ((this._height - this._appliedHeight) / this._flexedRow),
+            ?? flexHeight,
           id: this._id.next(),
           node: document.createElement('td'),
         })))
   }
 
+  /**
+   * table update
+   * @private
+   */
   private flex () {
     const flexHeight = (this._height - this._appliedHeight) / this._flexedRow
     const flexWidth = (this._width - this._appliedWidth) / this._flexedColumn
 
-    this._table.map(r => r.map(c => {
-      if (undefined === c.declaredHeight) c.height = flexHeight
-      if (undefined === c.declaredWidth) c.width = flexWidth
-    }))
+    this._table.map(
+      (r, ri) => r.map(
+        (c, ci) => {
+          if (undefined === c.declaredHeight) {
+            c.height = r[ci - 1]?.height ?? flexHeight
+            c.node.style.height = `${c.height}px`
+          }
+
+          if (undefined === c.declaredWidth) {
+            c.width = this._table[ri - 1]?.[ci].width ?? flexWidth
+            c.node.style.width = `${c.width}px`
+          }
+        }))
   }
 
   addRow (index: number, height?: number): ContainerCell[] {

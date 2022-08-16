@@ -7,7 +7,8 @@
 import { clone, last, pluck } from 'ramda'
 import Event from '../base/Event'
 import { extent } from '../helper/extent'
-import IDataFeed, { Resolution, SymbolDescriber } from '../interface/IDataFeed'
+import { duration, durationMinute } from '../helper/timeFormat'
+import IDataFeed, { Periodicity, SymbolDescriber } from '../interface/IDataFeed'
 import DataEngine from './DataEngine'
 import { ReversedArray } from 'lunzi'
 
@@ -105,8 +106,15 @@ class DataSource extends Event<DataSourceEventTypes> {
     this._dataEngine.attach(dataFeed)
   }
 
-  load (symbol: string, resolution: Resolution) {
-    this._dataEngine.load(symbol, resolution)
+  setPeriodicity (periodicity: Periodicity) {}
+
+  load (symbol: string) {
+    this._dataEngine.load(symbol)
+
+  }
+
+  stream (patch: Patch) {
+    this._dataEngine.stream(patch)
   }
 }
 

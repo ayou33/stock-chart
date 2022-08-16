@@ -12,7 +12,7 @@ import { RendererOptions } from '../options'
 import AbstractCanvas from './AbstractCanvas'
 
 abstract class AbstractChart<E extends string, T = unknown> extends AbstractCanvas<E> implements IChart {
-  options: RendererOptions & T
+  protected readonly _options: RendererOptions & T
   autoStroke = true
   xAxis: IMainAxis
   yAxis: IAxis
@@ -20,7 +20,7 @@ abstract class AbstractChart<E extends string, T = unknown> extends AbstractCanv
   constructor (options: RendererOptions & T) {
     super(options.container)
 
-    this.options = options
+    this._options = options
 
     this.autoStroke = options.autoStroke ?? !options.context
 

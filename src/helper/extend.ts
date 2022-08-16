@@ -3,8 +3,8 @@
  *  @date 2022/7/25 18:28
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { mergeAll } from 'ramda'
+import { mergeDeepRight } from 'ramda'
 
-const extend = <T extends any[]> (...args: T) => mergeAll(args)
+const extend = <U extends object, T extends object> (dft: T, o: U) => mergeDeepRight(dft, o) as T
 
 export default extend

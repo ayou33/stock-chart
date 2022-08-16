@@ -5,7 +5,7 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import Transform from 'nanie/src/Transform'
-import { generateTimeLabelFormat } from '../helper/timeLabelFormat'
+import { parseResolution, timeFormat } from '../helper/timeFormat'
 import { background, fontSize } from '../helper/typo'
 import IMainAxis from '../interface/IMainAxis'
 import { StockChartOptions } from '../options'
@@ -13,10 +13,12 @@ import Band from '../scale/Band'
 import AbstractAxis from '../super/AbstractAxis'
 import { UpdatePayload } from './DataSource'
 
+const defaultFormat: (date: number, p: number) => string = v => v.toString(0)
+
 class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMainAxis {
   private readonly _options: StockChartOptions
 
-  private _format: (date: number, p: number) => string = v => v.toString()
+  private _format = defaultFormat
 
   private _transform = new Transform()
 
@@ -49,7 +51,10 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     // @todo update level判断
     this.domain(update.domain)
 
-    this._format = generateTimeLabelFormat(update.symbol?.resolution)
+    if (this._format === defaultFormat) {
+      const r = parseResolution(update.bars[0].DT)
+      this._format = timeFormat(r.formatPattern)
+    }
 
     const ctx = this.context
     const y = (this._options.axis.tick ?? 0)
@@ -115,7 +120,7 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
       ctx.textAlign = 'center'
 
       const text = this._format(date, x)
-      const y = this._options.axis.tick ?? 0
+      const y = (this._options.axis.tick ?? 0) + this._options.axis.labelPadding
 
       ctx.fillStyle = options.background
       background(

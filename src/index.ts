@@ -6,7 +6,7 @@
 import DataSource from './core/DataSource'
 import Scene from './core/Scene'
 import extend from './helper/extend'
-import IDataFeed, { Resolution } from './interface/IDataFeed'
+import IDataFeed, { Periodicity } from './interface/IDataFeed'
 import stockChartOptions, { StockChartOptions } from './options'
 
 class StockChart {
@@ -15,10 +15,9 @@ class StockChart {
   private readonly _scene: Scene
 
   public symbol = ''
-  public resolution = Resolution.S1
 
-  constructor (mixed: string | StockChartOptions) {
-    const containerOptions = typeof mixed === 'string' ? { container: mixed } : mixed
+  constructor (mixed: string | RecursivePartial<StockChartOptions>) {
+    const containerOptions = typeof mixed === 'string' ? { root: mixed } : mixed
 
     this._options = extend(stockChartOptions, containerOptions)
 
@@ -33,11 +32,12 @@ class StockChart {
 
   setData (data: Bar[]) {
     this._dataSource.set(data, {
-      symbol: '',
-      name: '',
-      exchange: '',
-      description: '',
-      resolution: Resolution.M30,
+      symbol: 'BTCUSD',
+      name: 'BTCUSD',
+      exchange: 'EX',
+      periodicity: {
+        interval: 30,
+      },
     })
   }
 
@@ -48,15 +48,16 @@ class StockChart {
   load (symbol: string, force = false) {
     if (symbol !== this.symbol || force) {
       this.symbol = symbol
-      this._dataSource.load(symbol, this.resolution)
+      this._dataSource.load(symbol)
     }
   }
 
-  changeResolution (resolution: Resolution) {
-    if (resolution !== this.resolution) {
-      this.resolution = resolution
-      this.load(this.symbol, true)
-    }
+  setPeriodicity (periodicity: Periodicity) {
+    this._dataSource.setPeriodicity(periodicity)
+  }
+
+  stream (patch: Patch) {
+    this._dataSource.stream(patch)
   }
 }
 

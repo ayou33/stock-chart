@@ -22,6 +22,15 @@ type Bar = {
   volume: number;
 }
 
+type Patch = {
+  symbol: string;
+  exchange: string;
+  price: number;
+  time: number;
+}
+
+type ResolutionLiteral = 'tick' | 'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+
 type Vector = [x: number, y: number]
 
 type First<T> = T extends [infer P, ...infer Rest] ? P : never

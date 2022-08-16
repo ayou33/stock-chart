@@ -27,9 +27,9 @@ export type ThemeOptions = {
 
 const themeOptions: ThemeOptions = {
   fontSize: 10,
-  lineWidth: 1,
-  dashWidth: 1,
-  dashArray: [8, 2, 2, 2],
+  lineWidth: 0.5,
+  dashWidth: 0.5,
+  dashArray: [4, 8],
   bullishColor: '#00B167', // 看多颜色
   bearishColor: '#F24A3A',
   color: BLACK,
@@ -58,7 +58,7 @@ const axisOptions: AxisOptions = {
   tick: 4,
   tickInterval: 80,
   labelSize: themeOptions.fontSize,
-  labelPadding: 0,
+  labelPadding: 4,
   border: 1,
   borderColor: themeOptions.color,
   currentLabel: {
@@ -69,30 +69,18 @@ const axisOptions: AxisOptions = {
   },
 }
 
-type RequiredMainAxisOptions = {
-  container: ContainerCell;
-}
-
 type OptionalMainAxisOptions = Partial<{
   position: 'top' | 'bottom';
 } & AxisOptions>
-
-export type MainAxisOptions = OptionsOf<RequiredMainAxisOptions, OptionalMainAxisOptions>
 
 export const mainAxisOptions: Required<OptionalMainAxisOptions> = {
   position: 'bottom',
   ...axisOptions,
 }
 
-type RequiredSeriesOptions = {
-  container: ContainerCell
-}
-
 type OptionalSeriesOptions = Partial<{
   position: 'right' | 'left';
 } & AxisOptions>
-
-export type SeriesOptions = OptionsOf<RequiredSeriesOptions, OptionalSeriesOptions>
 
 export const seriesOptions: Required<OptionalSeriesOptions> = {
   position: 'right',
@@ -123,19 +111,24 @@ export type GridOptions = {
   vertical: null | Color;
 }
 
+export type DataSourceOptions = {
+  autoFeed: boolean;
+}
+
 export type StockChartOptions = {
-  container: string;
+  root: string;
   symbol: string;
   theme: 'light' | 'dark' | ThemeOptions;
   crosshair: null | CrosshairOptions;
   grid: null | GridOptions;
   series: Required<OptionalSeriesOptions>;
   axis: Required<OptionalMainAxisOptions>;
-  layout: LayoutOptions,
+  layout: LayoutOptions;
+  dataSource: DataSourceOptions;
 }
 
 export const stockChartOptions: StockChartOptions = {
-  container: '',
+  root: '',
   symbol: '',
   theme: themeOptions,
   crosshair: {
@@ -150,6 +143,9 @@ export const stockChartOptions: StockChartOptions = {
   series: seriesOptions,
   axis: mainAxisOptions,
   layout: layoutOptions,
+  dataSource: {
+    autoFeed: true,
+  },
 }
 
 export default stockChartOptions
@@ -160,4 +156,4 @@ export type RendererOptions = {
   xAxis: IMainAxis;
   context?: CanvasRenderingContext2D;
   autoStroke?: boolean;
-}
+} & StockChartOptions

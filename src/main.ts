@@ -5,7 +5,9 @@
  */
 import StockChart from './index'
 
-const chart = new StockChart('#app')
+const chart = new StockChart({
+  root: '#app',
+})
 
 const M30 = [
   {

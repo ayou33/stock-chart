@@ -28,7 +28,7 @@ class Scene {
   constructor (options: StockChartOptions) {
     this._options = options
 
-    const el = document.querySelector(options.container)
+    const el = document.querySelector(options.root)
 
     if (el === null) {
       throw new ReferenceError('Invalid container reference!')
@@ -65,18 +65,16 @@ class Scene {
   private renderChart () {
     const container = this._layout.chart()
 
-    const candle = new Candle({
+    const chartOptions = {
       container,
       xAxis: this._mainAxis,
       yAxis: this._series.default,
-    })
-      .render()
+      ...this._options,
+    }
 
-    const crosshair = new Crosshair({
-      container,
-      xAxis: this._mainAxis,
-      yAxis: this._series.default,
-    })
+    const candle = new Candle(chartOptions).render()
+
+    const crosshair = new Crosshair(chartOptions)
       .render()
       .on('focus', (_, x: number, y: number) => {
         this._mainAxis.focus(x)

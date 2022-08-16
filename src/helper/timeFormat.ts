@@ -11,23 +11,17 @@ export const durationSecond = 1000,
   durationMonth = durationDay * 30,
   durationYear = durationDay * 365
 
-export const spec_millisecond = 'L',
-  spec_second = 'S',
-  spec_minute = 'M',
-  spec_hour = 'H',
-  spec_day = 'd',
-  spec_week = 'w',
-  spec_month = 'm',
-  spec_year = 'y'
-
-export const formatMillisecond = '.L',
-  formatSecond = 'M:S',
-  formatMinute = 'H:M',
-  formatHour = 'd/m H:M',
-  formatDay = 'd/m',
-  formatWeek = 'd/m',
-  formatMonth = 'm',
-  formatYear = 'y'
+export const duration = {
+  tick: 1,
+  millisecond: 1,
+  second: durationSecond,
+  minute: durationMinute,
+  hour: durationHour,
+  day: durationDay,
+  week: durationWeek,
+  month: durationMonth,
+  year: durationYear,
+}
 
 function timeSecond (date: Date) {
   return new Date(date).setTime(+date - date.getMilliseconds())
@@ -67,14 +61,78 @@ function timeYear (date: Date) {
   return d
 }
 
-function multiFormat (date: Date) {
-  return (timeSecond(date) < +date ? formatMillisecond
-    : timeMinute(date) < +date ? formatSecond
-      : timeHour(date) < +date ? formatMinute
-        : timeDay(date) < +date ? formatHour
-          : timeMonth(date) < date ? (timeWeek(date) < date ? formatDay : formatWeek)
-            : timeYear(date) < date ? formatMonth
-              : formatYear)
+type Resolution = {
+  symbol: string;
+  formatPattern: string;
+  searchPattern: RegExp;
+  duration: number;
+}
+
+const resolution: Record<ResolutionLiteral, Resolution> = {
+  tick: {
+    symbol: 'L',
+    formatPattern: 'S.L',
+    searchPattern: /L+/g,
+    duration: 1,
+  },
+  millisecond: {
+    symbol: 'L',
+    formatPattern: 'S.L',
+    searchPattern: /L+/g,
+    duration: 1,
+  },
+  second: {
+    symbol: 'S',
+    formatPattern: 'M:S',
+    searchPattern: /S+/g,
+    duration: durationSecond,
+  },
+  minute: {
+    symbol: 'M',
+    formatPattern: 'H:M',
+    searchPattern: /M+/g,
+    duration: durationMinute,
+  },
+  hour: {
+    symbol: 'H',
+    formatPattern: 'd/m H:M',
+    searchPattern: /H+/g,
+    duration: durationHour,
+  },
+  day: {
+    symbol: 'd',
+    formatPattern: 'd/m',
+    searchPattern: /d+/g,
+    duration: durationDay,
+  },
+  week: {
+    symbol: 'w',
+    formatPattern: 'd/m w',
+    searchPattern: /w+/g,
+    duration: durationWeek,
+  },
+  month: {
+    symbol: 'm',
+    formatPattern: 'm/y',
+    searchPattern: /m+/g,
+    duration: durationMonth,
+  },
+  year: {
+    symbol: 'y',
+    formatPattern: 'y',
+    searchPattern: /y+/g,
+    duration: durationYear,
+  },
+}
+
+export const parseResolution = (date: Date): Resolution => {
+  return (timeSecond(date) < +date ? resolution.millisecond
+    : timeMinute(date) < +date ? resolution.second
+      : timeHour(date) < +date ? resolution.minute
+        : timeDay(date) < +date ? resolution.hour
+          : timeMonth(date) < date ? (timeWeek(date) < date ? resolution.day : resolution.week)
+            : timeYear(date) < date ? resolution.month
+              : resolution.year)
 }
 
 export const timeFormat = (pattern: string) => {
@@ -84,17 +142,23 @@ export const timeFormat = (pattern: string) => {
     if (!date.getTime()) return source.toString()
 
     if (pattern === '') {
-      pattern = multiFormat(date)
+      pattern = parseResolution(date).formatPattern
     }
 
     return pattern
-      .replace(/L+/g, date.getMilliseconds().toString().padStart(3, '0'))
-      .replace(/S+/g, date.getSeconds().toString().padStart(2, '0'))
-      .replace(/H+/g, date.getHours().toString().padStart(2, '0'))
-      .replace(/M+/g, date.getMinutes().toString().padStart(2, '0'))
-      .replace(/m+/g, (date.getMonth() + 1).toString().padStart(2, '0'))
-      .replace(/d+/g, date.getDate().toString().padStart(2, '0'))
-      .replace(/y+/g, date.getFullYear().toString())
+      .replace(resolution.millisecond.searchPattern, date.getMilliseconds().toString().padStart(3, '0'))
+      .replace(resolution.second.searchPattern, date.getSeconds().toString().padStart(2, '0'))
+      .replace(resolution.minute.searchPattern, date.getMinutes().toString().padStart(2, '0'))
+      .replace(resolution.hour.searchPattern, date.getHours().toString().padStart(2, '0'))
+      .replace(resolution.day.searchPattern, (date.getMonth() + 1).toString().padStart(2, '0'))
+      .replace(resolution.week.searchPattern, () => {
+        const first_day_of_year = new Date(date.getFullYear(), 0, 1)
+        const ms_diff = +date - +first_day_of_year
+        const day_diff = ms_diff / durationDay
+        return Math.ceil(day_diff / 7).toString()
+      })
+      .replace(resolution.month.searchPattern, date.getDate().toString().padStart(2, '0'))
+      .replace(resolution.year.searchPattern, date.getFullYear().toString())
   }
 }
 

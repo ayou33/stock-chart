@@ -18,14 +18,16 @@ class Crosshair extends Gesture<CrosshairEvents> {
     this._width = options.container.width
     this._height = options.container.height
 
-    this.canvas.addEventListener('mousemove', (e) => {
-      this.drawCrosshair(e.clientX, e.clientY)
-    })
+    if (this._options.crosshair) {
+      this.canvas.addEventListener('mousemove', (e) => {
+        this.drawCrosshair(e.clientX, e.clientY)
+      })
 
-    this.canvas.addEventListener('mouseleave', () => {
-      this.emit('blur')
-      this.clear()
-    })
+      this.canvas.addEventListener('mouseleave', () => {
+        this.emit('blur')
+        this.clear()
+      })
+    }
 
     this.injectAfter('resize', () => {
       this._width = options.container.width
@@ -34,21 +36,40 @@ class Crosshair extends Gesture<CrosshairEvents> {
   }
 
   private drawCrosshair (x: number, y: number) {
-    if (this.disabled) return
+    if (this.disabled || !this._options.crosshair) return
 
     this.clear()
     const ctx = this.context
+    const options = this._options.crosshair
 
+    ctx.save()
     ctx.beginPath()
-    ctx.moveTo(x, 0)
-    ctx.lineTo(x, this._height)
+    ctx.strokeStyle = options.color
+    ctx.lineWidth = options.lineWidth
 
-    ctx.moveTo(0, y)
-    ctx.lineTo(this._width, y)
+    let offset = 0
+    ctx.moveTo(x, offset)
+    for (let i = 0, s = options.dashArray.length; offset < this._height;) {
+      offset += options.dashArray[i++ % s]
+      ctx.lineTo(x, offset)
+      offset += options.dashArray[i++ % s]
+      ctx.moveTo(x, offset)
+    }
+
+    offset = 0
+    ctx.moveTo(offset, y)
+    for (let i = 0, s = options.dashArray.length; offset < this._width;) {
+      offset += options.dashArray[i++ % s]
+      ctx.lineTo(offset, y)
+      offset += options.dashArray[i++ % s]
+      ctx.moveTo(offset, y)
+    }
 
     if (this.autoStroke) {
       ctx.stroke()
     }
+
+    ctx.restore()
 
     this.emit('focus', x, y)
   }
