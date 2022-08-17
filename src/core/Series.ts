@@ -37,7 +37,9 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
     return new Linear()
   }
 
-  paint (update: UpdatePayload): this {
+  draw (update: UpdatePayload): this {
+    this.clear()
+
     this.domain(update.extent)
 
     const options = this._options.series
@@ -113,7 +115,7 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
 
   rerender () {
     this.clear()
-    this.draw()
+    this.apply()
   }
 
   tickFormat (format: (value: number, pos: number) => string): this {

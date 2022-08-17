@@ -86,8 +86,8 @@ class Scene {
       })
       .on('transform', () => {
         if (this._lastUpdate) {
-          this._lastUpdate.level = UpdateLevel.ALL
-          this.draw()
+          this._lastUpdate.level = UpdateLevel.FULL
+          this.apply()
         }
       })
 
@@ -100,15 +100,15 @@ class Scene {
     this.renderChart()
   }
 
-  draw (update?: UpdatePayload) {
+  apply (update?: UpdatePayload) {
     if (update) {
       this._lastUpdate = update
     }
 
     if (this._lastUpdate) {
-      this._mainAxis.draw(this._lastUpdate)
-      this._series.default.draw(this._lastUpdate)
-      this._charts.map(c => c.draw(this._lastUpdate as UpdatePayload))
+      this._mainAxis.apply(this._lastUpdate)
+      this._series.default.apply(this._lastUpdate)
+      this._charts.map(c => c.apply(this._lastUpdate as UpdatePayload))
     }
   }
 

@@ -17,9 +17,9 @@ interface ICanvas extends IInjectable {
 
   enable (show?: boolean): this;
 
-  draw (update?: UpdatePayload): this;
+  apply (update?: UpdatePayload): this;
 
-  paint (update: UpdatePayload): this;
+  draw (update: UpdatePayload): this;
 
   hide (): this;
 

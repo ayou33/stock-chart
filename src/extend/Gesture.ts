@@ -37,7 +37,15 @@ class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T> i
     this.autoStroke = true
   }
 
-  paint () {
+  draw () {
+    return this
+  }
+
+  drawAll (): this {
+    return this
+  }
+
+  drawLatest (): this {
     return this
   }
 }

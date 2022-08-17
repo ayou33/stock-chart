@@ -25,19 +25,8 @@ class StockChart {
 
     this._dataSource = new DataSource(this._options.dataSource)
 
-    this._dataSource.on('set', (_, update) => {
-      this._scene.draw(update)
-    })
-  }
-
-  setData (data: Bar[]) {
-    this._dataSource.set(data, {
-      symbol: 'BTCUSD',
-      name: 'BTCUSD',
-      exchange: 'EX',
-      periodicity: {
-        interval: 30,
-      },
+    this._dataSource.on('update', (_, update) => {
+      this._scene.apply(update)
     })
   }
 

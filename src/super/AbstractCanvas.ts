@@ -3,7 +3,7 @@
  *  @date 2022/8/11 16:39
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { UpdatePayload } from '../core/DataSource'
+import { UpdateLevel, UpdatePayload } from '../core/DataSource'
 import { aa, createAAContext } from '../helper/aa'
 import ICanvas from '../interface/ICanvas'
 import IInjectable, { InjectPosition, InjectTypes } from '../interface/IInjectable'
@@ -11,9 +11,10 @@ import AbstractShape from './AbstractShape'
 
 abstract class AbstractCanvas<E extends string> extends AbstractShape<E> implements ICanvas, IInjectable {
   protected readonly container: ContainerCell
+
   canvas: HTMLCanvasElement
   context: CanvasRenderingContext2D
-
+  autoStroke = true
   disabled = false
   lastUpdate: UpdatePayload | null = null
 
@@ -43,16 +44,19 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
     return this
   }
 
-  draw (update?: UpdatePayload): this {
+  apply (update?: UpdatePayload): this {
     this.applyInject('update', 'before')
 
     if (!this.disabled) {
       if (update) this.lastUpdate = update
+      else if (this.lastUpdate && this.lastUpdate.level !== UpdateLevel.REDRAW) {
+        this.lastUpdate.lastChange = { ...this.lastUpdate }
+        this.lastUpdate.level = UpdateLevel.REDRAW
+      }
 
       if (this.lastUpdate) {
         this.applyInject('draw', 'before')
-        this.clear()
-        this.paint(this.lastUpdate)
+        this.draw(this.lastUpdate)
         this.applyInject('draw', 'after')
       }
     }
@@ -103,7 +107,7 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
 
     this.applyInject('resize', 'after')
 
-    this.draw()
+    this.apply()
 
     return this
   }
@@ -120,7 +124,7 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
     return this
   }
 
-  abstract paint (update: UpdatePayload): this
+  abstract draw (update: UpdatePayload): this
 }
 
 export default AbstractCanvas

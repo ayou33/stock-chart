@@ -57,7 +57,7 @@ class DataEngine extends Event<DataEvents> {
   }
 
   private onPush (bar: Bar, isCreate = false) {
-    console.log('jojo', bar, isCreate)
+    this.emit(isCreate ? 'append' : 'refresh', this._symbol, bar)
   }
 
   continue (latest?: Bar) {
@@ -83,7 +83,7 @@ class DataEngine extends Event<DataEvents> {
         }
       }
 
-      this.emit('load', symbol, result)
+      this.emit('load', symbol, result.data)
 
       if (this._options.autoFeed) {
         this.stop()

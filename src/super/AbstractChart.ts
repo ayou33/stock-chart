@@ -4,7 +4,7 @@
  *  @date 2022/8/3 15:13
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { UpdatePayload } from '../core/DataSource'
+import { UpdateLevel, UpdatePayload } from '../core/DataSource'
 import IAxis from '../interface/IAxis'
 import IChart from '../interface/IChart'
 import IMainAxis from '../interface/IMainAxis'
@@ -13,7 +13,6 @@ import AbstractCanvas from './AbstractCanvas'
 
 abstract class AbstractChart<E extends string, T = unknown> extends AbstractCanvas<E> implements IChart {
   protected readonly _options: RendererOptions & T
-  autoStroke = true
   xAxis: IMainAxis
   yAxis: IAxis
 
@@ -36,7 +35,20 @@ abstract class AbstractChart<E extends string, T = unknown> extends AbstractCanv
     return this
   }
 
-  abstract paint (update: UpdatePayload): this
+  draw (update: UpdatePayload): this {
+    if (update.level === UpdateLevel.PATCH) {
+      this.drawLatest(update)
+    } else {
+      this.drawAll(update)
+    }
+
+    return this
+  }
+
+  abstract drawAll (update: UpdatePayload): this
+
+  abstract drawLatest (update: UpdatePayload): this
 }
+
 
 export default AbstractChart

@@ -4,7 +4,7 @@
  *  @date 2022/7/25 17:23
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { clone, last, pluck } from 'ramda'
+import { last, pluck } from 'ramda'
 import Event from '../base/Event'
 import { extent } from '../helper/extent'
 import IDataFeed, { Periodicity, SymbolDescriber } from '../interface/IDataFeed'
@@ -12,23 +12,22 @@ import { DataSourceOptions } from '../options'
 import DataEngine from './DataEngine'
 import { ReversedArray } from 'lunzi'
 
-export type DataSourceEventTypes =
-  'beforeSet' | 'set' |
-  'beforeChange' | 'change'
+export type DataSourceEventTypes = 'beforeUpdate' | 'update'
 
 export enum UpdateLevel {
-  NONE, // 仅重绘
-  STREAM, // 更新最新一条数据
-  ALL, // 更新配置并重绘
+  REDRAW, // 重绘
+  PATCH, // 补丁更新
+  FULL, // 完全更新
   EXTENT, // y轴范围更新
-  DATA, // x轴数据更新
+  APPEND, // x轴数据新增
 }
 
 export type UpdatePayload = {
   symbol: SymbolDescriber | null;
   level: UpdateLevel,
-  latest?: Bar;
   bars: Bar[];
+  latest?: Bar;
+  span: Extent;
   extent: Extent;
   domain: number[];
   lastChange: UpdatePayload | null;
@@ -61,18 +60,19 @@ class DataSource extends Event<DataSourceEventTypes> {
     })
   }
 
-  makeUpdatePayload (level: UpdateLevel): UpdatePayload {
-    const bars = clone<Bar[]>(this._bars.value())
+  private makeUpdatePayload (level: UpdateLevel): UpdatePayload {
+    const bars = [...this._bars.value()]
 
     const ex = extent(bars, d => d.low, d => d.high)
 
-    const change = {
-      symbol: this._symbol,
+    const change: UpdatePayload = {
       level,
       bars,
-      latest: last(bars),
+      latest: this._latest ?? last(bars),
+      span: [0, bars.length - 1],
       extent: ex.reverse() as Extent,
       domain: pluck('date', bars),
+      symbol: this._symbol,
       lastChange: this._lastChange,
     }
 
@@ -81,26 +81,31 @@ class DataSource extends Event<DataSourceEventTypes> {
     return change
   }
 
-  set (data: Bar[], symbol?: SymbolDescriber) {
-    this.emit('beforeSet', this.makeUpdatePayload(UpdateLevel.NONE))
-
+  private set (data: Bar[], symbol?: SymbolDescriber) {
     this._bars.empty()
     this._bars.unshift(data)
+
     if (symbol) {
       this._symbol = symbol
     }
-    this._dataEngine.continue(this._bars.first())
 
-    this.emit('set', this.makeUpdatePayload(UpdateLevel.ALL))
+    this.emit('update', this.makeUpdatePayload(UpdateLevel.FULL))
   }
 
-  refresh (bar: Bar) {
+  private refresh (bar: Bar) {
+    console.log('jojo refresh')
     this._latest = bar
+    this._bars.update(0, this._latest)
+
+    this.emit('update', this.makeUpdatePayload(UpdateLevel.PATCH))
   }
 
-  append (bar: Bar) {
+  private append (bar: Bar) {
+    console.log('jojo append')
     this._latest = bar
     this._bars.push(this._latest)
+
+    this.emit('update', this.makeUpdatePayload(UpdateLevel.APPEND))
   }
 
   attach (dataFeed: IDataFeed) {

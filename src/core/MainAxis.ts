@@ -11,7 +11,7 @@ import IMainAxis from '../interface/IMainAxis'
 import { StockChartOptions } from '../options'
 import Band from '../scale/Band'
 import AbstractAxis from '../super/AbstractAxis'
-import { UpdatePayload } from './DataSource'
+import { UpdateLevel, UpdatePayload } from './DataSource'
 
 const defaultFormat: (date: number, p: number) => string = v => v.toString(0)
 
@@ -47,9 +47,12 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     return this.scale.step(step)
   }
 
-  paint (update: UpdatePayload): this {
-    // @todo update level判断
+  draw (update: UpdatePayload): this {
     this.domain(update.domain)
+
+    if (update.level === UpdateLevel.PATCH) return this
+
+    this.clear()
 
     if (this._format === defaultFormat) {
       const r = parseResolution(update.bars[0].DT)
@@ -89,26 +92,21 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
 
   transform (transform: Transform, ref: number): this {
     const diff = this._transform.diff(transform)
-    const range = this.range()
 
     this._transform = transform
 
-    let nextRange: Extent = [range[0] + diff.x, range[1] + diff.x]
-
     if (diff.k !== 1 && ref) {
-      const scale = diff.k - 1
-      nextRange = [range[0] + scale * (range[0] - ref), range[1] + scale * (range[1] - ref)]
+      this.scale.scale(diff.k, ref)
+    } else {
+      this.scale.translate(diff.x)
     }
-
-    this.range(nextRange)
 
     return this
   }
 
   focus (x: number): this {
     if (this._options.axis.currentLabel) {
-      this.clear()
-      this.draw()
+      this.apply()
 
       const date = this.invert(x)
       const ctx = this.context
@@ -143,7 +141,7 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
   tickFormat (format: (value: number, pos: number) => string): this {
     this._format = format
     this.clear()
-    this.draw()
+    this.apply()
 
     return this
   }
@@ -151,7 +149,7 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
   ticks (interval: number): this {
     this._tickInterval = interval
     this.clear()
-    this.draw()
+    this.apply()
     return this
   }
 }

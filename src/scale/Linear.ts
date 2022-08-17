@@ -3,10 +3,12 @@
  *  @date 2022/8/4 15:48
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import IScale from '../interface/IScale'
+
 const START = 0
 const STOP = 1
 
-class Linear {
+class Linear implements IScale<Extent>{
   private _clamp = false
 
   /**
@@ -74,6 +76,14 @@ class Linear {
    */
   invert (rangeValue: number): number {
     return this._domain[START] + (rangeValue - this._range[START]) * this._rangeStep
+  }
+
+  translate (): Extent {
+    return this._range
+  }
+
+  scale (): Extent {
+    return this._range
   }
 }
 

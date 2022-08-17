@@ -11,6 +11,10 @@ interface IScale<T = any> {
   range (range?: Extent): Extent
 
   domain (domain?: T): T;
+
+  translate (x: number): Extent;
+
+  scale (k: number, ref?: number): Extent;
 }
 
 export default IScale

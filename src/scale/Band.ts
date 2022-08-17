@@ -256,6 +256,22 @@ class Band implements IScale<number[]>{
     return this._range
   }
 
+  translate (x: number) {
+    this._range = [this._range[START] + x, this._range[STOP] + x]
+
+    this.updateRange()
+
+    return this._range
+  }
+
+  scale (k: number, ref?: number) {
+    const [start, stop] = this._range
+    const r = ref ?? (stop - start) / 2
+    this._range = [start + (k - 1) * (start - r), stop + (k - 1) * (stop - r)]
+    this.step(this._step * k)
+    return this._range
+  }
+
   domain (domain?: number[]): number[] {
     if (undefined !== domain) {
       this._domain = [...new Set(domain)]

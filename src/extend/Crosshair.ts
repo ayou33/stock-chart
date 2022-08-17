@@ -11,6 +11,9 @@ export type CrosshairEvents = 'focus' | 'blur'
 class Crosshair extends Gesture<CrosshairEvents> {
   private _width: number
   private _height: number
+  private _lastX = 0
+  private _lastY = 0
+  private focus = false
 
   constructor (options: RendererOptions) {
     super(options)
@@ -19,13 +22,18 @@ class Crosshair extends Gesture<CrosshairEvents> {
     this._height = options.container.height
 
     if (this._options.crosshair) {
-      this.canvas.addEventListener('mousemove', (e) => {
-        this.drawCrosshair(e.clientX, e.clientY)
+      this.canvas.addEventListener('mouseenter', () => {
+        this.focus = true
       })
 
       this.canvas.addEventListener('mouseleave', () => {
+        this.focus = false
         this.emit('blur')
         this.clear()
+      })
+
+      this.canvas.addEventListener('mousemove', (e) => {
+        if (this.focus) this.drawCrosshair(e.clientX, e.clientY)
       })
     }
 
@@ -71,7 +79,18 @@ class Crosshair extends Gesture<CrosshairEvents> {
 
     ctx.restore()
 
+    this._lastX = x
+    this._lastY = y
+
     this.emit('focus', x, y)
+  }
+
+  draw () {
+    super.draw()
+
+    if (this.focus) this.emit('focus', this._lastX, this._lastY)
+
+    return this
   }
 }
 

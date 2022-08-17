@@ -22,8 +22,7 @@ abstract class AbstractAxis<E extends string, U = Extent, T extends IScale = ISc
   abstract focus (position: number): this
 
   blur (): this {
-    this.clear()
-    this.draw()
+    this.apply()
     return this
   }
 

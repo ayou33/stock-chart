@@ -3,7 +3,6 @@
  *  @date 2022/8/16 18:53
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { clone } from 'ramda'
 import { durationMinute } from './timeFormat'
 
 export function createDataGenerator (consume: (bar: Bar, isCreate: boolean) => void) {
@@ -25,15 +24,15 @@ export function createDataGenerator (consume: (bar: Bar, isCreate: boolean) => v
         _bar.open = _bar.high = _bar.low = _bar.close
       }
 
-      consume(clone(_bar), isCreate)
+      consume({ ..._bar }, isCreate)
     }
   }
 
-  function start(from: Bar, interval: number) {
+  function start (from: Bar, interval: number) {
     const preInterval = interval - from.date % interval
 
     _interval = interval
-    _bar = clone(from)
+    _bar = { ...from }
     _next = from.date + preInterval
 
     _preTimer = window.setTimeout(() => {
