@@ -10,10 +10,6 @@ import AbstractChart from '../super/AbstractChart'
 type CandleChartEvents = ''
 
 class Candle extends AbstractChart<CandleChartEvents> implements AbstractChart<CandleChartEvents> {
-  getElement (): HTMLElement {
-    return this.canvas
-  }
-
   private drawBar (ctx: CanvasRenderingContext2D, bar: Bar, width: number) {
     const isRaise = bar.open <= bar.close
     const color = isRaise ? '#00B167' : '#F24A3A'
@@ -23,11 +19,13 @@ class Candle extends AbstractChart<CandleChartEvents> implements AbstractChart<C
     const x = this.xAxis.value(bar.date)
 
     ctx.beginPath()
+
     ctx.strokeStyle = color
     ctx.fillStyle = color
     ctx.moveTo(x, this.yAxis.value(bar.low))
     ctx.lineTo(x, this.yAxis.value(bar.high))
     ctx.fillRect(x - width / 2, top, width, height)
+
     ctx.stroke()
   }
 
@@ -37,9 +35,11 @@ class Candle extends AbstractChart<CandleChartEvents> implements AbstractChart<C
 
     this.clear()
 
+    ctx.save()
     for (let i = 0, l = update.bars.length; i < l; i++) {
       this.drawBar(ctx, update.bars[i], width)
     }
+    ctx.restore()
 
     return this
   }

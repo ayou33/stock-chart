@@ -21,8 +21,6 @@ abstract class AbstractShape<E extends string> extends Event<E> implements IInje
     resize: [],
   }
 
-  abstract getElement (): HTMLElement
-
   protected buildRect (el?: HTMLElement) {
     const element = el ?? this.getElement()
     const rect = element.getBoundingClientRect()
@@ -49,8 +47,6 @@ abstract class AbstractShape<E extends string> extends Event<E> implements IInje
 
     return [clientX, clientY]
   }
-
-  abstract applyInject (name: InjectTypes, type: 'before' | 'after'): this
 
   injectBefore (name: InjectTypes, handler: InjectHandler): this {
     this.beforeInjections[name].push(handler)
@@ -96,6 +92,9 @@ abstract class AbstractShape<E extends string> extends Event<E> implements IInje
     return this
   }
 
+  abstract applyInject (name: InjectTypes, type: 'before' | 'after'): this
+
+  abstract getElement (): HTMLElement
 }
 
 export default AbstractShape

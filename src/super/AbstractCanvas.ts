@@ -18,11 +18,11 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
   disabled = false
   lastUpdate: UpdatePayload | null = null
 
-  protected constructor (container: ContainerCell) {
+  protected constructor (container: ContainerCell, context?: CanvasRenderingContext2D) {
     super()
 
     this.container = container
-    this.context = createAAContext(container.width, container.height)
+    this.context = context ?? createAAContext(container.width, container.height)
     this.canvas = this.context.canvas
 
     this.render()

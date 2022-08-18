@@ -17,22 +17,15 @@ abstract class AbstractChart<E extends string, T = unknown> extends AbstractCanv
   yAxis: IAxis
 
   constructor (options: RendererOptions & T) {
-    super(options.container)
+    super(options.container, options.context)
 
     this._options = options
 
     this.autoStroke = options.autoStroke ?? !options.context
 
-    if (options.context) {
-      this.context = options.context
-      this.canvas = this.context.canvas
-    }
-
     this.yAxis = options.yAxis
 
     this.xAxis = options.xAxis
-
-    return this
   }
 
   draw (update: UpdatePayload): this {

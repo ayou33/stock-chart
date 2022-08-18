@@ -21,9 +21,7 @@ class DataEngine extends Event<DataEvents> {
     period: 1,
     timeUnit: 'minute',
   }
-
-  private _duration = durationMinute
-
+  private _interval = durationMinute
   private generator = createDataGenerator(this.onPush.bind(this))
 
   constructor (options: DataSourceOptions) {
@@ -46,7 +44,7 @@ class DataEngine extends Event<DataEvents> {
       timeUnit,
     }
 
-    this._duration = p.interval * duration[timeUnit] * period
+    this._interval = p.interval * duration[timeUnit] * period
   }
 
   private rollup () {
@@ -62,7 +60,7 @@ class DataEngine extends Event<DataEvents> {
 
   continue (latest?: Bar) {
     if (latest) {
-      this.generator.start(latest, this._duration)
+      this.generator.start(latest, this._interval)
     }
   }
 

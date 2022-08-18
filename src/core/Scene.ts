@@ -8,6 +8,7 @@ import debounce from 'lodash.debounce'
 import Candle from '../chart/Candle'
 import Crosshair from '../extend/Crosshair'
 import extend from '../helper/extend'
+import MA from '../indicator/ma/MA'
 import IAxis from '../interface/IAxis'
 import IChart from '../interface/IChart'
 import { StockChartOptions } from '../options'
@@ -100,7 +101,12 @@ class Scene {
         }
       })
 
-    this._charts.push(candle, crosshair)
+    const ma = new MA({
+      ...chartOptions,
+      context: candle.context,
+    })
+
+    this._charts.push(candle, crosshair, ma)
   }
 
   render () {

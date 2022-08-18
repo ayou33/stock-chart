@@ -22,6 +22,8 @@ type Bar = {
   volume: number;
 }
 
+type BarValueField = Exclude<keyof Bar, 'DT' | 'volume'>
+
 type Patch = {
   symbol: string;
   exchange: string;
