@@ -3231,6 +3231,7 @@ const bars: Bar[] = M30.map(d => {
 })
 
 const ex = extent(bars, d => d.low, d => d.high)
+const tweak = (ex[1] - ex[0]) / 10
 
 chart.attach({
   resolveSymbol (symbol: string): Promise<SymbolDescriber> {
@@ -3254,16 +3255,15 @@ chart.attach({
   },
 
   subscribe (symbol: SymbolDescriber, streamCallback: (patch: Patch) => void): Fn {
-    console.log('subscribe', symbol, streamCallback)
     function randomInterval () {
-      return getRandomInt(200, 1000 * 3)
+      return getRandomInt(200, 1000 * 2)
     }
 
     function feed () {
       setTimeout(() => {
         streamCallback({
           ...symbol,
-          price: getRandomInt(ex[0], ex[1] - 1) + Math.random(),
+          price: getRandomInt(ex[0] + tweak * 4, ex[1] - tweak * 4) + Math.random(),
           time: new Date().getTime(),
         })
         feed()

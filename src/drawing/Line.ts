@@ -22,12 +22,10 @@ export type StyleOptions = {
 
 export type LineOptions = RenderOptions & StyleOptions
 
-const defaultAngle = Math.PI / 4
-
 const lineOptions: LineOptions = {
   origin: [0, 0],
   type: 'line',
-  angle: defaultAngle,
+  angle: 0,
   style: 'solid',
   color: BLACK,
   dashArray: themeOptions.dashArray,
@@ -36,10 +34,10 @@ const lineOptions: LineOptions = {
 class Line {
   private readonly _context: CanvasRenderingContext2D
   private _options: LineOptions
-  private _start: Vector
-  private _angle = defaultAngle
   private _width = 300
   private _height = 150
+  private _start: Vector
+  private _angle = 0
   private _offsetArray: Vector[]
 
   constructor (context: CanvasRenderingContext2D, options: RecursivePartial<LineOptions>) {
@@ -54,48 +52,48 @@ class Line {
     this._start = this.applyOrigin(this._options.origin)
   }
 
-  private drawHorizontalLine () {
-    const ctx = this._context
-    const dashArray = this._options.dashArray
-    const y = this._start[1]
-    let offset = 0
-
-    ctx.strokeStyle = this._options.color
-
-    ctx.moveTo(offset, y)
-    for (let i = 0, s = this._options.dashArray.length; offset < this._options.length;) {
-      offset += dashArray[i++ % s]
-      ctx.lineTo(offset, y)
-      offset += dashArray[i++ % s]
-      ctx.moveTo(offset, y)
-    }
-  }
-
   private parseAngle () {
-    if (this._options.angle) return this._options.angle
+    if (this._options.angle !== undefined) return this._options.angle
 
-    if (!this._options.origin || !this._options.stop) throw new ReferenceError('No Angle or enough points provide to determine line\'s direction!')
+    if (!this._options.origin || !this._options.stop) throw new ReferenceError(
+      'No Angle or enough points provide to determine line\'s direction!')
 
-    return 1
+    return Math.atan(
+      (this._options.stop[1] - this._options.origin[1]) / (this._options.stop[0] - this._options.origin[0]))
   }
 
   render (options: RenderOptions & Partial<StyleOptions>) {
     this._options = extend(this._options, options)
-    this.applyAngle(this.parseAngle())
-    this.applyOrigin(this._options.origin)
+
+    this._offsetArray = this.applyAngle(this.parseAngle())
+
+    this._start = this.applyOrigin(this._options.origin)
+
     this.draw()
   }
 
   draw () {
     const ctx = this._context
+    let [x, y] = this._start
+
     ctx.save()
     ctx.beginPath()
+    ctx.strokeStyle = this._options.color
+    ctx.moveTo(x, y)
+
+    for (let i = 0, s = this._offsetArray.length; x < this._width && y < this._height;) {
+      x += this._offsetArray[i % s][0]
+      y += this._offsetArray[i % s][1]
+      ctx.lineTo(x, y)
+      i++
+      x += this._offsetArray[i % s][0]
+      y += this._offsetArray[i % s][1]
+      ctx.moveTo(x, y)
+      i++
+    }
 
     ctx.stroke()
     ctx.restore()
-  }
-
-  ease () {
   }
 
   measureCanvas () {
@@ -105,22 +103,23 @@ class Line {
 
   resize () {
     this.measureCanvas()
+
     this.draw()
   }
 
   private applyAngle (angle: number): Vector[] {
-    if (angle) this._angle = angle
-
-    // if (!this._angle)
+    this._angle = angle
 
     if (this._options.style === 'solid') {
       return [[this._width, this._height]]
     }
 
+    // 水平线
     if (this._angle === Math.PI || this._angle === 0) {
       return this._options.dashArray.map(x => ([x, 0]))
     }
 
+    // 垂直线
     if (this._angle === Math.PI / 2 || this._angle === Math.PI * 3 / 2) {
       return this._options.dashArray.map(y => ([0, y]))
     }
@@ -128,12 +127,20 @@ class Line {
     return this._options.dashArray.map(x => ([Math.cos(this._angle) * x, Math.sin(this._angle) * x]))
   }
 
-  private applyOrigin (location: Vector) {
+  private applyOrigin (location: Vector): Vector {
+    const [x, y] = this._offsetArray[0]
+
+    if (x === 0) return [location[0], 0]
+
+    if (y === 0) return [0, location[1]]
+
+    // @todo 斜线起点推断
+
     return location
   }
 
   transform (location: Vector, angle?: number) {
-    if (angle) this.applyAngle(angle)
+    if (angle) this._offsetArray = this.applyAngle(angle)
 
     this._start = this.applyOrigin(location)
 

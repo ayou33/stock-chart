@@ -14,13 +14,12 @@ class Candle extends AbstractChart<CandleChartEvents> implements AbstractChart<C
     return this.canvas
   }
 
-  private drawBar (bar: Bar, ctx: CanvasRenderingContext2D) {
+  private drawBar (ctx: CanvasRenderingContext2D, bar: Bar, width: number) {
     const isRaise = bar.open <= bar.close
     const color = isRaise ? '#00B167' : '#F24A3A'
     const top = this.yAxis.value(isRaise ? bar.close : bar.open)
     const bottom = this.yAxis.value(isRaise ? bar.open : bar.close)
     const height = Math.max(Math.abs(top - bottom), 1)
-    const width = this.xAxis.bandWidth()
     const x = this.xAxis.value(bar.date)
 
     ctx.beginPath()
@@ -34,12 +33,12 @@ class Candle extends AbstractChart<CandleChartEvents> implements AbstractChart<C
 
   drawAll (update: UpdatePayload): this {
     const ctx = this.context
+    const width = this.xAxis.bandWidth()
 
     this.clear()
 
     for (let i = 0, l = update.bars.length; i < l; i++) {
-      const bar = update.bars[i]
-      this.drawBar(bar, ctx)
+      this.drawBar(ctx, update.bars[i], width)
     }
 
     return this
@@ -55,7 +54,7 @@ class Candle extends AbstractChart<CandleChartEvents> implements AbstractChart<C
     if (update.latest) {
       this.clearLatest(update.latest)
 
-      this.drawBar(update.latest, this.context)
+      this.drawBar(this.context, update.latest, this.xAxis.bandWidth())
     }
 
     return this
