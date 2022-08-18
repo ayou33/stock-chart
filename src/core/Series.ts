@@ -5,15 +5,17 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import Transform from 'nanie/src/Transform'
-import { background, fontSize } from '../helper/typo'
+import { drawSeriesLabel } from '../helper/drawSeriesLabel'
+import extend from '../helper/extend'
+import { fontSize } from '../helper/typo'
 import IAxis from '../interface/IAxis'
-import { StockChartOptions } from '../options'
+import { SeriesOptions, seriesOptions } from '../options'
 import Linear from '../scale/Linear'
 import AbstractAxis from '../super/AbstractAxis'
 import { UpdatePayload } from './DataSource'
 
 class Series extends AbstractAxis<'transform'> implements IAxis {
-  private readonly _options: StockChartOptions
+  private readonly _options: SeriesOptions
 
   private _transform = new Transform()
 
@@ -21,12 +23,12 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
 
   private _tickInterval: number
 
-  constructor (container: ContainerCell, options: StockChartOptions) {
+  constructor (container: ContainerCell, options: RecursivePartial<SeriesOptions>) {
     super(container)
 
-    this._options = options
+    this._options = extend(seriesOptions, options)
 
-    this._tickInterval = this._options.series.tickInterval
+    this._tickInterval = this._options.tickInterval
 
     this.injectAfter('resize', () => {
       this.range([0, container.height])
@@ -42,7 +44,7 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
 
     this.domain(update.extent)
 
-    const options = this._options.series
+    const options = this._options
     const range = this.range()
     const ctx = this.context
     const x = (options.tick ?? 0)
@@ -56,9 +58,9 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
     ctx.font = fontSize(options.labelSize)
 
     for (let y = range[0]; y < range[1]; y += this._tickInterval) {
-      if (this._options.series.tick) {
+      if (this._options.tick) {
         ctx.moveTo(0, y)
-        ctx.lineTo(this._options.series.tick, y)
+        ctx.lineTo(this._options.tick, y)
       }
 
       ctx.fillText(this._format(this.invert(y), y), x + options.labelPadding, y)
@@ -68,6 +70,12 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
       ctx.lineWidth = options.border
       ctx.moveTo(0, 0)
       ctx.lineTo(0, this.container.height)
+    }
+
+    if (this._options.currentPrice && update.latest) {
+      drawSeriesLabel(
+        this.context, this.value(update.latest.close), update.latest.close.toString(), this._options.currentPrice,
+      )
     }
 
     ctx.stroke()
@@ -89,11 +97,11 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
   }
 
   focus (y: number): this {
-    if (this._options.series.currentLabel) {
+    if (this._options.focus) {
       this.rerender()
 
       const ctx = this.context
-      const options = this._options.series.currentLabel
+      const options = this._options.focus
 
       ctx.save()
       ctx.beginPath()
@@ -101,15 +109,11 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
       ctx.textAlign = 'start'
       ctx.font = fontSize(options.fontSize)
 
-      const text = this.invert(y).toString()
-      ctx.fillStyle = options.background
-      background(ctx, text, 0, y, options.padding)
+      drawSeriesLabel(ctx, y, this.invert(y).toString(), options)
 
-      ctx.fillStyle = options.color
-      ctx.fillText(this.invert(y).toString(), 0, y)
       ctx.restore()
-
     }
+
     return this
   }
 

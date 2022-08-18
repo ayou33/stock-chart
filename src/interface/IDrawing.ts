@@ -3,9 +3,18 @@
  *  @date 2022/7/25 18:23
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import ICanvas from './ICanvas'
-import IRenderer from './IRenderer'
+interface IDrawing {
+  context: CanvasRenderingContext2D;
 
-interface IDrawing extends IRenderer, ICanvas {}
+  create (): this;
+
+  draw (): this;
+
+  transform (location: Vector, angle?: number): this;
+
+  resize (): this;
+
+  ease (): this;
+}
 
 export default IDrawing

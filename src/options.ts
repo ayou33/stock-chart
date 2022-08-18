@@ -5,53 +5,15 @@
  */
 import IAxis from './interface/IAxis'
 import IMainAxis from './interface/IMainAxis'
-
-const BLACK = '#000'
-const WHITE = '#fff'
-
-type Color = string | CanvasGradient | CanvasPattern
-
-export type ThemeOptions = {
-  color: Color;
-  background: Color;
-  mountainColor: Color;
-  dashColor: Color;
-  activeColor: Color;
-  bullishColor: Color; // 看多颜色
-  bearishColor: Color;
-  lineWidth: number;
-  dashWidth: number;
-  dashArray: number[];
-  fontSize: number;
-}
-
-const themeOptions: ThemeOptions = {
-  fontSize: 10,
-  lineWidth: 0.5,
-  dashWidth: 0.5,
-  dashArray: [4, 8],
-  bullishColor: '#00B167', // 看多颜色
-  bearishColor: '#F24A3A',
-  color: BLACK,
-  background: 'rgba(0, 0, 0, 0.1)',
-  dashColor: '#F19231',
-  activeColor: '#326BFE',
-  mountainColor: '#E6EDFE',
-}
+import { Color, themeOptions, ThemeOptions, BLACK, WHITE } from './theme'
 
 type AxisOptions = {
   tick: null | number; // 不显示或者设置大小
   tickInterval: number;
   labelSize: number;
-  labelPadding: number; // padding-top
+  labelPadding: number; // padding-top or left
   border: null | number;
   borderColor: Color;
-  currentLabel: {
-    color: Color;
-    background: Color;
-    fontSize: number;
-    padding: BoxPadding;
-  } | null;
 }
 
 const axisOptions: AxisOptions = {
@@ -61,30 +23,54 @@ const axisOptions: AxisOptions = {
   labelPadding: 4,
   border: 1,
   borderColor: themeOptions.color,
-  currentLabel: {
-    color: WHITE,
-    background: themeOptions.dashColor,
-    fontSize: themeOptions.fontSize,
-    padding: 2,
-  },
 }
 
-type OptionalMainAxisOptions = Partial<{
+export type LabelStyle = {
+  color: Color;
+  padding: BoxPadding;
+  fontSize: number;
+  background?: Color;
+  dashArray: number[];
+  lineWidth: number;
+}
+
+const labelStyle: LabelStyle = {
+  color: WHITE,
+  padding: 2,
+  fontSize: themeOptions.fontSize,
+  background: BLACK,
+  dashArray: themeOptions.dashArray,
+  lineWidth: themeOptions.lineWidth,
+}
+
+const currentPriceLabel: LabelStyle = {
+  ...labelStyle,
+  background: themeOptions.dottedColor,
+  dashArray: themeOptions.dotArray,
+}
+
+export type MainAxisOptions = {
   position: 'top' | 'bottom';
-} & AxisOptions>
+  focus: LabelStyle | null;
+} & AxisOptions
 
-export const mainAxisOptions: Required<OptionalMainAxisOptions> = {
-  position: 'bottom',
+export const mainAxisOptions: MainAxisOptions = {
   ...axisOptions,
+  position: 'bottom',
+  focus: labelStyle,
 }
 
-type OptionalSeriesOptions = Partial<{
+export type SeriesOptions = {
   position: 'right' | 'left';
-} & AxisOptions>
+  currentPrice: LabelStyle | null;
+  focus: LabelStyle | null;
+} & AxisOptions
 
-export const seriesOptions: Required<OptionalSeriesOptions> = {
-  position: 'right',
+export const seriesOptions: SeriesOptions = {
   ...axisOptions,
+  position: 'right',
+  currentPrice: currentPriceLabel,
+  focus: labelStyle,
   tickInterval: 60,
 }
 
@@ -100,12 +86,6 @@ export const layoutOptions: LayoutOptions = {
   padding: 0,
 }
 
-export type CrosshairOptions = {
-  dashArray: number[];
-  color: Color;
-  lineWidth: number;
-}
-
 export type GridOptions = {
   horizontal: null | Color;
   vertical: null | Color;
@@ -119,10 +99,11 @@ export type StockChartOptions = {
   root: string;
   symbol: string;
   theme: 'light' | 'dark' | ThemeOptions;
-  crosshair: null | CrosshairOptions;
+  crosshair: null | LabelStyle;
+  currentPrice: null | LabelStyle;
   grid: null | GridOptions;
-  series: Required<OptionalSeriesOptions>;
-  axis: Required<OptionalMainAxisOptions>;
+  defaultSeries: SeriesOptions;
+  mainAxis: MainAxisOptions;
   layout: LayoutOptions;
   dataSource: DataSourceOptions;
 }
@@ -131,17 +112,14 @@ export const stockChartOptions: StockChartOptions = {
   root: '',
   symbol: '',
   theme: themeOptions,
-  crosshair: {
-    dashArray: themeOptions.dashArray,
-    color: themeOptions.dashColor,
-    lineWidth: themeOptions.dashWidth,
-  },
+  crosshair: labelStyle,
+  currentPrice: currentPriceLabel,
   grid: {
     horizontal: themeOptions.background,
     vertical: themeOptions.background,
   },
-  series: seriesOptions,
-  axis: mainAxisOptions,
+  defaultSeries: seriesOptions,
+  mainAxis: mainAxisOptions,
   layout: layoutOptions,
   dataSource: {
     autoFeed: true,

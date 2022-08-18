@@ -5,18 +5,20 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import Transform from 'nanie/src/Transform'
+import extend from '../helper/extend'
 import { parseResolution, timeFormat } from '../helper/timeFormat'
 import { background, fontSize } from '../helper/typo'
 import IMainAxis from '../interface/IMainAxis'
-import { StockChartOptions } from '../options'
+import { mainAxisOptions, MainAxisOptions } from '../options'
 import Band from '../scale/Band'
 import AbstractAxis from '../super/AbstractAxis'
+import { WHITE } from '../theme'
 import { UpdateLevel, UpdatePayload } from './DataSource'
 
 const defaultFormat: (date: number, p: number) => string = v => v.toString(0)
 
 class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMainAxis {
-  private readonly _options: StockChartOptions
+  private readonly _options: MainAxisOptions
 
   private _format = defaultFormat
 
@@ -24,11 +26,11 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
 
   private _tickInterval: number
 
-  constructor (container: ContainerCell, options: StockChartOptions) {
+  constructor (container: ContainerCell, options: RecursivePartial<MainAxisOptions>) {
     super(container)
-    this._options = options
+    this._options = extend(mainAxisOptions, options)
 
-    this._tickInterval = this._options.axis.tickInterval
+    this._tickInterval = this._options.tickInterval
 
     this.injectAfter('resize', () => {
       this.range([-Infinity, container.width])
@@ -60,9 +62,9 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     }
 
     const ctx = this.context
-    const y = (this._options.axis.tick ?? 0)
+    const y = (this._options.tick ?? 0)
     const width = this.container.width
-    const options = this._options.axis
+    const options = this._options
 
     ctx.save()
     ctx.beginPath()
@@ -105,12 +107,12 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
   }
 
   focus (x: number): this {
-    if (this._options.axis.currentLabel) {
+    if (this._options.focus) {
       this.apply()
 
       const date = this.invert(x)
       const ctx = this.context
-      const options = this._options.axis.currentLabel
+      const options = this._options.focus
 
       ctx.save()
       ctx.beginPath()
@@ -118,9 +120,9 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
       ctx.textAlign = 'center'
 
       const text = this._format(date, x)
-      const y = (this._options.axis.tick ?? 0) + this._options.axis.labelPadding
+      const y = (this._options.tick ?? 0) + this._options.labelPadding
 
-      ctx.fillStyle = options.background
+      ctx.fillStyle = options.background ?? options.color
       background(
         ctx,
         text,
@@ -129,7 +131,7 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
         options.padding,
       )
 
-      ctx.fillStyle = options.color
+      ctx.fillStyle = options.background ? options.color : WHITE
       ctx.font = fontSize(options.fontSize)
       ctx.fillText(text, x, y)
       ctx.restore()

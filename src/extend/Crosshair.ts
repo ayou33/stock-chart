@@ -3,6 +3,8 @@
  *  @date 2022/8/9 11:27
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import { UpdatePayload } from '../core/DataSource'
+import Line from '../drawing/Line'
 import { RendererOptions } from '../options'
 import Gesture from './Gesture'
 
@@ -14,6 +16,7 @@ class Crosshair extends Gesture<CrosshairEvents> {
   private _lastX = 0
   private _lastY = 0
   private focus = false
+  private _currentPriceLine: Line | null = null
 
   constructor (options: RendererOptions) {
     super(options)
@@ -41,6 +44,14 @@ class Crosshair extends Gesture<CrosshairEvents> {
       this._width = options.container.width
       this._height = options.container.height
     })
+
+    if (this._options.currentPrice) {
+      this._currentPriceLine = new Line(this.context, {
+        style: 'dashed',
+        color: this._options.currentPrice.background ?? this._options.currentPrice.color,
+        dashArray: this._options.currentPrice?.dashArray,
+      })
+    }
   }
 
   private drawCrosshair (x: number, y: number) {
@@ -52,7 +63,7 @@ class Crosshair extends Gesture<CrosshairEvents> {
 
     ctx.save()
     ctx.beginPath()
-    ctx.strokeStyle = options.color
+    ctx.strokeStyle = options.background ?? options.color
     ctx.lineWidth = options.lineWidth
 
     let offset = 0
@@ -85,10 +96,38 @@ class Crosshair extends Gesture<CrosshairEvents> {
     this.emit('focus', x, y)
   }
 
-  draw () {
-    super.draw()
-
+  draw (update: UpdatePayload) {
     if (this.focus) this.emit('focus', this._lastX, this._lastY)
+
+    if (update.latest) {
+      // this.drawCurrent(update.latest)
+      // this._currentPriceLine?.transform([0, this.yAxis.value(update.latest.close)])
+    }
+
+    return this
+  }
+
+  drawCurrent (latest: Bar): this {
+    if (this._options.currentPrice) {
+      this.clear()
+      if (this.focus) this.drawCrosshair(this._lastX, this._lastY)
+
+      const ctx = this.context
+      const options = this._options.currentPrice
+      const y = this.yAxis.value(latest.close)
+
+      ctx.beginPath()
+      ctx.strokeStyle = options.background ?? options.color
+      let offset = 0
+      for (let i = 0, s = options.dashArray.length; offset < this._width;) {
+        offset += options.dashArray[i++ % s]
+        ctx.lineTo(offset, y)
+        offset += options.dashArray[i++ % s]
+        ctx.moveTo(offset, y)
+      }
+
+      ctx.stroke()
+    }
 
     return this
   }

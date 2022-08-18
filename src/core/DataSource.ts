@@ -23,13 +23,13 @@ export enum UpdateLevel {
 }
 
 export type UpdatePayload = {
-  symbol: SymbolDescriber | null;
+  readonly symbol: SymbolDescriber | null;
+  readonly bars: Bar[];
+  readonly latest?: Bar;
+  readonly domain: number[];
   level: UpdateLevel,
-  bars: Bar[];
-  latest?: Bar;
   span: Extent;
   extent: Extent;
-  domain: number[];
   lastChange: UpdatePayload | null;
 }
 

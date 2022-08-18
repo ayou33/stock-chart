@@ -7,6 +7,7 @@
 import debounce from 'lodash.debounce'
 import Candle from '../chart/Candle'
 import Crosshair from '../extend/Crosshair'
+import extend from '../helper/extend'
 import IAxis from '../interface/IAxis'
 import IChart from '../interface/IChart'
 import { StockChartOptions } from '../options'
@@ -42,7 +43,9 @@ class Scene {
 
     const mainAxisContainer = this._layout.mainAxis()
 
-    this._mainAxis = new MainAxis(mainAxisContainer, this._options)
+    this._mainAxis = new MainAxis(mainAxisContainer, extend({
+      focus: this._options.crosshair,
+    }, this._options.mainAxis))
 
     this.render()
 
@@ -53,7 +56,13 @@ class Scene {
 
   private renderSeries () {
     const container = this._layout.series()
-    const defaultSeries = new Series(container, this._options)
+    const defaultSeries = new Series(
+      container,
+      extend({
+        focus: this._options.crosshair,
+        currentPrice: this._options.currentPrice,
+      }, this._options.defaultSeries),
+    )
     defaultSeries.range([0, container.height])
     this._series.default = defaultSeries
   }

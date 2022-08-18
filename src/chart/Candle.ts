@@ -48,7 +48,7 @@ class Candle extends AbstractChart<CandleChartEvents> implements AbstractChart<C
   clearLatest (bar: Bar) {
     const bandWidth = this.xAxis.bandWidth()
     const x = this.xAxis.value(bar.date) - bandWidth / 2
-    this.context.clearRect(x - 0.5, 0, bandWidth + 0.5, this.container.height)
+    this.context.clearRect(x, 0, bandWidth + 0.5, this.container.height)
   }
 
   drawLatest (update: UpdatePayload): this {

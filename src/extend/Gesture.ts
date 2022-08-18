@@ -11,7 +11,7 @@ export type GestureEvents = 'transform'
 
 class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T> implements AbstractChart<GestureEvents | T> {
 
-  constructor (options: RendererOptions) {
+  protected constructor (options: RendererOptions) {
     super(options)
 
     options.container.node.style.position = 'relative'
@@ -35,10 +35,6 @@ class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T> i
     })
 
     this.autoStroke = true
-  }
-
-  draw () {
-    return this
   }
 
   drawAll (): this {
