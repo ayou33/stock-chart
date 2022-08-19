@@ -1,22 +1,20 @@
 /**
  *  AbstractCanvas.ts of project stock-chart
- *  @date 2022/8/11 16:39
+ *  @date 2022/8/19 16:39
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { UpdateLevel, UpdatePayload } from '../core/DataSource'
+import { UpdatePayload } from '../core/DataSource'
 import { aa, createAAContext } from '../helper/aa'
-import ICanvas from '../interface/ICanvas'
-import IInjectable, { InjectPosition, InjectTypes } from '../interface/IInjectable'
-import AbstractShape from './AbstractShape'
+import ICanvas, { Bounding } from '../interface/ICanvas'
+import { InjectPosition, InjectTypes } from '../interface/IInjectable'
+import AbstractRenderer from './AbstractRenderer'
 
-abstract class AbstractCanvas<E extends string> extends AbstractShape<E> implements ICanvas, IInjectable {
-  protected readonly container: ContainerCell
-
+abstract class AbstractCanvas<E extends string = never> extends AbstractRenderer<E> implements ICanvas<E> {
+  container: ContainerCell
   canvas: HTMLCanvasElement
   context: CanvasRenderingContext2D
-  autoStroke = true
+  bounding: { left: number, top: number } | null = null
   disabled = false
-  lastUpdate: UpdatePayload | null = null
 
   protected constructor (container: ContainerCell, context?: CanvasRenderingContext2D) {
     super()
@@ -26,6 +24,33 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
     this.canvas = this.context.canvas
 
     this.render()
+  }
+
+  createBounding (el?: HTMLElement): Bounding {
+    const element = el ?? this.canvas
+    const rect = element.getBoundingClientRect()
+
+    return this.bounding = {
+      left: rect.left + element.clientLeft,
+      top: rect.top + element.clientTop,
+    }
+  }
+
+  pointer (x: number, y: number, el?: HTMLElement): Vector {
+    if (el) {
+      const bounding = this.createBounding(el)
+      return [x - bounding.left, x - bounding.top]
+    }
+
+    if (!this.bounding) {
+      this.createBounding()
+    }
+
+    if (this.bounding) {
+      return [x - this.bounding.left, y - this.bounding.top]
+    }
+
+    return [x, x]
   }
 
   enable (show = false): this {
@@ -40,28 +65,6 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
     this.disabled = true
 
     if (hide) this.hide()
-
-    return this
-  }
-
-  apply (update?: UpdatePayload): this {
-    this.applyInject('update', 'before')
-
-    if (!this.disabled) {
-      if (update) this.lastUpdate = update
-      else if (this.lastUpdate && this.lastUpdate.level !== UpdateLevel.REDRAW) {
-        this.lastUpdate.lastChange = { ...this.lastUpdate }
-        this.lastUpdate.level = UpdateLevel.REDRAW
-      }
-
-      if (this.lastUpdate) {
-        this.applyInject('draw', 'before')
-        this.draw(this.lastUpdate)
-        this.applyInject('draw', 'after')
-      }
-    }
-
-    this.applyInject('update', 'after')
 
     return this
   }
@@ -91,8 +94,8 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
   }
 
   remove (): this {
-    this.off('*')
-    this.ejectAll('*')
+    this.destroy()
+
     this.container.node.removeChild(this.canvas)
 
     return this
@@ -101,7 +104,7 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
   resize () {
     this.applyInject('resize', 'before')
 
-    this.buildRect()
+    this.createBounding()
 
     aa(this.context, this.container.width, this.container.height)
 
@@ -112,14 +115,10 @@ abstract class AbstractCanvas<E extends string> extends AbstractShape<E> impleme
     return this
   }
 
-  getElement (): HTMLElement {
-    return this.canvas
-  }
-
   applyInject (name: InjectTypes, position: InjectPosition): this {
     const handlers = position === 'before' ? this.beforeInjections[name] : this.afterInjections[name]
 
-    handlers.map(fn => fn(this.context, this.lastUpdate, this.container))
+    handlers.map(fn => fn(this.context, this.lastUpdate))
 
     return this
   }

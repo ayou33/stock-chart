@@ -20,7 +20,9 @@ const inputs: MAInput['inputs'] = {
   periods: [14]
 }
 
-class MA extends AbstractChart<''> implements IIndicator<MAInput> {
+class MA extends AbstractChart implements IIndicator<MAInput> {
+  static displayType = 'inner'
+
   private _inputs: MAInput['inputs']
 
   constructor (options: RendererOptions & RecursivePartial<MAInput>) {

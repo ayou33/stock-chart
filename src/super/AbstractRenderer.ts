@@ -1,13 +1,15 @@
 /**
- *  AbstractShape.ts of project stock-chart
- *  @date 2022/8/8 14:27
+ *  AbstractRender.ts of project stock-chart
+ *  @date 2022/8/19 14:45
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import Event from '../base/Event'
-import IInjectable, { InjectHandler, injectTypes, InjectTypes } from '../interface/IInjectable'
+import { UpdateLevel, UpdatePayload } from '../core/DataSource'
+import { InjectHandler, injectTypes, InjectTypes } from '../interface/IInjectable'
+import IRenderer from '../interface/IRenderer'
 
-abstract class AbstractShape<E extends string> extends Event<E> implements IInjectable {
-  private _bounding: { left: number, top: number } | null = null
+abstract class AbstractRenderer<E extends string = never> extends Event<E> implements IRenderer<E> {
+  lastUpdate: UpdatePayload | null = null
 
   protected readonly beforeInjections: Record<InjectTypes, InjectHandler[]> = {
     update: [],
@@ -21,35 +23,8 @@ abstract class AbstractShape<E extends string> extends Event<E> implements IInje
     resize: [],
   }
 
-  protected buildRect (el?: HTMLElement) {
-    const element = el ?? this.getElement()
-    const rect = element.getBoundingClientRect()
-
-    return this._bounding = {
-      left: rect.left + element.clientLeft,
-      top: rect.top + element.clientTop,
-    }
-  }
-
-  pointer (clientX: number, clientY: number, el?: HTMLElement): Vector {
-    if (el) {
-      const bounding = this.buildRect(el)
-      return [clientX - bounding.left, clientY - bounding.top]
-    }
-
-    if (!this._bounding) {
-      this.buildRect()
-    }
-
-    if (this._bounding) {
-      return [clientX - this._bounding.left, clientY - this._bounding.top]
-    }
-
-    return [clientX, clientY]
-  }
-
   injectBefore (name: InjectTypes, handler: InjectHandler): this {
-    this.beforeInjections[name].push(handler)
+    this.beforeInjections[name].unshift(handler)
 
     return this
   }
@@ -92,9 +67,43 @@ abstract class AbstractShape<E extends string> extends Event<E> implements IInje
     return this
   }
 
+  apply (update?: UpdatePayload): this {
+    this.applyInject('update', 'before')
+
+    if (update) {
+      this.lastUpdate = update
+    } else if (this.lastUpdate && this.lastUpdate.level !== UpdateLevel.REDRAW) {
+      this.lastUpdate.lastChange = { ...this.lastUpdate }
+      this.lastUpdate.level = UpdateLevel.REDRAW
+    }
+
+    if (this.lastUpdate) {
+      this.applyInject('draw', 'before')
+      this.draw(this.lastUpdate)
+      this.applyInject('draw', 'after')
+    }
+
+    this.applyInject('update', 'after')
+
+    return this
+  }
+
+  destroy (): this {
+    this.off('*')
+    this.ejectAll('*')
+
+    return this
+  }
+
+  abstract draw (update: UpdatePayload): this;
+
   abstract applyInject (name: InjectTypes, type: 'before' | 'after'): this
 
-  abstract getElement (): HTMLElement
+  resize (): this {
+    this.apply()
+
+    return this
+  }
 }
 
-export default AbstractShape
+export default AbstractRenderer

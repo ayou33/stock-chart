@@ -1,4 +1,5 @@
 /**
+ *  方法注入抽象
  *  IInjectable.ts of project stock-chart
  *  @date 2022/8/12 14:26
  *  @author 阿佑[ayooooo@petalmail.com]
@@ -12,7 +13,7 @@ export type InjectTypes = typeof injectTypes[number]
 export type InjectPosition = 'before' | 'after'
 
 export type InjectHandler = (
-  context: CanvasRenderingContext2D, update: UpdatePayload | null, container: ContainerCell) => void
+  context: CanvasRenderingContext2D, update: UpdatePayload | null) => void
 
 interface IInjectable {
   injectBefore (name: InjectTypes, handler: InjectHandler): this;

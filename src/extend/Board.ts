@@ -1,5 +1,5 @@
 /**
- *  Crosshair.ts of project stock-chart
+ *  Skin.ts of project stock-chart
  *  @date 2022/8/9 11:27
  *  @author 阿佑[ayooooo@petalmail.com]
  */
@@ -10,7 +10,7 @@ import Gesture from './Gesture'
 
 export type CrosshairEvents = 'focus' | 'blur'
 
-class Crosshair extends Gesture<CrosshairEvents> {
+class Board extends Gesture<CrosshairEvents> {
   private _lastX = 0
   private _lastY = 0
   private _priceY = 0
@@ -22,7 +22,7 @@ class Crosshair extends Gesture<CrosshairEvents> {
   constructor (options: RendererOptions) {
     super(options)
 
-    if (this._options.crosshair) {
+    if (this.options.crosshair) {
       this.canvas.addEventListener('mouseenter', () => {
         this._focus = true
       })
@@ -39,23 +39,23 @@ class Crosshair extends Gesture<CrosshairEvents> {
 
       this._priceLine = new Line(this.context, {
         style: 'dashed',
-        color: this._options.crosshair.background ?? this._options.crosshair.color,
-        dashArray: this._options.crosshair.dashArray,
+        color: this.options.crosshair.background ?? this.options.crosshair.color,
+        dashArray: this.options.crosshair.dashArray,
       })
 
       this._timeLine = new Line(this.context, {
         angle: Math.PI / 2,
         style: 'dashed',
-        color: this._options.crosshair.background ?? this._options.crosshair.color,
-        dashArray: this._options.crosshair.dashArray,
+        color: this.options.crosshair.background ?? this.options.crosshair.color,
+        dashArray: this.options.crosshair.dashArray,
       })
     }
 
-    if (this._options.currentPrice) {
+    if (this.options.currentPrice) {
       this._currentPriceLine = new Line(this.context, {
         style: 'dashed',
-        color: this._options.currentPrice.background ?? this._options.currentPrice.color,
-        dashArray: this._options.currentPrice.dashArray,
+        color: this.options.currentPrice.background ?? this.options.currentPrice.color,
+        dashArray: this.options.currentPrice.dashArray,
       })
     }
 
@@ -73,7 +73,7 @@ class Crosshair extends Gesture<CrosshairEvents> {
   }
 
   private drawCrosshair (x: number, y: number) {
-    if (this.disabled || !this._options.crosshair) return
+    if (this.disabled || !this.options.crosshair) return
 
     this.clear()
 
@@ -102,4 +102,4 @@ class Crosshair extends Gesture<CrosshairEvents> {
   }
 }
 
-export default Crosshair
+export default Board

@@ -6,13 +6,14 @@
  */
 import debounce from 'lodash.debounce'
 import Candle from '../chart/Candle'
-import Crosshair from '../extend/Crosshair'
+import Board from '../extend/Board'
 import extend from '../helper/extend'
 import MA from '../indicator/ma/MA'
 import IAxis from '../interface/IAxis'
-import IChart from '../interface/IChart'
+import IRenderer from '../interface/IRenderer'
 import { StockChartOptions } from '../options'
 import { UpdateLevel, UpdatePayload } from './DataSource'
+import IndicatorMaster from './IndicatorMaster'
 import Layout from './Layout'
 import MainAxis from './MainAxis'
 import Series from './Series'
@@ -23,7 +24,8 @@ class Scene {
   private readonly _layout: Layout
   private readonly _mainAxis
   private readonly _series: Record<'default' | string, IAxis> = {}
-  private readonly _charts: IChart[] = []
+  private readonly _renderers: IRenderer[] = []
+  private readonly _indicators: IndicatorMaster
 
   private _lastUpdate: UpdatePayload | null = null
 
@@ -39,6 +41,8 @@ class Scene {
     this._container = el
 
     this._layout = new Layout(this._container.getBoundingClientRect())
+
+    this._indicators = new IndicatorMaster(this._layout)
 
     this._container.appendChild(this._layout.node())
 
@@ -84,7 +88,7 @@ class Scene {
 
     const candle = new Candle(chartOptions).render()
 
-    const crosshair = new Crosshair(chartOptions)
+    const board = new Board(chartOptions)
       .render()
       .on('focus', (_, x: number, y: number) => {
         this._mainAxis.focus(x)
@@ -101,12 +105,9 @@ class Scene {
         }
       })
 
-    const ma = new MA({
-      ...chartOptions,
-      context: candle.context,
-    })
+    this._indicators.add(MA)
 
-    this._charts.push(candle, crosshair, ma)
+    this._renderers.push(candle, board, this._indicators)
   }
 
   render () {
@@ -123,7 +124,7 @@ class Scene {
     if (this._lastUpdate) {
       this._mainAxis.apply(this._lastUpdate)
       this._series.default.apply(this._lastUpdate)
-      this._charts.map(c => c.apply(this._lastUpdate as UpdatePayload))
+      this._renderers.map(c => c.apply(this._lastUpdate as UpdatePayload))
     }
   }
 
@@ -131,7 +132,7 @@ class Scene {
     this._layout.resize(this._container.getBoundingClientRect())
     this._mainAxis.resize()
     this._series.default.resize()
-    this._charts.map(c => c.resize())
+    this._renderers.map(c => c.resize())
   }
 }
 

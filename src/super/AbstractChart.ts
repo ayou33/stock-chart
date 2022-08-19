@@ -1,7 +1,6 @@
 /**
- *  顶层抽象渲染器
- *  AbstractRenderer.ts of project stock-chart
- *  @date 2022/8/3 15:13
+ *  AbstractChart.ts of project stock-chart
+ *  @date 2022/8/19 16:45
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import { UpdateLevel, UpdatePayload } from '../core/DataSource'
@@ -11,21 +10,36 @@ import IMainAxis from '../interface/IMainAxis'
 import { RendererOptions } from '../options'
 import AbstractCanvas from './AbstractCanvas'
 
-abstract class AbstractChart<E extends string, T = unknown> extends AbstractCanvas<E> implements IChart {
-  protected readonly _options: RendererOptions & T
+abstract class AbstractChart<E extends string = never> extends AbstractCanvas<E> implements IChart<E> {
+  options: RendererOptions
+  name: string
   xAxis: IMainAxis
   yAxis: IAxis
 
-  constructor (options: RendererOptions & T) {
+  protected constructor (options: RendererOptions, name = Math.random().toString(36).slice(2)) {
     super(options.container, options.context)
 
-    this._options = options
-
-    this.autoStroke = options.autoStroke ?? !options.context
-
-    this.yAxis = options.yAxis
+    this.options = options
+    this.name = name
 
     this.xAxis = options.xAxis
+    this.yAxis = options.yAxis
+  }
+
+  fx (x: number): number {
+    return this.xAxis.value(x)
+  }
+
+  fy (y: number): number {
+    return this.yAxis.value(y)
+  }
+
+  invertX (x: number): number {
+    return this.xAxis.invert(x)
+  }
+
+  invertY (y: number): number {
+    return this.yAxis.invert(y)
   }
 
   draw (update: UpdatePayload): this {
@@ -42,6 +56,5 @@ abstract class AbstractChart<E extends string, T = unknown> extends AbstractCanv
 
   abstract drawLatest (update: UpdatePayload): this
 }
-
 
 export default AbstractChart

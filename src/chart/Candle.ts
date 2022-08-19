@@ -5,11 +5,14 @@
  *  柱状图
  */
 import { UpdatePayload } from '../core/DataSource'
+import { RendererOptions } from '../options'
 import AbstractChart from '../super/AbstractChart'
 
-type CandleChartEvents = ''
+class Candle extends AbstractChart implements AbstractChart {
+  constructor (options: RendererOptions) {
+    super(options, 'candle')
+  }
 
-class Candle extends AbstractChart<CandleChartEvents> implements AbstractChart<CandleChartEvents> {
   private drawBar (ctx: CanvasRenderingContext2D, bar: Bar, width: number) {
     const isRaise = bar.open <= bar.close
     const color = isRaise ? '#00B167' : '#F24A3A'

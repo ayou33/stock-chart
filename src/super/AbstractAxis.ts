@@ -17,10 +17,6 @@ abstract class AbstractAxis<E extends string, U = Extent, T extends IScale = ISc
     this.scale = this.makeScale()
   }
 
-  abstract makeScale (): T
-
-  abstract focus (position: number): this
-
   blur (): this {
     this.apply()
     return this
@@ -34,12 +30,6 @@ abstract class AbstractAxis<E extends string, U = Extent, T extends IScale = ISc
     return this.scale.invert(rangeValue)
   }
 
-  abstract tickFormat (format: (value: number, pos: number) => string): this
-
-  abstract ticks (interval: number): this
-
-  abstract transform (transform: Transform, ref?: number): this
-
   domain (domain?: U): U {
     return this.scale.domain(domain)
   }
@@ -47,6 +37,16 @@ abstract class AbstractAxis<E extends string, U = Extent, T extends IScale = ISc
   range (range?: Extent) {
     return this.scale.range(range)
   }
+
+  abstract tickFormat (format: (value: number, pos: number) => string): this
+
+  abstract ticks (interval: number): this
+
+  abstract transform (transform: Transform, ref?: number): this
+
+  abstract makeScale (): T
+
+  abstract focus (position: number): this
 }
 
 export default AbstractAxis

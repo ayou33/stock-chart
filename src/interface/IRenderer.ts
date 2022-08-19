@@ -1,15 +1,24 @@
 /**
- *  所有依赖坐标系的渲染器的基础(绘制)公共接口
+ *  功能渲染器抽象
+ *  负责数据分发
  *  IRenderer.ts of project stock-chart
  *  @date 2022/8/3 14:56
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import IAxis from './IAxis'
-import IMainAxis from './IMainAxis'
+import { UpdatePayload } from '../core/DataSource'
+import IInjectable from './IInjectable'
+import Event from '../base/Event'
 
-interface IRenderer {
-  yAxis: IAxis;
-  xAxis: IMainAxis;
+interface IRenderer<E extends string = never> extends Event<E>, IInjectable {
+  lastUpdate: UpdatePayload | null;
+
+  apply (update?: UpdatePayload): this;
+
+  draw (update: UpdatePayload): this;
+
+  destroy (): this;
+
+  resize () :this;
 }
 
 export default IRenderer

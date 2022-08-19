@@ -3,6 +3,7 @@
  *  @date 2022/7/26 11:25
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import Layout from './core/Layout'
 import IAxis from './interface/IAxis'
 import IMainAxis from './interface/IMainAxis'
 import { Color, themeOptions, ThemeOptions, BLACK, WHITE } from './theme'
@@ -128,10 +129,11 @@ export const stockChartOptions: StockChartOptions = {
 
 export default stockChartOptions
 
-export type RendererOptions = {
+export type RenderOptions = {
   container: ContainerCell;
   yAxis: IAxis;
   xAxis: IMainAxis;
   context?: CanvasRenderingContext2D;
-  autoStroke?: boolean;
-} & StockChartOptions
+}
+
+export type RendererOptions = RenderOptions & StockChartOptions

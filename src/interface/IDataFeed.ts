@@ -1,4 +1,5 @@
 /**
+ *  chart data source feed
  *  IDataFeed.ts of project stock-chart
  *  @date 2022/7/28 17:35
  *  @author 阿佑[ayooooo@petalmail.com]

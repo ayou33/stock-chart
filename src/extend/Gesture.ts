@@ -33,8 +33,6 @@ class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T> i
         this.emit('transform')
       }
     })
-
-    this.autoStroke = true
   }
 
   drawAll (): this {
