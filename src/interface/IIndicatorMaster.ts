@@ -3,14 +3,17 @@
  *  @date 2022/8/19 17:28
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import Layout from '../core/Layout'
+import { IndicatorInputs, IndicatorNames } from '../indicator/all'
 import IIndicator, { IIndicatorCtor } from './IIndicator'
 import IRenderer from './IRenderer'
+import { RenderMasterOptions } from '../options'
+import Layout from '../core/Layout'
 
 interface IIndicatorMaster<E extends string = never> extends IRenderer<E> {
+  options: RenderMasterOptions
   layout: Layout
 
-  add<T> (Ctor: IIndicatorCtor<T>): this;
+  add (name: IndicatorNames, config?: IndicatorInputs[typeof name]): this;
 
   remove<T> (Ctor: IIndicatorCtor<T>): this;
 

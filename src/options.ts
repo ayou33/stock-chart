@@ -3,10 +3,10 @@
  *  @date 2022/7/26 11:25
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import Layout from './core/Layout'
 import IAxis from './interface/IAxis'
 import IMainAxis from './interface/IMainAxis'
 import { Color, themeOptions, ThemeOptions, BLACK, WHITE } from './theme'
+import Layout from './core/Layout'
 
 type AxisOptions = {
   tick: null | number; // 不显示或者设置大小
@@ -129,11 +129,16 @@ export const stockChartOptions: StockChartOptions = {
 
 export default stockChartOptions
 
-export type RenderOptions = {
-  container: ContainerCell;
+export type ScaledOptions = {
   yAxis: IAxis;
   xAxis: IMainAxis;
   context?: CanvasRenderingContext2D;
 }
 
+export type RenderOptions = ScaledOptions & {
+  container: ContainerCell;
+}
+
 export type RendererOptions = RenderOptions & StockChartOptions
+
+export type RenderMasterOptions = ScaledOptions & { layout: Layout }

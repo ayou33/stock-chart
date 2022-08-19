@@ -4,13 +4,13 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import { UpdatePayload } from '../core/DataSource'
-import { RendererOptions } from '../options'
+import { RenderOptions } from '../options'
 import IAxis from './IAxis'
 import ICanvas from './ICanvas'
 import IMainAxis from './IMainAxis'
 
 interface IChart<E extends string = never> extends ICanvas<E> {
-  options: RendererOptions;
+  options: RenderOptions;
   name: string;
   yAxis: IAxis;
   xAxis: IMainAxis;

@@ -5,27 +5,29 @@
  */
 import { UpdatePayload } from '../../core/DataSource'
 import extend from '../../helper/extend'
-import IIndicator from '../../interface/IIndicator'
-import { RendererOptions } from '../../options'
+import IIndicator, { DisplayType } from '../../interface/IIndicator'
+import { RenderOptions } from '../../options'
 import AbstractChart from '../../super/AbstractChart'
 import calcMA from './formula'
 
-export type MAInput = {
+export type MAInputs = {
   inputs: {
     periods: number[];
   }
 }
 
-const inputs: MAInput['inputs'] = {
+const inputs: MAInputs['inputs'] = {
   periods: [14]
 }
 
-class MA extends AbstractChart implements IIndicator<MAInput> {
-  static displayType = 'inner'
+class MA extends AbstractChart implements IIndicator<MAInputs> {
+  readonly displayType = DisplayType.INNER
 
-  private _inputs: MAInput['inputs']
+  static displayType = DisplayType.INNER
 
-  constructor (options: RendererOptions & RecursivePartial<MAInput>) {
+  private _inputs: MAInputs['inputs']
+
+  constructor (options: RenderOptions & RecursivePartial<MAInputs>) {
     super(options)
 
     this._inputs = extend(inputs, options.inputs ?? {})
@@ -61,7 +63,7 @@ class MA extends AbstractChart implements IIndicator<MAInput> {
     return this
   }
 
-  config (inputs: MAInput) {
+  config (inputs: MAInputs) {
     this._inputs = extend(this._inputs, inputs)
 
     super.apply()

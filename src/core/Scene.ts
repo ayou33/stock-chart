@@ -8,7 +8,7 @@ import debounce from 'lodash.debounce'
 import Candle from '../chart/Candle'
 import Board from '../extend/Board'
 import extend from '../helper/extend'
-import MA from '../indicator/ma/MA'
+import { IndicatorInputs, IndicatorNames } from '../indicator/all'
 import IAxis from '../interface/IAxis'
 import IRenderer from '../interface/IRenderer'
 import { StockChartOptions } from '../options'
@@ -25,8 +25,8 @@ class Scene {
   private readonly _mainAxis
   private readonly _series: Record<'default' | string, IAxis> = {}
   private readonly _renderers: IRenderer[] = []
-  private readonly _indicators: IndicatorMaster
 
+  private _indicatorMaster: IndicatorMaster | null = null
   private _lastUpdate: UpdatePayload | null = null
 
   constructor (options: StockChartOptions) {
@@ -42,8 +42,6 @@ class Scene {
 
     this._layout = new Layout(this._container.getBoundingClientRect())
 
-    this._indicators = new IndicatorMaster(this._layout)
-
     this._container.appendChild(this._layout.node())
 
     const mainAxisContainer = this._layout.mainAxis()
@@ -57,6 +55,17 @@ class Scene {
     this.onResize = debounce(this.onResize.bind(this), 1000 / 6)
 
     window.addEventListener('resize', this.onResize)
+  }
+
+  private useIndicatorMaster () {
+    if (this._indicatorMaster === null)
+      this._indicatorMaster = new IndicatorMaster({
+        xAxis: this._mainAxis,
+        yAxis: this._series.default,
+        layout: this._layout,
+      })
+
+    return this._indicatorMaster
   }
 
   private renderSeries () {
@@ -105,9 +114,7 @@ class Scene {
         }
       })
 
-    this._indicators.add(MA)
-
-    this._renderers.push(candle, board, this._indicators)
+    this._renderers.push(candle, board, this.useIndicatorMaster())
   }
 
   render () {
@@ -133,6 +140,12 @@ class Scene {
     this._mainAxis.resize()
     this._series.default.resize()
     this._renderers.map(c => c.resize())
+  }
+
+  addStudy (name: IndicatorNames, config?: IndicatorInputs[typeof name]) {
+    this.useIndicatorMaster().add(name, config)
+
+    return this
   }
 }
 

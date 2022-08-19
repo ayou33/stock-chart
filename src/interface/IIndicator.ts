@@ -3,19 +3,24 @@
  *  @date 2022/7/25 18:23
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { RendererOptions } from '../options'
+import { RenderOptions } from '../options'
 import IChart from './IChart'
 
+export enum DisplayType {
+  INNER,
+  EXTERNAL
+}
+
 interface IIndicator<T = unknown, E extends string = never> extends IChart<E> {
-  // readonly displayType: 'inner' | 'external'
+  readonly displayType: DisplayType
 
   config (inputs: T): this;
 }
 
 export interface IIndicatorCtor<T = unknown> {
-  readonly displayType: 'inner' | 'external'
+  readonly displayType: DisplayType
 
-  new (options: RendererOptions): IIndicator<T>
+  new (options: RenderOptions): IIndicator<T>
 }
 
 export default IIndicator

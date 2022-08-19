@@ -4,15 +4,17 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import nanie from 'nanie'
-import { RendererOptions } from '../options'
+import { RendererOptions, StockChartOptions } from '../options'
 import AbstractChart from '../super/AbstractChart'
 
 export type GestureEvents = 'transform'
 
-class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T> implements AbstractChart<GestureEvents | T> {
+class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T, StockChartOptions> implements AbstractChart<GestureEvents | T> {
 
   protected constructor (options: RendererOptions) {
     super(options)
+
+    this.options = options
 
     options.container.node.style.position = 'relative'
 

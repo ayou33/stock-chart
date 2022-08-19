@@ -5,11 +5,11 @@
  *  柱状图
  */
 import { UpdatePayload } from '../core/DataSource'
-import { RendererOptions } from '../options'
+import { RenderOptions } from '../options'
 import AbstractChart from '../super/AbstractChart'
 
 class Candle extends AbstractChart implements AbstractChart {
-  constructor (options: RendererOptions) {
+  constructor (options: RenderOptions) {
     super(options, 'candle')
   }
 

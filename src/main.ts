@@ -3282,3 +3282,5 @@ chart.attach({
 })
 
 chart.load('BTCUSD')
+
+chart.addStudy('ma')
