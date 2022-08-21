@@ -5,7 +5,7 @@
  */
 import idMaker from '../helper/idMaker'
 
-class Table {
+class LayoutTable {
   private readonly _table: ContainerCell[][]
   private _id = idMaker()
   private _width: number
@@ -34,6 +34,8 @@ class Table {
     this._table = table.map(
       (r, ri) => r.map(
         (c, ci) => ({
+          row: ri,
+          column: ci,
           declaredWidth: c.width,
           declaredHeight: c.height,
           width: c.width
@@ -70,7 +72,9 @@ class Table {
         }))
   }
 
-  addRow (index: number, height?: number): ContainerCell[] {
+  insertRow (index: number, height?: number, before = false): ContainerCell[] {
+    const position = before ? (index - 1) : index
+    const rowIndex = position >= 0 ? position : this._table.length + position
     const isRowFlexed = undefined === height
     this._flexedRow += isRowFlexed ? 1 : 0
     this._appliedHeight += isRowFlexed ? 0 : height
@@ -82,6 +86,8 @@ class Table {
       const cell = this._table[0][i]
 
       row.push({
+        row: rowIndex,
+        column: i,
         width: cell.width,
         height: rowHeight,
         declaredHeight: height,
@@ -91,12 +97,15 @@ class Table {
       })
     }
 
-    const rowIndex = index >= 0 ? index : this._table.length + index
     this._table.splice(rowIndex, 0, row)
 
     this.flex()
 
     return row
+  }
+
+  appendRow (height?: number) {
+    return this.insertRow(this._table.length, height)
   }
 
   removeRow (index: number): ContainerCell[] {
@@ -112,8 +121,9 @@ class Table {
     return dropped
   }
 
-  addColumn (index: number, width?: number): ContainerCell[] {
-    const columnIndex = index >= 0 ? index : this._table[0].length + index
+  insertColumn (index: number, width?: number, before = false): ContainerCell[] {
+    const position = before ? (index - 1) : index
+    const columnIndex = position >= 0 ? position : this._table[0].length + position
     const isColumnFlexed = undefined === width
     this._flexedColumn += isColumnFlexed ? 1 : 0
     this._appliedWidth += isColumnFlexed ? 0 : width
@@ -126,6 +136,8 @@ class Table {
       const row = this._table[i]
       const cell = row[0]
       const newCell: ContainerCell = {
+        row: i,
+        column: position,
         width: columnWidth,
         height: cell.height,
         declaredWidth: width,
@@ -140,6 +152,11 @@ class Table {
     this.flex()
 
     return column
+  }
+
+  appendColumn (width?: number) {
+    if (!this._table[0]) throw new TypeError('No row exist to insert column!')
+    return this.insertColumn(this._table[0].length, width)
   }
 
   removeColumn (index: number): ContainerCell[] {
@@ -187,4 +204,4 @@ class Table {
   }
 }
 
-export default Table
+export default LayoutTable

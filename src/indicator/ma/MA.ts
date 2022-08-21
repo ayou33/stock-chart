@@ -34,12 +34,13 @@ class MA extends AbstractChart implements IIndicator<MAInputs> {
   }
 
   drawAll (update: UpdatePayload): this {
+    this.clear()
+
     const mas = calcMA(update.bars, this._inputs.periods)
 
     const ma = mas[0]
     const ctx = this.context
 
-    ctx.save()
     ctx.beginPath()
     let start = false
     for (let i = 0, l = ma.length; i < l; i++) {
@@ -53,7 +54,6 @@ class MA extends AbstractChart implements IIndicator<MAInputs> {
       }
     }
     ctx.stroke()
-    ctx.restore()
 
     return this
   }

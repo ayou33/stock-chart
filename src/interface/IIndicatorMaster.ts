@@ -4,7 +4,6 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import { IndicatorInputs, IndicatorNames } from '../indicator/all'
-import IIndicator, { IIndicatorCtor } from './IIndicator'
 import IRenderer from './IRenderer'
 import { RenderMasterOptions } from '../options'
 import Layout from '../core/Layout'
@@ -15,13 +14,11 @@ interface IIndicatorMaster<E extends string = never> extends IRenderer<E> {
 
   add (name: IndicatorNames, config?: IndicatorInputs[typeof name]): this;
 
-  remove<T> (Ctor: IIndicatorCtor<T>): this;
+  remove (name: IndicatorNames): this;
 
-  replace<T> (old: string | IIndicatorCtor, Ctor: IIndicatorCtor<T>): this;
+  replace (name: IndicatorNames, config?: IndicatorInputs[typeof name]): this;
 
-  show<T> (Ctor: string | IIndicator<T>): this;
-
-  config<T> (config: T): this;
+  config (name: IndicatorNames, config: IndicatorInputs[typeof name]): this;
 }
 
 export default IIndicatorMaster

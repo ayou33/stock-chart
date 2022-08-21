@@ -132,11 +132,11 @@ export default stockChartOptions
 export type ScaledOptions = {
   yAxis: IAxis;
   xAxis: IMainAxis;
-  context?: CanvasRenderingContext2D;
 }
 
 export type RenderOptions = ScaledOptions & {
   container: ContainerCell;
+  context?: CanvasRenderingContext2D;
 }
 
 export type RendererOptions = RenderOptions & StockChartOptions

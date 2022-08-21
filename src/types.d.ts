@@ -78,6 +78,8 @@ type CellDescriber = Partial<{
 
 type ContainerCell = {
   id: number;
+  row: number,
+  column: number,
   declaredWidth?: number;
   declaredHeight?: number;
   node: HTMLTableCellElement;

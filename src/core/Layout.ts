@@ -3,11 +3,11 @@
  *  @date 2022/8/1 17:15
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import Table from './Table'
+import LayoutTable from './LayoutTable'
 
 class Layout {
   private readonly _el: HTMLTableElement
-  private readonly _table: Table
+  private readonly _table: LayoutTable
   private _dimensions: DOMRect
   private _seriesWidth = 60
   private _axisHeight = 20
@@ -23,7 +23,7 @@ class Layout {
       border-spacing: 0;
     `
 
-    this._table = new Table(dimensions.width, dimensions.height, [
+    this._table = new LayoutTable(dimensions.width, dimensions.height, [
       [{}, { width: this._seriesWidth }],
       [{ height: this._axisHeight }, {}]
     ])

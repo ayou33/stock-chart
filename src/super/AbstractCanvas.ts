@@ -23,7 +23,7 @@ abstract class AbstractCanvas<E extends string = never> extends AbstractRenderer
     this.context = context ?? createAAContext(container.width, container.height)
     this.canvas = this.context.canvas
 
-    this.render()
+    if (!context) this.render()
   }
 
   createBounding (el?: HTMLElement): Bounding {
