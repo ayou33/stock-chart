@@ -6,15 +6,12 @@
  *  @description
  */
 import Layout from './Layout'
-import LayoutCell, { OptionalCellDescriber } from './LayoutCell'
-import idMaker from '../helper/idMaker'
-
-const idGenerator = idMaker(d => 'layout_' + d)
+import LayoutCell, { CellDescriber } from './LayoutCell'
 
 export type RowDescriber = {
   name: string;
   row: number;
-  cells: OptionalCellDescriber[]
+  cells: (CellDescriber | null)[]
   height?: number;
 }
 
@@ -25,17 +22,22 @@ class LayoutRow {
   constructor (layout: Layout, describer: RowDescriber) {
     this.name = describer.name
 
-    this._cells = describer.cells.map((c, column) => {
-      if (c.ref) {
-        return layout.locate(...c.ref)
+    this._cells = describer.cells.map((cell, cellIndex) => {
+      if (cell?.ref) {
+        return layout.locate(cell.ref[1], cell.ref[0])
       }
 
-      return new LayoutCell({
-        ...c,
-        row: describer.row,
-        column,
+      const extendedCell = {
+        ...cell,
         height: describer.height,
-        id: idGenerator.next(),
+      }
+
+      layout.buildSpaceDescriber(describer.row, cellIndex, extendedCell)
+
+      return new LayoutCell({
+        ...extendedCell,
+        row: describer.row,
+        column: cellIndex,
       })
     })
   }

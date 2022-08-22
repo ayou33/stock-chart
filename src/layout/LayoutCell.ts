@@ -10,7 +10,7 @@ import isIn from '../helper/range'
 
 const isPercent = isIn(-1, 0)
 
-export type OptionalCellDescriber = Partial<{
+export type CellDescriber = Partial<{
   name: string;
   width: number;
   height: number;
@@ -19,11 +19,10 @@ export type OptionalCellDescriber = Partial<{
   ref: Vector;
 }>
 
-export type CellDescriber = {
-  id: string;
+export type CellOptions = {
   row: number;
   column: number;
-} & OptionalCellDescriber
+} & CellDescriber
 
 class LayoutCell {
   private readonly _cell: HTMLTableCellElement
@@ -31,7 +30,7 @@ class LayoutCell {
   private _row: number
   private _column: number
 
-  constructor (describer: CellDescriber) {
+  constructor (describer: CellOptions) {
     this._row = describer.row
 
     this._column = describer.column
@@ -39,8 +38,6 @@ class LayoutCell {
     const cell = document.createElement('td')
 
     cell.style.padding = '0'
-
-    cell.setAttribute('data-id', describer.id)
 
     if (describer.name) cell.setAttribute('name', describer.name)
 

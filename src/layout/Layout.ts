@@ -13,47 +13,66 @@ import LayoutRow, { RowDescriber } from './LayoutRow'
 export type LayoutDescriber = Omit<RowDescriber, 'row'>[]
 
 export type SpaceDescriber = {
-  declaredWidth: number;
+  isSource: true;
+  flexedWidth: boolean;
   width: number;
-  calcWidth: () => number;
-  declaredHeight: number;
-  calcHeight: () => number;
+  flexedHeight: boolean;
   height: number;
   colSpan: number;
   rowSpan: number;
-  refRow?: number
-  refCol?: number;
+} | {
+  isSource: false;
+  ref: Vector;
+}
+
+export type Computer = {
+  width: () => number;
+  height: () => number;
 }
 
 class Layout extends Event<'resize'> {
   private readonly $table: HTMLTableElement
   private readonly _rows: LayoutRow[]
-  private readonly _layoutSpace: SpaceDescriber[][] = []
-  private _width = 300
-  private _height = 150
+  private readonly _spaceDescriber: SpaceDescriber[][] = []
+  private readonly _spaceComputer: Computer[][]
+  private readonly _spaceSummary = {
+    width: 0,
+    height: 0,
+    row: 0,
+    column: 0,
+  }
 
   constructor (root: Element, describer?: LayoutDescriber) {
     super()
 
     const rect = root.getBoundingClientRect()
 
-    this._width = rect.width
+    this._spaceSummary.width = rect.width
+    this._spaceSummary.height = rect.height
 
-    this._height = rect.height
-
-    this.$table = this.createTable(this._width, this._height)
+    this.$table = this.createTable(rect.width, rect.height)
 
     const d = this.useDescriber(describer)
 
-    d.map((_, i) => this._layoutSpace[i] = [])
+    this.initSpaceDescriber(d)
 
     this._rows = this.createRows(d)
 
-    this.calc()
+    this._spaceComputer = this.buildSpaceComputer()
 
     root.appendChild(this.render())
 
     this.monitorResize(root)
+  }
+
+  private initSpaceDescriber (describer: LayoutDescriber) {
+    describer.map((_, i) => this._spaceDescriber[i] = [])
+
+    this._spaceSummary.row = describer.length
+
+    if (this._spaceSummary.row !== 0) {
+      this._spaceSummary.column = describer[0].cells.reduce((acc, v) => acc + (v?.colSpan ?? 1), 0)
+    }
   }
 
   private createTable (width: number, height: number) {
@@ -77,7 +96,10 @@ class Layout extends Event<'resize'> {
         cells: [
           {
             name: 'main_chart_cell',
-          }, { name: 'default_series_cell', width: 60 },
+          },
+          {
+            name: 'default_series_cell', width: 60,
+          },
         ],
       },
       {
@@ -86,17 +108,18 @@ class Layout extends Event<'resize'> {
         cells: [
           {
             name: 'main_axis_cell',
-          }, {},
+          },
+          null,
         ],
       },
     ]
   }
 
   private createRows (describer: LayoutDescriber) {
-    return describer.map((r, row) =>
+    return describer.map((row, rowIndex) =>
       new LayoutRow(this, {
-        ...r,
-        row,
+        ...row,
+        row: rowIndex,
       }))
   }
 
@@ -106,26 +129,98 @@ class Layout extends Event<'resize'> {
     }, 1000 / 6))
   }
 
-  feed (row: number, col: number, describer: CellDescriber) {
-    this._layoutSpace[row][col] = {
-      declaredWidth: describer.width,
-      width: describer.width,
-      calcWidth: () => describer.width,
-      declaredHeight: describer.height,
-      calcHeight: () => describer.height,
-      height: 0,
-      colSpan: 0,
-      rowSpan: 0,
-      refRow: 0,
-      refCol: 0,
+  private createWidthFormula (row: number, col: number) {
+    const space = this._spaceDescriber[row][col]
+
+    if (!space.isSource) return this._spaceComputer[space.ref[1]][space.ref[0]].width
+
+    if (!space.flexedWidth) {
+      return () => space.width
+    }
+
+    return () => {
+      let fixedWidth = 0
+      let fixedColumn = 0
+
+      for (let i = 0, l = this._spaceDescriber[row].length; i < l; i++) {
+        const space = this._spaceDescriber[row][i]
+        if (!space.isSource) continue
+
+        fixedWidth += space.flexedWidth ? 0 : space.width
+        fixedColumn += space.flexedWidth ? 0 : space.colSpan
+      }
+
+      return (this._spaceSummary.width - fixedWidth) / (this._spaceSummary.column - fixedColumn) * space.colSpan
     }
   }
 
-  private calc () {
-    this._layoutSpace.map(r => r.map(c => {
-      c.width = c.calcWidth()
-      c.height = c.calcHeight()
+  private createHeightFormula (row: number, col: number) {
+    const space = this._spaceDescriber[row][col]
+
+    if (!space.isSource) return this._spaceComputer[space.ref[1]][space.ref[0]].height
+
+    if (!space.flexedHeight) {
+      return () => space.height
+    }
+
+    return () => {
+      let fixedHeight = 0
+      let fixedRow = 0
+
+      for (let i = 0, l = this._spaceDescriber.length; i < l; i++) {
+        const space = this._spaceDescriber[i][col]
+        if (!space.isSource) continue
+
+        fixedHeight += space.flexedHeight ? 0 : space.height
+        fixedRow += space.flexedHeight ? 0 : space.rowSpan
+      }
+
+      return (this._spaceSummary.height - fixedHeight) / (this._spaceSummary.row - fixedRow) * space.rowSpan
+    }
+  }
+
+  private buildSpaceComputer () {
+    return this._spaceDescriber.map((r, ri) => r.map((_, ci) => {
+      return {
+        width: this.createWidthFormula(ri, ci),
+        height: this.createHeightFormula(ri, ci),
+      }
     }))
+  }
+
+  buildSpaceDescriber (row: number, col: number, describer: CellDescriber | null) {
+    if (this._spaceDescriber[row][col]?.isSource === false) {
+      return
+    }
+
+    const rs = describer?.rowSpan ?? 1
+    const cs = describer?.colSpan ?? 1
+
+    this._spaceDescriber[row][col] = {
+      isSource: true,
+      flexedHeight: describer?.height === undefined,
+      height: describer?.height ?? 0,
+      flexedWidth: describer?.width === undefined,
+      width: describer?.width ?? 0,
+      colSpan: cs,
+      rowSpan: rs,
+    }
+
+    /**
+     * expand row/column span
+     */
+    if (rs > 1 || cs > 1) {
+      for (let r = row, rc = row + rs; r < rc; r++) {
+        for (let c = col, cc = col + cs; c < cc; c++) {
+          if (r === row && c === col) continue
+
+          this._spaceDescriber[r][c] = {
+            isSource: false,
+            ref: [col, row],
+          }
+        }
+      }
+    }
   }
 
   render () {
@@ -155,13 +250,13 @@ class Layout extends Event<'resize'> {
   }
 
   resize (rect: DOMRect) {
-    this._width = rect.width
-    this._height = rect.height
+    this._spaceSummary.width = rect.width
+    this._spaceSummary.height = rect.height
 
-    this.$table.style.height = this._height + 'px'
-    this.$table.style.width = this._width + 'px'
+    this.$table.style.width = rect.width + 'px'
+    this.$table.style.height = rect.height + 'px'
 
-    this.calc()
+    console.log(this._spaceComputer[0][0].width(), this._spaceSummary)
 
     this.emit('resize')
   }
