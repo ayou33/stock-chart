@@ -9,6 +9,7 @@ import { drawSeriesLabel } from '../helper/drawSeriesLabel'
 import extend from '../helper/extend'
 import { fontSize } from '../helper/typo'
 import IAxis from '../interface/IAxis'
+import LayoutCell from '../layout/LayoutCell'
 import { SeriesOptions, seriesOptions } from '../options'
 import Linear from '../scale/Linear'
 import AbstractAxis from '../super/AbstractAxis'
@@ -23,7 +24,7 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
 
   private _tickInterval: number
 
-  constructor (container: ContainerCell, options: RecursivePartial<SeriesOptions>) {
+  constructor (container: LayoutCell, options: RecursivePartial<SeriesOptions>) {
     super(container)
 
     this._options = extend(seriesOptions, options)
@@ -31,7 +32,7 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
     this._tickInterval = this._options.tickInterval
 
     this.injectAfter('resize', () => {
-      this.range([0, container.height])
+      this.range([0, container.height()])
     })
   }
 
@@ -69,7 +70,7 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
     if (options.border) {
       ctx.lineWidth = options.border
       ctx.moveTo(0, 0)
-      ctx.lineTo(0, this.container.height)
+      ctx.lineTo(0, this.container.height())
     }
 
     if (this._options.currentPrice && update.latest) {

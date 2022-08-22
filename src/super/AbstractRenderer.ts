@@ -67,7 +67,7 @@ abstract class AbstractRenderer<E extends string = never> extends Event<E> imple
     return this
   }
 
-  apply (update?: UpdatePayload): this {
+  apply (update?: UpdatePayload | null): this {
     this.applyInject('update', 'before')
 
     if (update) {

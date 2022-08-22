@@ -6,7 +6,7 @@
 import { IndicatorInputs, IndicatorNames } from '../indicator/all'
 import IRenderer from './IRenderer'
 import { RenderMasterOptions } from '../options'
-import Layout from '../core/Layout'
+import Layout from '../layout/Layout'
 
 interface IIndicatorMaster<E extends string = never> extends IRenderer<E> {
   options: RenderMasterOptions

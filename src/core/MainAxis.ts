@@ -9,6 +9,7 @@ import extend from '../helper/extend'
 import { parseResolution, timeFormat } from '../helper/timeFormat'
 import { background, fontSize } from '../helper/typo'
 import IMainAxis from '../interface/IMainAxis'
+import LayoutCell from '../layout/LayoutCell'
 import { mainAxisOptions, MainAxisOptions } from '../options'
 import Band from '../scale/Band'
 import AbstractAxis from '../super/AbstractAxis'
@@ -26,14 +27,14 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
 
   private _tickInterval: number
 
-  constructor (container: ContainerCell, options: RecursivePartial<MainAxisOptions>) {
+  constructor (container: LayoutCell, options: RecursivePartial<MainAxisOptions>) {
     super(container)
     this._options = extend(mainAxisOptions, options)
 
     this._tickInterval = this._options.tickInterval
 
     this.injectAfter('resize', () => {
-      this.range([-Infinity, container.width])
+      this.range([-Infinity, container.width()])
     })
   }
 
@@ -63,7 +64,7 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
 
     const ctx = this.context
     const y = (this._options.tick ?? 0)
-    const width = this.container.width
+    const width = this.container.width()
     const options = this._options
 
     ctx.save()
@@ -83,7 +84,7 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     if (options.border) {
       ctx.lineWidth = options.border
       ctx.moveTo(0, 0)
-      ctx.lineTo(this.container.width, 0)
+      ctx.lineTo(this.container.width(), 0)
     }
 
     ctx.stroke()

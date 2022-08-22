@@ -7,20 +7,21 @@ import { UpdatePayload } from '../core/DataSource'
 import { aa, createAAContext } from '../helper/aa'
 import ICanvas, { Bounding } from '../interface/ICanvas'
 import { InjectPosition, InjectTypes } from '../interface/IInjectable'
+import LayoutCell from '../layout/LayoutCell'
 import AbstractRenderer from './AbstractRenderer'
 
 abstract class AbstractCanvas<E extends string = never> extends AbstractRenderer<E> implements ICanvas<E> {
-  container: ContainerCell
+  container: LayoutCell
   canvas: HTMLCanvasElement
   context: CanvasRenderingContext2D
   bounding: { left: number, top: number } | null = null
   disabled = false
 
-  protected constructor (container: ContainerCell, context?: CanvasRenderingContext2D) {
+  protected constructor (container: LayoutCell, context?: CanvasRenderingContext2D | null) {
     super()
 
     this.container = container
-    this.context = context ?? createAAContext(container.width, container.height)
+    this.context = context ?? createAAContext(this.container.width(), this.container.height())
     this.canvas = this.context.canvas
 
     if (!context) this.render()
@@ -70,7 +71,7 @@ abstract class AbstractCanvas<E extends string = never> extends AbstractRenderer
   }
 
   render () {
-    this.container.node.appendChild(this.canvas)
+    this.container.node().appendChild(this.canvas)
 
     return this
   }
@@ -88,7 +89,7 @@ abstract class AbstractCanvas<E extends string = never> extends AbstractRenderer
   }
 
   clear (): this {
-    this.context.clearRect(0, 0, this.container.width, this.container.height)
+    this.context.clearRect(0, 0, this.container.width(), this.container.height())
 
     return this
   }
@@ -96,7 +97,7 @@ abstract class AbstractCanvas<E extends string = never> extends AbstractRenderer
   remove (): this {
     this.destroy()
 
-    this.container.node.removeChild(this.canvas)
+    this.container.node().removeChild(this.canvas)
 
     return this
   }
@@ -106,7 +107,7 @@ abstract class AbstractCanvas<E extends string = never> extends AbstractRenderer
 
     this.createBounding()
 
-    aa(this.context, this.container.width, this.container.height)
+    aa(this.context, this.container.width(), this.container.height())
 
     this.applyInject('resize', 'after')
 

@@ -16,7 +16,7 @@ class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T, S
 
     this.options = options
 
-    options.container.node.style.position = 'relative'
+    options.container.node().style.position = 'relative'
 
     this.canvas.style.cssText += `
       position: absolute;

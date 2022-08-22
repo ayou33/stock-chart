@@ -5,8 +5,9 @@
  */
 import IAxis from './interface/IAxis'
 import IMainAxis from './interface/IMainAxis'
+import LayoutCell from './layout/LayoutCell'
 import { Color, themeOptions, ThemeOptions, BLACK, WHITE } from './theme'
-import Layout from './core/Layout'
+import Layout from './layout/Layout'
 
 type AxisOptions = {
   tick: null | number; // 不显示或者设置大小
@@ -135,7 +136,7 @@ export type ScaledOptions = {
 }
 
 export type RenderOptions = ScaledOptions & {
-  container: ContainerCell;
+  container: LayoutCell;
   context?: CanvasRenderingContext2D;
 }
 

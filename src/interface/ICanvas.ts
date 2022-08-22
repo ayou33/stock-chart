@@ -10,7 +10,7 @@ import IRenderer from './IRenderer'
 export type Bounding = { left: number, top: number }
 
 interface ICanvas<E extends string = never> extends IRenderer<E> {
-  container: ContainerCell;
+  container: LayoutCell;
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   disabled: boolean;
