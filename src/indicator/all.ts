@@ -8,13 +8,16 @@
  **/
 import { IIndicatorCtor } from '../interface/IIndicator'
 import MA, { MAInputs } from './ma/MA'
+import MACD, { MACDInputs } from './macd/MACD'
 
 export type IndicatorInputs = {
   ma: MAInputs;
+  macd: MACDInputs;
 }
 
 export type IndicatorNames = keyof IndicatorInputs
 
 export const indicators: Record<IndicatorNames, IIndicatorCtor> = {
-  ma: MA
+  ma: MA,
+  macd: MACD,
 }

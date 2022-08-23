@@ -39,7 +39,7 @@ class LayoutRow {
     this._cells = this._options.cells.map((cell, cellIndex) => {
       const extendedCell = {
         ...cell,
-        height: this._options.height,
+        height: this._options.height ?? cell?.height,
       }
 
       /**

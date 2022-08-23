@@ -17,7 +17,7 @@ export function isIn (from: number, to: number, flag: BoundaryFlag = 'both') {
 }
 
 export function isOut (from: number, to: number, flag: BoundaryFlag = 'both') {
-  return !isIn(from, to, flag)
+  return (n: number) => !isIn(from, to, flag)(n)
 }
 
 export default isIn

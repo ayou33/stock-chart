@@ -7,8 +7,10 @@
  */
 import debounce from 'lodash.debounce'
 import Event from '../base/Event'
+import { isOut } from '../helper/range'
 import { useDescriber } from '../options'
 import LayoutRow from './LayoutRow'
+import { memoizeWith } from 'ramda'
 
 export type SpaceDescriber = {
   /**
@@ -49,7 +51,6 @@ class Layout extends Event<'resize'> {
   private readonly $table: HTMLTableElement
   private readonly _describer: LayoutDescriber
   private readonly _description: SpaceDescriber[][] = []
-  private readonly _computer: Computer[][]
   private readonly _space = {
     width: 0,
     height: 0,
@@ -58,6 +59,7 @@ class Layout extends Event<'resize'> {
   }
 
   private _rows: LayoutRow[]
+  private _computer: Computer[][]
 
   constructor (container: Element, describer?: LayoutDescriber) {
     super()
@@ -131,54 +133,72 @@ class Layout extends Event<'resize'> {
     }, 1000 / 6))
   }
 
+  private keyGen (row: number, col: number) {
+    return () => {
+      return `${this._space.width}-${this._space.height}-${row}-${col}`
+    }
+  }
+
   private createWidthFormula (row: number, col: number) {
-    const space = this._description[row][col]
+    const cell = this._description[row][col]
 
-    if (space.isLink) return this._computer[space.source[1]][space.source[0]].width
+    if (cell.isLink) return memoizeWith(
+      this.keyGen(row, col),
+      () => this._computer[cell.source[1]][cell.source[0]].width(),
+    )
 
-    if (!space.flexedWidth) {
-      return () => space.width
+    if (!cell.flexedWidth) {
+      return () => cell.width
     }
 
-    return () => {
+    return memoizeWith(this.keyGen(row, col), () => {
       let fixedWidth = 0
       let fixedColumn = 0
 
       for (let i = 0, l = this._description[row].length; i < l; i++) {
-        const space = this._description[row][i]
-        if (space.isLink) continue
+        let cell = this._description[row][i]
 
-        fixedWidth += space.flexedWidth ? 0 : space.width
-        fixedColumn += space.flexedWidth ? 0 : space.colSpan
+        if (cell.isLink) cell = this._description[cell.source[1]][cell.source[0]]
+
+        if (!cell.isLink) {
+          fixedWidth += cell.flexedWidth ? 0 : cell.width
+          fixedColumn += cell.flexedWidth ? 0 : cell.colSpan
+        }
       }
 
-      return (this._space.width - fixedWidth) / (this._space.column - fixedColumn) * space.colSpan
-    }
+      return (this._space.width - fixedWidth) / (this._space.column - fixedColumn) * cell.colSpan
+    })
   }
 
   private createHeightFormula (row: number, col: number) {
-    const space = this._description[row][col]
+    const cell = this._description[row][col]
 
-    if (space.isLink) return this._computer[space.source[1]][space.source[0]].height
+    if (cell.isLink) return memoizeWith(
+      this.keyGen(row, col),
+      () => this._computer[cell.source[1]][cell.source[0]].height(),
+    )
 
-    if (!space.flexedHeight) {
-      return () => space.height
+    if (!cell.flexedHeight) {
+      return () => cell.height
     }
 
-    return () => {
+    return memoizeWith(this.keyGen(row, col), () => {
       let fixedHeight = 0
       let fixedRow = 0
 
       for (let i = 0, l = this._description.length; i < l; i++) {
-        const space = this._description[i][col]
-        if (space.isLink) continue
+        let cell = this._description[i][col]
 
-        fixedHeight += space.flexedHeight ? 0 : space.height
-        fixedRow += space.flexedHeight ? 0 : space.rowSpan
+        if (cell.isLink) cell = this._description[cell.source[1]][cell.source[0]]
+
+        if (!cell.isLink) {
+          fixedHeight += cell.flexedHeight ? 0 : cell.height
+          fixedRow += cell.flexedHeight ? 0 : cell.rowSpan
+        }
       }
 
-      return (this._space.height - fixedHeight) / (this._space.row - fixedRow) * space.rowSpan
-    }
+      return (this._space.height - fixedHeight) / (this._space.row - fixedRow) * cell.rowSpan
+    })
   }
 
   private buildComputer () {
@@ -268,11 +288,17 @@ class Layout extends Event<'resize'> {
   }
 
   locate (row: number, col: number) {
+    if (
+      isOut(0, this._space.row)(row) ||
+      isOut(0, this._space.column)(col)
+    ) return undefined
+
     return this._rows?.[row]?.at(col)
   }
 
   raw (row: number, col: number) {
     const cell = this._description[row][col]
+
     return cell?.isLink ? this.locate(cell.source[1], cell.source[0]) : this.locate(row, col)
   }
 
@@ -281,15 +307,15 @@ class Layout extends Event<'resize'> {
   }
 
   chart () {
-    return this.locate(0, 0)
+    return this.raw(0, 0)
   }
 
   mainAxis () {
-    return this.locate(1, 0)
+    return this.raw(1, 0)
   }
 
   series () {
-    return this.locate(0, 1)
+    return this.raw(0, 1)
   }
 
   resize () {
@@ -325,7 +351,7 @@ class Layout extends Event<'resize'> {
     /**
      * 新建计算器
      */
-    this.buildComputer()
+    this._computer = this.buildComputer()
 
     this._rows.map(r => r.remove())
 
@@ -343,7 +369,9 @@ class Layout extends Event<'resize'> {
   }
 
   removeRow (row: HTMLTableRowElement) {
-    this.$table.removeChild(row)
+    if (row.parentElement === this.$table) {
+      this.$table.removeChild(row)
+    }
   }
 }
 

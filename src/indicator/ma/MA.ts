@@ -4,10 +4,8 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import { UpdatePayload } from '../../core/DataSource'
-import extend from '../../helper/extend'
 import IIndicator, { DisplayType } from '../../interface/IIndicator'
-import { RenderOptions } from '../../options'
-import AbstractChart from '../../super/AbstractChart'
+import AbstractIndicator from '../../super/AbstractIndicator'
 import calcMA from './formula'
 
 export type MAInputs = {
@@ -16,27 +14,13 @@ export type MAInputs = {
   }
 }
 
-const inputs: MAInputs['inputs'] = {
-  periods: [14]
-}
-
-class MA extends AbstractChart implements IIndicator<MAInputs> {
-  readonly displayType = DisplayType.INNER
-
+class MA extends AbstractIndicator<MAInputs> implements IIndicator<MAInputs> {
   static displayType = DisplayType.INNER
-
-  private _inputs: MAInputs['inputs']
-
-  constructor (options: RenderOptions & RecursivePartial<MAInputs>) {
-    super(options)
-
-    this._inputs = extend(inputs, options.inputs ?? {})
-  }
 
   drawAll (update: UpdatePayload): this {
     this.clear()
 
-    const mas = calcMA(update.bars, this._inputs.periods)
+    const mas = calcMA(update.bars, this.inputs.periods)
 
     const ma = mas[0]
     const ctx = this.context
@@ -46,6 +30,7 @@ class MA extends AbstractChart implements IIndicator<MAInputs> {
     for (let i = 0, l = ma.length; i < l; i++) {
       const p = ma[i]
       if (!p.ma) continue
+
       if (start) {
         ctx.lineTo(this.xAxis.value(p.date), this.yAxis.value(p.ma))
       } else {
@@ -60,14 +45,6 @@ class MA extends AbstractChart implements IIndicator<MAInputs> {
 
   drawLatest (update: UpdatePayload): this {
     console.log('jojo draw ma latest', update)
-    return this
-  }
-
-  config (inputs: MAInputs) {
-    this._inputs = extend(this._inputs, inputs)
-
-    super.apply()
-
     return this
   }
 }

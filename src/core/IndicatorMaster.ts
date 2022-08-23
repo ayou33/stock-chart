@@ -3,7 +3,7 @@
  *  @date 2022/8/19 17:27
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { createAAContext } from '../helper/aa'
+import { aa, createAAContext } from '../helper/aa'
 import { IndicatorInputs, IndicatorNames, indicators } from '../indicator/all'
 import IIndicator, { DisplayType, IIndicatorCtor } from '../interface/IIndicator'
 import IIndicatorMaster from '../interface/IIndicatorMaster'
@@ -22,6 +22,7 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
   private _innerContainer: LayoutCell | null = null
   private _innerContext: CanvasRenderingContext2D | null = null
   private _externalContainer: LayoutCell | null = null
+  private _externalContext: CanvasRenderingContext2D | null = null
 
   constructor (options: RenderMasterOptions) {
     super()
@@ -37,6 +38,9 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
   private useInnerContext (): [LayoutCell, CanvasRenderingContext2D] {
     if (this._innerContainer === null) {
       this._innerContainer = this.layout.chart()
+    }
+
+    if (!this._innerContext) {
       const context = createAAContext(this._innerContainer.width(), this._innerContainer.height())
       const canvas = context.canvas
       canvas.style.cssText += `
@@ -58,19 +62,26 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
       this._externalContainer = this.layout.appendRow({
         name: 'indicator',
         cells: [{
-          colSpan: 2,
           height: 200,
+          colSpan: 2,
         }],
       }).at(0)
     }
 
-    return [this._externalContainer, this._innerContext]
+    if (!this._externalContext) {
+      const context = createAAContext(this._externalContainer.width(), this._externalContainer.height())
+      const canvas = context.canvas
+      this._externalContext = context
+      this._externalContainer.insert(canvas)
+    }
+
+    return [this._externalContainer, this._externalContext]
   }
 
   applyInject (name: InjectTypes, position: InjectPosition): this {
     const handlers = position === 'before' ? this.beforeInjections[name] : this.afterInjections[name]
 
-    handlers.map(fn => fn(this.context, this.lastUpdate))
+    handlers.map(fn => fn(this._innerContext!, this.lastUpdate))
 
     return this
   }
@@ -114,6 +125,11 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
   replace (name: IndicatorNames, config?: IndicatorInputs[typeof name]): this {
     console.log('indicator master replace', name, config)
     return this
+  }
+
+  resize (): this {
+    // aa(this._innerContext, this._innerContainer?.width(), this._innerContainer?.height())
+    return super.resize()
   }
 }
 

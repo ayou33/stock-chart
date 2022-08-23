@@ -6,6 +6,7 @@
 import Transform from 'nanie/src/Transform'
 import IAxis from '../interface/IAxis'
 import IScale from '../interface/IScale'
+import LayoutCell from '../layout/LayoutCell'
 import AbstractCanvas from './AbstractCanvas'
 
 abstract class AbstractAxis<E extends string, U = Extent, T extends IScale = IScale<U>> extends AbstractCanvas<E> implements IAxis<U> {

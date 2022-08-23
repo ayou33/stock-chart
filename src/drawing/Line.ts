@@ -7,7 +7,7 @@
 import extend from '../helper/extend'
 import { BLACK, Color, themeOptions } from '../theme'
 
-export type RenderOptions = {
+export type LineRenderOptions = {
   origin: Vector;
   type: 'segment' | 'line' | 'ray';
   stop?: Vector;
@@ -20,7 +20,7 @@ export type StyleOptions = {
   dashArray: number[];
 }
 
-export type LineOptions = RenderOptions & StyleOptions
+export type LineOptions = LineRenderOptions & StyleOptions
 
 const lineOptions: LineOptions = {
   origin: [0, 0],
@@ -62,7 +62,7 @@ class Line {
       (this._options.stop[1] - this._options.origin[1]) / (this._options.stop[0] - this._options.origin[0]))
   }
 
-  render (options: RenderOptions & Partial<StyleOptions>) {
+  render (options: LineRenderOptions & Partial<StyleOptions>) {
     this._options = extend(this._options, options)
 
     this._offsetArray = this.applyAngle(this.parseAngle())

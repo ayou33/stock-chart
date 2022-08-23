@@ -10,10 +10,10 @@ import extend from '../helper/extend'
 import { IndicatorInputs, IndicatorNames } from '../indicator/all'
 import IAxis from '../interface/IAxis'
 import IRenderer from '../interface/IRenderer'
+import Layout from '../layout/Layout'
 import { StockChartOptions } from '../options'
 import { UpdateLevel, UpdatePayload } from './DataSource'
 import IndicatorMaster from './IndicatorMaster'
-import Layout from '../layout/Layout'
 import MainAxis from './MainAxis'
 import Series from './Series'
 
@@ -61,15 +61,13 @@ class Scene {
 
   private renderSeries () {
     const container = this._layout.series()
-    const defaultSeries = new Series(
+    this._series.default = new Series(
       container,
       extend({
         focus: this._options.crosshair,
         currentPrice: this._options.currentPrice,
       }, this._options.defaultSeries),
     )
-    defaultSeries.range([0, container.height()])
-    this._series.default = defaultSeries
   }
 
   private renderMainAxis () {

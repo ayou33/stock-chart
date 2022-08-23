@@ -24,12 +24,14 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
 
   private _tickInterval: number
 
-  constructor (container: LayoutCell, options: RecursivePartial<SeriesOptions>) {
+  constructor (container: LayoutCell, options?: RecursivePartial<SeriesOptions>) {
     super(container)
 
-    this._options = extend(seriesOptions, options)
+    this._options = extend(seriesOptions, options ?? {})
 
     this._tickInterval = this._options.tickInterval
+
+    this.range([0, container.height()])
 
     this.injectAfter('resize', () => {
       this.range([0, container.height()])

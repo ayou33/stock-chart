@@ -74,6 +74,10 @@ class LayoutCell {
 
     return this
   }
+
+  right () {
+    return this._layout.raw(this._row, this._column + 1)
+  }
 }
 
 export default LayoutCell
