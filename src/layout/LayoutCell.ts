@@ -6,18 +6,7 @@
  *  @file:        src/core/LayoutCell.ts
  *  @description:
  **/
-import isIn from '../helper/range'
-
-const isPercent = isIn(-1, 0)
-
-export type CellDescriber = Partial<{
-  name: string;
-  width: number;
-  height: number;
-  colSpan: number;
-  rowSpan: number;
-  ref: Vector;
-}>
+import Layout from './Layout'
 
 export type CellOptions = {
   row: number;
@@ -25,67 +14,43 @@ export type CellOptions = {
 } & CellDescriber
 
 class LayoutCell {
-  private readonly _cell: HTMLTableCellElement
-  private _bounding: DOMRect | null = null
-  private _row: number
-  private _column: number
+  private readonly _layout: Layout
+  private readonly $cell: HTMLTableCellElement
+  private readonly _row: number
+  private readonly _column: number
 
-  constructor (describer: CellOptions) {
-    this._row = describer.row
-
-    this._column = describer.column
+  constructor (layout: Layout, options: CellOptions) {
+    this._layout = layout
+    this._row = options.row
+    this._column = options.column
 
     const cell = document.createElement('td')
 
     cell.style.padding = '0'
 
-    if (describer.name) cell.setAttribute('name', describer.name)
+    if (options.name) cell.setAttribute('name', options.name)
 
-    if (describer.colSpan) {
-      cell.setAttribute('colspan', describer.colSpan.toString())
+    if (options.colSpan) {
+      cell.setAttribute('colspan', options.colSpan.toString())
     }
 
-    if (describer.rowSpan) {
-      cell.setAttribute('rowspan', describer.rowSpan.toString())
+    if (options.rowSpan) {
+      cell.setAttribute('rowspan', options.rowSpan.toString())
     }
 
-    if (describer.width !== undefined) {
-      const value = Math.abs(describer.width)
-      cell.style.width = value + (isPercent(describer.width) ? ((value * 99) + '%') : 'px')
-    }
-
-    if (describer.height !== undefined) {
-      const value = Math.abs(describer.height)
-      cell.style.height = value + (isPercent(describer.height) ? ((value * 99) + '%') : 'px')
-    }
-
-    this._cell = cell
-  }
-
-  private buildBounding () {
-    return this._bounding = this._cell.getBoundingClientRect()
-  }
-
-  resize () {
-    this.buildBounding()
-
-    return this
+    this.$cell = cell
   }
 
   node () {
-    return this._cell
+    return this.$cell
   }
 
   width () {
-    if (!this._bounding) this._bounding = this.buildBounding()
-
-    return this._bounding.width
+    return this._layout.compute(this._row, this._column, 'width')
   }
 
   height () {
-    if (!this._bounding) this._bounding = this.buildBounding()
-
-    return this._bounding.height
+    return this._layout.compute(this._row, this._column, 'height')
   }
 
   $ (mixed?: number | string) {
@@ -109,10 +74,6 @@ class LayoutCell {
 
     return this
   }
-
-  calc () {}
-
-  raw () {}
 }
 
 export default LayoutCell

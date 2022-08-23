@@ -72,6 +72,17 @@ type ConfirmFunctionalKey<O> = {
 }
 
 type CellDescriber = Partial<{
+  name: string;
   width: number;
   height: number;
+  colSpan: number;
+  rowSpan: number;
 }>
+
+type RowDescriber = {
+  name: string;
+  cells: (CellDescriber | null)[]
+  height?: number;
+}
+
+type LayoutDescriber = RowDescriber[]

@@ -6,58 +6,63 @@
  *  @description
  */
 import Layout from './Layout'
-import LayoutCell, { CellDescriber } from './LayoutCell'
+import LayoutCell from './LayoutCell'
 
-export type RowDescriber = {
-  name: string;
+type LayoutRowOptions = RowDescriber & {
   row: number;
-  cells: (CellDescriber | null)[]
-  height?: number;
 }
 
 class LayoutRow {
-  private readonly name: string
-  private readonly _cells: LayoutCell[]
+  private readonly $row: HTMLTableRowElement
+  private readonly _layout: Layout
+  private readonly _options: LayoutRowOptions
+  private readonly _name: string
 
-  constructor (layout: Layout, describer: RowDescriber) {
-    this.name = describer.name
+  private _cells: LayoutCell[] = []
 
-    this._cells = describer.cells.map((cell, cellIndex) => {
-      if (cell?.ref) {
-        return layout.locate(cell.ref[1], cell.ref[0])
-      }
-
-      const extendedCell = {
-        ...cell,
-        height: describer.height,
-      }
-
-      layout.buildSpaceDescriber(describer.row, cellIndex, extendedCell)
-
-      return new LayoutCell({
-        ...extendedCell,
-        row: describer.row,
-        column: cellIndex,
-      })
-    })
+  constructor (layout: Layout, options: LayoutRowOptions) {
+    this.$row = document.createElement('tr')
+    this._options = options
+    this._layout = layout
+    this._name = options.name
   }
 
   render () {
-    const row = document.createElement('tr')
+    this.$row.setAttribute('name', this._name)
 
-    row.setAttribute('name', this.name)
+    this._cells.map(c => this.$row.appendChild(c.node()))
 
-    this._cells.map(c => row.appendChild(c.node()))
+    return this.$row
+  }
 
-    return row
+  buildCells () {
+    this._cells = this._options.cells.map((cell, cellIndex) => {
+      const extendedCell = {
+        ...cell,
+        height: this._options.height,
+      }
+
+      /**
+       * 根据span更新关联单元的信息
+       */
+      this._layout.describe(this._options.row, cellIndex, extendedCell)
+
+      return this._layout.raw(this._options.row, cellIndex) ?? new LayoutCell(this._layout, {
+        ...extendedCell,
+        row: this._options.row,
+        column: cellIndex,
+      })
+    })
+
+    return this
   }
 
   at (column: number) {
     return this._cells[column]
   }
 
-  resize () {
-    this._cells.map(c => c.resize())
+  remove () {
+    this._layout.removeRow(this.$row)
   }
 }
 

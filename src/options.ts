@@ -84,7 +84,7 @@ export type LayoutOptions = {
 
 export const layoutOptions: LayoutOptions = {
   axisHeight: 20,
-  seriesWidth: 20,
+  seriesWidth: 60,
   padding: 0,
 }
 
@@ -143,3 +143,29 @@ export type RenderOptions = ScaledOptions & {
 export type RendererOptions = RenderOptions & StockChartOptions
 
 export type RenderMasterOptions = ScaledOptions & { layout: Layout }
+
+export const useDescriber = (describer?: LayoutDescriber) => {
+  return describer ?? [
+    {
+      name: 'chart_row',
+      cells: [
+        {
+          name: 'main_chart_cell',
+        },
+        {
+          name: 'default_series_cell', width: layoutOptions.seriesWidth,
+        },
+      ],
+    },
+    {
+      name: 'main_axis_row',
+      height: layoutOptions.axisHeight,
+      cells: [
+        {
+          name: 'main_axis_cell',
+        },
+        null,
+      ],
+    },
+  ]
+}

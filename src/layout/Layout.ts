@@ -7,22 +7,36 @@
  */
 import debounce from 'lodash.debounce'
 import Event from '../base/Event'
-import { CellDescriber } from './LayoutCell'
-import LayoutRow, { RowDescriber } from './LayoutRow'
-
-export type LayoutDescriber = Omit<RowDescriber, 'row'>[]
+import { useDescriber } from '../options'
+import LayoutRow from './LayoutRow'
 
 export type SpaceDescriber = {
-  isSource: true;
-  flexedWidth: boolean;
-  width: number;
+  /**
+   * 自适应高度
+   */
   flexedHeight: boolean;
-  height: number;
+  /**
+   * 自适应宽度
+   */
+  flexedWidth: boolean;
+  /**
+   * >=0 的数为 像素值
+   * -1 - 0 的值为百分比
+   */
+  width: number;
+  height: number
+  isLink: false;
   colSpan: number;
   rowSpan: number;
 } | {
-  isSource: false;
-  ref: Vector;
+  /**
+   * 因为colspan或者rowspan而产生的占位单元
+   */
+  isLink: true;
+  /**
+   * 指定了span的单元的坐标[列,行]
+   */
+  source: Vector;
 }
 
 export type Computer = {
@@ -31,47 +45,61 @@ export type Computer = {
 }
 
 class Layout extends Event<'resize'> {
+  private readonly $container: Element
   private readonly $table: HTMLTableElement
-  private readonly _rows: LayoutRow[]
-  private readonly _spaceDescriber: SpaceDescriber[][] = []
-  private readonly _spaceComputer: Computer[][]
-  private readonly _spaceSummary = {
+  private readonly _describer: LayoutDescriber
+  private readonly _description: SpaceDescriber[][] = []
+  private readonly _computer: Computer[][]
+  private readonly _space = {
     width: 0,
     height: 0,
     row: 0,
     column: 0,
   }
 
-  constructor (root: Element, describer?: LayoutDescriber) {
+  private _rows: LayoutRow[]
+
+  constructor (container: Element, describer?: LayoutDescriber) {
     super()
 
-    const rect = root.getBoundingClientRect()
+    this.$container = container
 
-    this._spaceSummary.width = rect.width
-    this._spaceSummary.height = rect.height
+    const rect = this.$container.getBoundingClientRect()
+
+    this._space.width = rect.width
+
+    this._space.height = rect.height
 
     this.$table = this.createTable(rect.width, rect.height)
 
-    const d = this.useDescriber(describer)
+    this._describer = useDescriber(describer)
 
-    this.initSpaceDescriber(d)
+    this.formatDescriber()
 
-    this._rows = this.createRows(d)
+    this._rows = this.buildRows()
 
-    this._spaceComputer = this.buildSpaceComputer()
+    this._computer = this.buildComputer()
 
-    root.appendChild(this.render())
+    this.mount()
 
-    this.monitorResize(root)
+    this.monitorResize()
   }
 
-  private initSpaceDescriber (describer: LayoutDescriber) {
-    describer.map((_, i) => this._spaceDescriber[i] = [])
+  private mount () {
+    this.$container.appendChild(this.render())
+  }
 
-    this._spaceSummary.row = describer.length
+  /**
+   * 格式化
+   * @private
+   */
+  private formatDescriber () {
+    this._describer.map((_, i) => this._description[i] = [])
 
-    if (this._spaceSummary.row !== 0) {
-      this._spaceSummary.column = describer[0].cells.reduce((acc, v) => acc + (v?.colSpan ?? 1), 0)
+    this._space.row = this._describer.length
+
+    if (this._space.row !== 0) {
+      this._space.column = this._describer[0].cells.reduce((acc, v) => acc + (v?.colSpan ?? 1), 0)
     }
   }
 
@@ -89,50 +117,24 @@ class Layout extends Event<'resize'> {
     return table
   }
 
-  private useDescriber (describer?: LayoutDescriber) {
-    return describer ?? [
-      {
-        name: 'chart_row',
-        cells: [
-          {
-            name: 'main_chart_cell',
-          },
-          {
-            name: 'default_series_cell', width: 60,
-          },
-        ],
-      },
-      {
-        name: 'main_axis_row',
-        height: 20,
-        cells: [
-          {
-            name: 'main_axis_cell',
-          },
-          null,
-        ],
-      },
-    ]
-  }
-
-  private createRows (describer: LayoutDescriber) {
-    return describer.map((row, rowIndex) =>
+  private buildRows () {
+    return this._describer.map((row, rowIndex) =>
       new LayoutRow(this, {
         ...row,
         row: rowIndex,
-      }))
+      }).buildCells())
   }
 
-  private monitorResize (root: Element) {
+  private monitorResize () {
     window.addEventListener('resize', debounce(() => {
-      this.resize(root.getBoundingClientRect())
+      this.resize()
     }, 1000 / 6))
   }
 
   private createWidthFormula (row: number, col: number) {
-    const space = this._spaceDescriber[row][col]
+    const space = this._description[row][col]
 
-    if (!space.isSource) return this._spaceComputer[space.ref[1]][space.ref[0]].width
+    if (space.isLink) return this._computer[space.source[1]][space.source[0]].width
 
     if (!space.flexedWidth) {
       return () => space.width
@@ -142,22 +144,22 @@ class Layout extends Event<'resize'> {
       let fixedWidth = 0
       let fixedColumn = 0
 
-      for (let i = 0, l = this._spaceDescriber[row].length; i < l; i++) {
-        const space = this._spaceDescriber[row][i]
-        if (!space.isSource) continue
+      for (let i = 0, l = this._description[row].length; i < l; i++) {
+        const space = this._description[row][i]
+        if (space.isLink) continue
 
         fixedWidth += space.flexedWidth ? 0 : space.width
         fixedColumn += space.flexedWidth ? 0 : space.colSpan
       }
 
-      return (this._spaceSummary.width - fixedWidth) / (this._spaceSummary.column - fixedColumn) * space.colSpan
+      return (this._space.width - fixedWidth) / (this._space.column - fixedColumn) * space.colSpan
     }
   }
 
   private createHeightFormula (row: number, col: number) {
-    const space = this._spaceDescriber[row][col]
+    const space = this._description[row][col]
 
-    if (!space.isSource) return this._spaceComputer[space.ref[1]][space.ref[0]].height
+    if (space.isLink) return this._computer[space.source[1]][space.source[0]].height
 
     if (!space.flexedHeight) {
       return () => space.height
@@ -167,20 +169,20 @@ class Layout extends Event<'resize'> {
       let fixedHeight = 0
       let fixedRow = 0
 
-      for (let i = 0, l = this._spaceDescriber.length; i < l; i++) {
-        const space = this._spaceDescriber[i][col]
-        if (!space.isSource) continue
+      for (let i = 0, l = this._description.length; i < l; i++) {
+        const space = this._description[i][col]
+        if (space.isLink) continue
 
         fixedHeight += space.flexedHeight ? 0 : space.height
         fixedRow += space.flexedHeight ? 0 : space.rowSpan
       }
 
-      return (this._spaceSummary.height - fixedHeight) / (this._spaceSummary.row - fixedRow) * space.rowSpan
+      return (this._space.height - fixedHeight) / (this._space.row - fixedRow) * space.rowSpan
     }
   }
 
-  private buildSpaceComputer () {
-    return this._spaceDescriber.map((r, ri) => r.map((_, ci) => {
+  private buildComputer () {
+    return this._description.map((r, ri) => r.map((_, ci) => {
       return {
         width: this.createWidthFormula(ri, ci),
         height: this.createHeightFormula(ri, ci),
@@ -188,20 +190,52 @@ class Layout extends Event<'resize'> {
     }))
   }
 
-  buildSpaceDescriber (row: number, col: number, describer: CellDescriber | null) {
-    if (this._spaceDescriber[row][col]?.isSource === false) {
+  private refRowHeight (row: number) {
+    let height
+    for (let c = 0, l = this._description[row].length; c < l && height === undefined; c++) {
+      const cell = this._description[row][c]
+      if (!cell || cell.isLink) continue
+      height = cell.height
+    }
+    return height
+  }
+
+  private refColumnWidth (col: number) {
+    let width
+    for (let r = 0, l = this._description.length; r < l && width === undefined; r++) {
+      const cell = this._description[r][col]
+      if (!cell || cell.isLink) continue
+      width = cell?.width
+    }
+
+    return width
+  }
+
+  describe (row: number, col: number, describer: CellDescriber | null) {
+    /**
+     * 占位单元不处理
+     */
+    if (this._description[row][col]?.isLink === true) {
       return
     }
 
     const rs = describer?.rowSpan ?? 1
     const cs = describer?.colSpan ?? 1
+    /**
+     * 参考同列的宽度
+     */
+    const width = describer?.width ?? this.refColumnWidth(col) ?? -1
+    /**
+     * 参考同行的高度
+     */
+    const height = describer?.height ?? this.refRowHeight(row) ?? -1
 
-    this._spaceDescriber[row][col] = {
-      isSource: true,
-      flexedHeight: describer?.height === undefined,
-      height: describer?.height ?? 0,
-      flexedWidth: describer?.width === undefined,
-      width: describer?.width ?? 0,
+    this._description[row][col] = {
+      isLink: false,
+      flexedHeight: !(height >= 0),
+      height,
+      flexedWidth: !(width >= 0),
+      width,
       colSpan: cs,
       rowSpan: rs,
     }
@@ -210,13 +244,13 @@ class Layout extends Event<'resize'> {
      * expand row/column span
      */
     if (rs > 1 || cs > 1) {
-      for (let r = row, rc = row + rs; r < rc; r++) {
-        for (let c = col, cc = col + cs; c < cc; c++) {
+      for (let r = row, rc = Math.min(row + rs, this._space.row); r < rc; r++) {
+        for (let c = col, cc = Math.min(col + cs, this._space.column); c < cc; c++) {
           if (r === row && c === col) continue
 
-          this._spaceDescriber[r][c] = {
-            isSource: false,
-            ref: [col, row],
+          this._description[r][c] = {
+            isLink: true,
+            source: [col, row],
           }
         }
       }
@@ -234,7 +268,16 @@ class Layout extends Event<'resize'> {
   }
 
   locate (row: number, col: number) {
-    return this._rows[row].at(col)
+    return this._rows?.[row]?.at(col)
+  }
+
+  raw (row: number, col: number) {
+    const cell = this._description[row][col]
+    return cell?.isLink ? this.locate(cell.source[1], cell.source[0]) : this.locate(row, col)
+  }
+
+  compute (row: number, col: number, dimension: 'width' | 'height') {
+    return this._computer[row][col]?.[dimension]()
   }
 
   chart () {
@@ -249,20 +292,58 @@ class Layout extends Event<'resize'> {
     return this.locate(0, 1)
   }
 
-  resize (rect: DOMRect) {
-    this._spaceSummary.width = rect.width
-    this._spaceSummary.height = rect.height
+  resize () {
+    const rect = this.$container.getBoundingClientRect()
+
+    this._space.width = rect.width
+    this._space.height = rect.height
 
     this.$table.style.width = rect.width + 'px'
     this.$table.style.height = rect.height + 'px'
 
-    console.log(this._spaceComputer[0][0].width(), this._spaceSummary)
-
     this.emit('resize')
   }
 
-  appendRow () {
-    return this
+  insertRow (describer: RowDescriber, index: number) {
+    /**
+     * 添加空行占位
+     */
+    this._rows.splice(index, 0, new LayoutRow(this, {
+      ...describer,
+      row: index,
+    }))
+
+    this._describer.splice(index, 0, describer)
+
+    this.formatDescriber()
+
+    /**
+     * 新建行
+     */
+    const rows = this.buildRows()
+
+    /**
+     * 新建计算器
+     */
+    this.buildComputer()
+
+    this._rows.map(r => r.remove())
+
+    this._rows = rows
+
+    this.mount()
+
+    this.resize()
+
+    return this._rows[index]
+  }
+
+  appendRow (row: RowDescriber) {
+    return this.insertRow(row, this._rows.length)
+  }
+
+  removeRow (row: HTMLTableRowElement) {
+    this.$table.removeChild(row)
   }
 }
 

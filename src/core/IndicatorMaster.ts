@@ -55,7 +55,13 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
 
   private useExternalContainer (): [LayoutCell, CanvasRenderingContext2D] {
     if (this._externalContainer === null) {
-      this._externalContainer = this.layout.appendRow()
+      this._externalContainer = this.layout.appendRow({
+        name: 'indicator',
+        cells: [{
+          colSpan: 2,
+          height: 200,
+        }],
+      }).at(0)
     }
 
     return [this._externalContainer, this._innerContext]
