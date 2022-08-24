@@ -16,40 +16,84 @@ export type MACDInputs = {
   };
 }
 
-class MACD extends AbstractIndicator<MACDInputs> implements IIndicator<MACDInputs> {
+type MACDOutput = ReturnType<typeof calcMACD>
+
+class MACD extends AbstractIndicator<MACDInputs, MACDOutput> implements IIndicator<MACDInputs> {
   static displayType = DisplayType.EXTERNAL
 
-  drawAll (update: UpdatePayload): this {
-    this.clear()
-
-    this.yAxis.domain([200, -200])
-
-    const ctx = this.context
-    ctx.beginPath()
-
-    const data = calcMACD(update.bars).value[0]
-
+  paintMACD (data: MACDOutput['value']) {
     let start = false
     for (let i = 0, l = data.length; i < l; i++) {
       const value = data[i]
 
-      if (!value.c) continue
+      if (!value.macd) continue
 
       if (start) {
-        ctx.lineTo(this.fx(value.t), this.fy(value.c))
+        this.context.lineTo(this.fx(value.date), this.fy(value.macd))
       } else {
         start = true
-        ctx.moveTo(this.fx(value.t), this.fy(value.c))
+        this.context.moveTo(this.fx(value.date), this.fy(value.macd))
       }
     }
+  }
+
+  paintSignal (data: MACDOutput['value']) {
+    let start = false
+    for (let i = 0, l = data.length; i < l; i++) {
+      const value = data[i]
+
+      if (!value.signal) continue
+
+      if (start) {
+        this.context.lineTo(this.fx(value.date), this.fy(value.signal))
+      } else {
+        start = true
+        this.context.moveTo(this.fx(value.date), this.fy(value.signal))
+      }
+    }
+  }
+
+  paintHist (data: MACDOutput['value'], width: number) {
+    for (let i = 0, l = data.length; i < l; i++) {
+      const value = data[i]
+
+      if (!value.hist) continue
+
+      const x = this.fx(value.date)
+      let top = this.fy(value.hist)
+      let bottom = this.fy(0)
+      if (value.hist < 0) [top, bottom] = [bottom, top]
+      this.context.fillRect(x - width / 2, top, width, Math.abs(top - bottom))
+    }
+  }
+
+  paintAll (output: MACDOutput): this {
+    this.yAxis.domain([300, -300])
+
+    const ctx = this.context
+    ctx.beginPath()
+
+    const data = output.value
+
+    this.paintMACD(data)
+    this.paintSignal(data)
+    this.paintHist(data, this.xAxis.bandWidth())
 
     ctx.stroke()
 
     return this
   }
 
-  drawLatest (update: UpdatePayload): this {
+  clearLatest (): this {
     return this
+  }
+
+  paintLatest (): this {
+    return this
+  }
+
+  calc (update: UpdatePayload) {
+    return calcMACD(update.bars)
   }
 
   isExternal (): boolean {

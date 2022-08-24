@@ -4,7 +4,7 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import { UpdatePayload } from '../../core/DataSource'
-import IIndicator, { DisplayType } from '../../interface/IIndicator'
+import IIndicator from '../../interface/IIndicator'
 import AbstractIndicator from '../../super/AbstractIndicator'
 import calcMA from './formula'
 
@@ -14,38 +14,44 @@ export type MAInputs = {
   }
 }
 
-class MA extends AbstractIndicator<MAInputs> implements IIndicator<MAInputs> {
-  static displayType = DisplayType.INNER
+type MAOutput = ReturnType<typeof calcMA>
 
-  drawAll (update: UpdatePayload): this {
-    this.clear()
+class MA extends AbstractIndicator<MAInputs, MAOutput> implements IIndicator<MAInputs> {
+  clearLatest (): this {
+    return this
+  }
 
-    const mas = calcMA(update.bars, this.inputs.periods)
-
-    const ma = mas[0]
-    const ctx = this.context
-
-    ctx.beginPath()
+  paintMA (ma: MAOutput[number]) {
     let start = false
     for (let i = 0, l = ma.length; i < l; i++) {
       const p = ma[i]
       if (!p.ma) continue
 
       if (start) {
-        ctx.lineTo(this.xAxis.value(p.date), this.yAxis.value(p.ma))
+        this.context.lineTo(this.fx(p.date), this.fy(p.ma))
       } else {
         start = true
-        ctx.moveTo(this.xAxis.value(p.date), this.yAxis.value(p.ma))
+        this.context.moveTo(this.fx(p.date), this.fy(p.ma))
       }
     }
-    ctx.stroke()
+  }
+
+  paintAll (o: MAOutput): this {
+    this.context.beginPath()
+    for (let i = 0, l = o.length; i < l; i++) {
+      this.paintMA(o[i])
+    }
+    this.context.stroke()
 
     return this
   }
 
-  drawLatest (update: UpdatePayload): this {
-    console.log('jojo draw ma latest', update)
+  paintLatest (): this {
     return this
+  }
+
+  calc (update: UpdatePayload): MAOutput {
+    return calcMA(update.bars)
   }
 }
 

@@ -46,11 +46,11 @@ class LayoutCell {
   }
 
   width () {
-    return this._layout.compute(this._row, this._column, 'width')
+    return this._layout.compute('width', [this._column, this._row])
   }
 
   height () {
-    return this._layout.compute(this._row, this._column, 'height')
+    return this._layout.compute('height', [this._column, this._row])
   }
 
   $ (mixed?: number | string) {
@@ -76,7 +76,7 @@ class LayoutCell {
   }
 
   right () {
-    return this._layout.raw(this._row, this._column + 1)
+    return this._layout.locate([this._column + 1, this._row])
   }
 }
 

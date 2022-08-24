@@ -12,22 +12,22 @@ import IIndicator, { DisplayType } from '../interface/IIndicator'
 import { RenderOptions } from '../options'
 import AbstractChart from './AbstractChart'
 
-abstract class AbstractIndicator<T extends { inputs: any }> extends AbstractChart implements IIndicator<T> {
+abstract class AbstractIndicator<I extends { inputs: any }, O = unknown> extends AbstractChart implements IIndicator<I, O> {
   static displayType = DisplayType.INNER
 
-  inputs: T['inputs']
+  inputs: I['inputs']
 
-  constructor (options: RenderOptions & RecursivePartial<T>) {
+  constructor (options: RenderOptions & RecursivePartial<I>) {
     super(options)
 
     this.inputs = options.inputs ?? {}
 
     if (this.isExternal()) {
-      this.yAxis = new Series(options.container)
+      this.yAxis = new Series(this.externalSeriesContainer())
     }
   }
 
-  config (inputs: T) {
+  config (inputs: I) {
     this.inputs = extend(this.inputs, inputs)
 
     this.apply()
@@ -35,13 +35,37 @@ abstract class AbstractIndicator<T extends { inputs: any }> extends AbstractChar
     return this
   }
 
-  abstract drawAll (update: UpdatePayload): this
-
-  abstract drawLatest (update: UpdatePayload): this
-
   isExternal (): boolean {
     return false
   }
+
+  externalSeriesContainer () {
+    return this.container.right()
+  }
+
+  drawAll (update: UpdatePayload): this {
+    this.clear()
+
+    this.paintAll(this.calc(update))
+
+    return this
+  }
+
+  drawLatest (update: UpdatePayload): this {
+    this.clearLatest()
+
+    this.paintLatest(this.calc(update))
+
+    return this
+  }
+
+  abstract calc (update: UpdatePayload): O
+
+  abstract paintAll (o: O): this
+
+  abstract clearLatest (): this
+
+  abstract paintLatest (o: O): this
 }
 
 export default AbstractIndicator

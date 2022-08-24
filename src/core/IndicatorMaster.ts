@@ -8,11 +8,11 @@ import { IndicatorInputs, IndicatorNames, indicators } from '../indicator/all'
 import IIndicator, { DisplayType, IIndicatorCtor } from '../interface/IIndicator'
 import IIndicatorMaster from '../interface/IIndicatorMaster'
 import { InjectPosition, InjectTypes } from '../interface/IInjectable'
+import Layout from '../layout/Layout'
 import LayoutCell from '../layout/LayoutCell'
 import { RenderMasterOptions } from '../options'
 import AbstractRenderer from '../super/AbstractRenderer'
-import { UpdatePayload } from './DataSource'
-import Layout from '../layout/Layout'
+import { UpdateLevel, UpdatePayload } from './DataSource'
 
 class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
   options: RenderMasterOptions
@@ -31,7 +31,7 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
     this.layout = options.layout
   }
 
-  private reduce (name: IndicatorNames): IIndicatorCtor {
+  private reduce<T> (name: IndicatorNames): IIndicatorCtor<T> {
     return indicators[name]
   }
 
@@ -51,7 +51,7 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
         left: 0;
       `
       this._innerContext = context
-      this._innerContainer.node().firstElementChild?.insertAdjacentElement('afterend', context.canvas)
+      this._innerContainer.insert(context.canvas, 0)
     }
 
     return [this._innerContainer, this._innerContext]
@@ -63,8 +63,7 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
         name: 'indicator',
         cells: [{
           height: 200,
-          colSpan: 2,
-        }],
+        }, null],
       }).at(0)
     }
 
@@ -88,13 +87,17 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
 
   draw (update: UpdatePayload): this {
     for (let k in this._indicators) {
-      this._indicators[k].drawAll(update)
+      if (update.level === UpdateLevel.PATCH) {
+        this._indicators[k].drawLatest(update)
+      } else {
+        this._indicators[k].drawAll(update)
+      }
     }
     return this
   }
 
   add (name: IndicatorNames, config?: IndicatorInputs[typeof name]): this {
-    const Ctor = this.reduce(name)
+    const Ctor = this.reduce<typeof config>(name)
 
     const [container, context] = Ctor.displayType === DisplayType.INNER ? this.useInnerContext()
       : this.useExternalContainer()
@@ -128,7 +131,10 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
   }
 
   resize (): this {
-    // aa(this._innerContext, this._innerContainer?.width(), this._innerContainer?.height())
+    const [innerCtr, innerCtx] = this.useInnerContext()
+    aa(innerCtx, innerCtr.width(), innerCtr.height())
+    // let [outCtr, outCtx] = this.useExternalContainer()
+    // aa(outCtx, outCtr.width(), outCtr.height())
     return super.resize()
   }
 }

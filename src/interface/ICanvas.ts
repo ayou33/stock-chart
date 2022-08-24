@@ -5,6 +5,7 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import { UpdatePayload } from '../core/DataSource'
+import LayoutCell from '../layout/LayoutCell'
 import IRenderer from './IRenderer'
 
 export type Bounding = { left: number, top: number }

@@ -16,17 +16,17 @@ class Candle extends AbstractChart implements AbstractChart {
   private drawBar (ctx: CanvasRenderingContext2D, bar: Bar, width: number) {
     const isRaise = bar.open <= bar.close
     const color = isRaise ? '#00B167' : '#F24A3A'
-    const top = this.yAxis.value(isRaise ? bar.close : bar.open)
-    const bottom = this.yAxis.value(isRaise ? bar.open : bar.close)
+    const top = this.fy(isRaise ? bar.close : bar.open)
+    const bottom = this.fy(isRaise ? bar.open : bar.close)
     const height = Math.max(Math.abs(top - bottom), 1)
-    const x = this.xAxis.value(bar.date)
+    const x = this.fx(bar.date)
 
     ctx.beginPath()
 
     ctx.strokeStyle = color
     ctx.fillStyle = color
-    ctx.moveTo(x, this.yAxis.value(bar.low))
-    ctx.lineTo(x, this.yAxis.value(bar.high))
+    ctx.moveTo(x, this.fy(bar.low))
+    ctx.lineTo(x, this.fy(bar.high))
     ctx.fillRect(x - width / 2, top, width, height)
 
     ctx.stroke()
@@ -49,7 +49,7 @@ class Candle extends AbstractChart implements AbstractChart {
 
   clearLatest (bar: Bar) {
     const bandWidth = this.xAxis.bandWidth()
-    const x = this.xAxis.value(bar.date) - bandWidth / 2
+    const x = this.fx(bar.date) - bandWidth / 2
     this.context.clearRect(x, 0, bandWidth + 0.5, this.container.height())
   }
 

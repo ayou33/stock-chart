@@ -35,8 +35,7 @@ export function calcMACD (
   bars: Bar[],
   inputs?: MACDStudyInputs,
   defaults = defaultMACD,
-  name = 'macd',
-  field = 'c',
+  field: BarValueField = 'close',
 ) {
   const {
     fastPeriod = 12,
@@ -56,11 +55,11 @@ export function calcMACD (
   const calcSlowEMA = makeEMACalculator(slowPeriod, defaults.slow)
   const calcSignalEMA = makeEMACalculator(signalPeriod, defaults.signal)
 
-  const macd: Bar[][] = [[], [], []]
+  const data: Record<'macd' | 'signal' | 'hist' | 'date', number>[] = []
 
   let fast = NaN
   let slow = NaN
-  let macdValue = NaN
+  let macd = NaN
   let signal = NaN
   let hist = NaN
 
@@ -68,40 +67,30 @@ export function calcMACD (
   for (let i = defaults.index; i < count; i++) {
     const bar = bars[i]
 
-    const value = bar.close
+    const value = bar[field]
 
     fast = calcFastEMA(value, i)
     slow = calcSlowEMA(value, i)
 
     if (i >= period - 1) {
-      macdValue = fast - slow
-      signal = calcSignalEMA(macdValue, i - period + 1)
+      macd = fast - slow
+      signal = calcSignalEMA(macd, i - period + 1)
 
       if (signal) {
-        hist = macdValue - signal
+        hist = macd - signal
       }
     }
 
-    bar[name] = macdValue
-
-    macd[0].push({
-      t: bar.date,
-      c: macdValue,
-    })
-
-    macd[1].push({
-      t: bar.date,
-      c: signal,
-    })
-
-    macd[2].push({
-      t: bar.t,
-      c: hist,
+    data.push({
+      macd,
+      signal,
+      hist,
+      date: bar.date,
     })
   }
 
   return {
-    value: macd,
+    value: data,
     state: {
       fast,
       slow,

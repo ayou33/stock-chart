@@ -92,7 +92,7 @@ class Board extends Gesture<CrosshairEvents> {
     this.clear()
 
     if (update.latest) {
-      this._priceY = this.yAxis.value(update.latest.close)
+      this._priceY = this.fy(update.latest.close)
       this.drawPriceLine()
     }
 

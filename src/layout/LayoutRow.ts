@@ -47,7 +47,7 @@ class LayoutRow {
        */
       this._layout.describe(this._options.row, cellIndex, extendedCell)
 
-      return this._layout.raw(this._options.row, cellIndex) ?? new LayoutCell(this._layout, {
+      return this._layout.locate([cellIndex, this._options.row]) ?? new LayoutCell(this._layout, {
         ...extendedCell,
         row: this._options.row,
         column: cellIndex,

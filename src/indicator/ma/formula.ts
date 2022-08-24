@@ -44,17 +44,15 @@ const dftSMAState: MAState = {
  * @param bars
  * @param periods
  * @param defaults
- * @param name
  * @param field
  */
 export function calcMA (
   bars: Bar[],
-  periods: number[] = [14],
+  periods: number[] = [7, 14, 20, 30, 60, 90],
   defaults: MAState = dftSMAState,
-  name = 'ma' as const,
   field: BarValueField = 'close',
 ) {
-  const mas: { [p in typeof name | 'date']: number; }[][] = map(() => [], periods)
+  const mas: Record<'ma' | 'date', number>[][] = map(() => [], periods)
   const calculators = map(p => makeMACalculator(p, defaults.addends), periods)
   const count = bars.length
   const from = defaults.addends.length < Math.max(...periods) ? defaults.addends.length : defaults.index
@@ -68,7 +66,7 @@ export function calcMA (
 
 
       mas[k].push({
-        [name]: ma,
+        ma,
         date: quote.date,
       })
     }

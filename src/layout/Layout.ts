@@ -49,16 +49,51 @@ export type Computer = {
 class Layout extends Event<'resize'> {
   private readonly $container: Element
   private readonly $table: HTMLTableElement
-  private readonly _describer: LayoutDescriber
-  private readonly _description: SpaceDescriber[][] = []
+
+  /**
+   * 总的布局空间信息
+   * @private
+   */
   private readonly _space = {
-    width: 0,
-    height: 0,
-    row: 0,
-    column: 0,
+    width: 0, // 总宽度
+    height: 0, // 总高度
+    row: 0, // 总行数
+    column: 0, // 总列数
   }
 
-  private _rows: LayoutRow[]
+  /**
+   * 用户可以理解的布局描述对象
+   * @private
+   */
+  private readonly _describer: LayoutDescriber
+
+  /**
+   * @private
+   * 格式化后的算法需要的，与cell一一对应的布局单元描述对象数组
+   *    1._description先于具体的Cell实例而创建
+   *    2._description在每次更新时都会重建
+   *
+   * _description存在的意义在于
+   *    _description为具体的cell实例的创建提供的方针(新建or复用)
+   *
+   * 生成国过程如下
+   *    1.根据_describer的行描述初始化所有的空行准备填入cell描述信息
+   *    2.根据每个cell的配置信息在自身以及colspan/rowspan辐射到的坐标内填充对应关联信息
+   *      （这一步会更新在未来时间才遍历到的cell）
+   */
+  private readonly _description: SpaceDescriber[][] = []
+
+  /**
+   * layout管理tr tr管理td
+   * 在layout的创建创建过程总同步完成对_description的创建
+   * @private
+   */
+  private _layout: LayoutRow[]
+
+  /**
+   * 单元size计算器
+   * @private
+   */
   private _computer: Computer[][]
 
   constructor (container: Element, describer?: LayoutDescriber) {
@@ -72,13 +107,13 @@ class Layout extends Event<'resize'> {
 
     this._space.height = rect.height
 
-    this.$table = this.createTable(rect.width, rect.height)
+    this.$table = this.createTableEl(rect.width, rect.height)
 
     this._describer = useDescriber(describer)
 
     this.formatDescriber()
 
-    this._rows = this.buildRows()
+    this._layout = this.buildLayout()
 
     this._computer = this.buildComputer()
 
@@ -105,7 +140,7 @@ class Layout extends Event<'resize'> {
     }
   }
 
-  private createTable (width: number, height: number) {
+  private createTableEl (width: number, height: number) {
     const table = document.createElement('table')
 
     table.style.cssText = `
@@ -119,7 +154,7 @@ class Layout extends Event<'resize'> {
     return table
   }
 
-  private buildRows () {
+  private buildLayout () {
     return this._describer.map((row, rowIndex) =>
       new LayoutRow(this, {
         ...row,
@@ -139,12 +174,12 @@ class Layout extends Event<'resize'> {
     }
   }
 
-  private createWidthFormula (row: number, col: number) {
-    const cell = this._description[row][col]
+  private createWidthFn (row: number, col: number) {
+    const cell = this.read([col, row])
 
     if (cell.isLink) return memoizeWith(
       this.keyGen(row, col),
-      () => this._computer[cell.source[1]][cell.source[0]].width(),
+      () => this.compute('width', cell.source),
     )
 
     if (!cell.flexedWidth) {
@@ -156,9 +191,9 @@ class Layout extends Event<'resize'> {
       let fixedColumn = 0
 
       for (let i = 0, l = this._description[row].length; i < l; i++) {
-        let cell = this._description[row][i]
+        let cell = this.read([i, row])
 
-        if (cell.isLink) cell = this._description[cell.source[1]][cell.source[0]]
+        if (cell.isLink) cell = this.read(cell.source)
 
         if (!cell.isLink) {
           fixedWidth += cell.flexedWidth ? 0 : cell.width
@@ -170,12 +205,12 @@ class Layout extends Event<'resize'> {
     })
   }
 
-  private createHeightFormula (row: number, col: number) {
-    const cell = this._description[row][col]
+  private createHeightFn (row: number, col: number) {
+    const cell = this.read([col, row])
 
     if (cell.isLink) return memoizeWith(
       this.keyGen(row, col),
-      () => this._computer[cell.source[1]][cell.source[0]].height(),
+      () => this.compute('height', cell.source),
     )
 
     if (!cell.flexedHeight) {
@@ -187,9 +222,9 @@ class Layout extends Event<'resize'> {
       let fixedRow = 0
 
       for (let i = 0, l = this._description.length; i < l; i++) {
-        let cell = this._description[i][col]
+        let cell = this.read([col, i])
 
-        if (cell.isLink) cell = this._description[cell.source[1]][cell.source[0]]
+        if (cell.isLink) cell = this.read(cell.source)
 
         if (!cell.isLink) {
           fixedHeight += cell.flexedHeight ? 0 : cell.height
@@ -204,8 +239,8 @@ class Layout extends Event<'resize'> {
   private buildComputer () {
     return this._description.map((r, ri) => r.map((_, ci) => {
       return {
-        width: this.createWidthFormula(ri, ci),
-        height: this.createHeightFormula(ri, ci),
+        width: this.createWidthFn(ri, ci),
+        height: this.createHeightFn(ri, ci),
       }
     }))
   }
@@ -213,7 +248,7 @@ class Layout extends Event<'resize'> {
   private refRowHeight (row: number) {
     let height
     for (let c = 0, l = this._description[row].length; c < l && height === undefined; c++) {
-      const cell = this._description[row][c]
+      const cell = this.read([c, row])
       if (!cell || cell.isLink) continue
       height = cell.height
     }
@@ -223,7 +258,7 @@ class Layout extends Event<'resize'> {
   private refColumnWidth (col: number) {
     let width
     for (let r = 0, l = this._description.length; r < l && width === undefined; r++) {
-      const cell = this._description[r][col]
+      const cell = this.read([col, r])
       if (!cell || cell.isLink) continue
       width = cell?.width
     }
@@ -231,12 +266,51 @@ class Layout extends Event<'resize'> {
     return width
   }
 
+  private render () {
+    const fragment = document.createDocumentFragment()
+
+    this._layout.map(r => fragment.appendChild(r.render()))
+
+    this.$table.appendChild(fragment)
+
+    return this.$table
+  }
+
+  private assertLocation ([col, row]: Vector) {
+    if (
+      isOut(0, this._space.row)(row) ||
+      isOut(0, this._space.column)(col)
+    ) {
+      throw new ReferenceError(`Cell in location[row:${row},col:${col}] is out of range!`)
+    }
+  }
+
+  private read ([col, row]: Vector) {
+    this.assertLocation([col, row])
+
+    return this._description[row][col]
+  }
+
+  private raw (location: Vector) {
+    this.assertLocation(location)
+
+    const cell = this.read(location)
+    return cell?.isLink ? cell.source : location
+  }
+
+  private set ([col, row]: Vector, describer: SpaceDescriber) {
+    this.assertLocation([col, row])
+
+    this._description[row][col] = describer
+  }
+
   describe (row: number, col: number, describer: CellDescriber | null) {
     /**
      * 占位单元不处理
      */
-    if (this._description[row][col]?.isLink === true) {
-      return
+    const cell = this.read([col, row])
+    if (cell?.isLink === true) {
+      return cell.source
     }
 
     const rs = describer?.rowSpan ?? 1
@@ -250,7 +324,7 @@ class Layout extends Event<'resize'> {
      */
     const height = describer?.height ?? this.refRowHeight(row) ?? -1
 
-    this._description[row][col] = {
+    this.set([col, row], {
       isLink: false,
       flexedHeight: !(height >= 0),
       height,
@@ -258,7 +332,7 @@ class Layout extends Event<'resize'> {
       width,
       colSpan: cs,
       rowSpan: rs,
-    }
+    })
 
     /**
      * expand row/column span
@@ -267,55 +341,44 @@ class Layout extends Event<'resize'> {
       for (let r = row, rc = Math.min(row + rs, this._space.row); r < rc; r++) {
         for (let c = col, cc = Math.min(col + cs, this._space.column); c < cc; c++) {
           if (r === row && c === col) continue
-
-          this._description[r][c] = {
+          this.set([c, r], {
             isLink: true,
             source: [col, row],
-          }
+          })
         }
       }
     }
+
+    return
   }
 
-  render () {
-    const fragment = document.createDocumentFragment()
+  locate (location: Vector) {
+    location = this.raw(location)
 
-    this._rows.map(r => fragment.appendChild(r.render()))
-
-    this.$table.appendChild(fragment)
-
-    return this.$table
+    /**
+     * @todo
+     *    在_layout初始化的过程中_layout是undefined
+     *    但已经存在_layout被访问可能，这导致会有冗余的Cell实例生成
+     *    @see LayoutRow#buildCells
+     */
+    return this._layout?.[location[1]]?.at(location[0])
   }
 
-  locate (row: number, col: number) {
-    if (
-      isOut(0, this._space.row)(row) ||
-      isOut(0, this._space.column)(col)
-    ) return undefined
-
-    return this._rows?.[row]?.at(col)
-  }
-
-  raw (row: number, col: number) {
-    const cell = this._description[row][col]
-
-    return cell?.isLink ? this.locate(cell.source[1], cell.source[0]) : this.locate(row, col)
-  }
-
-  compute (row: number, col: number, dimension: 'width' | 'height') {
-    return this._computer[row][col]?.[dimension]()
+  compute (dimension: 'width' | 'height', location: Vector) {
+    location = this.raw(location)
+    return this._computer[location[1]][location[0]]?.[dimension]()
   }
 
   chart () {
-    return this.raw(0, 0)
+    return this.locate([0, 0])
   }
 
   mainAxis () {
-    return this.raw(1, 0)
+    return this.locate([0, 1])
   }
 
   series () {
-    return this.raw(0, 1)
+    return this.locate([1, 0])
   }
 
   resize () {
@@ -334,7 +397,7 @@ class Layout extends Event<'resize'> {
     /**
      * 添加空行占位
      */
-    this._rows.splice(index, 0, new LayoutRow(this, {
+    this._layout.splice(index, 0, new LayoutRow(this, {
       ...describer,
       row: index,
     }))
@@ -346,26 +409,26 @@ class Layout extends Event<'resize'> {
     /**
      * 新建行
      */
-    const rows = this.buildRows()
+    const rows = this.buildLayout()
 
     /**
      * 新建计算器
      */
     this._computer = this.buildComputer()
 
-    this._rows.map(r => r.remove())
+    this._layout.map(r => r.remove())
 
-    this._rows = rows
+    this._layout = rows
 
     this.mount()
 
     this.resize()
 
-    return this._rows[index]
+    return this._layout[index]
   }
 
   appendRow (row: RowDescriber) {
-    return this.insertRow(row, this._rows.length)
+    return this.insertRow(row, this._layout.length)
   }
 
   removeRow (row: HTMLTableRowElement) {
