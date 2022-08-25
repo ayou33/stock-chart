@@ -64,6 +64,12 @@ class LayoutRow {
   remove () {
     this._layout.removeRow(this.$row)
   }
+
+  moveDown () {
+    this._cells.map(c => {
+      c.moveDown()
+    })
+  }
 }
 
 export default LayoutRow

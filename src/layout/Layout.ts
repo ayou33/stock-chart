@@ -402,14 +402,24 @@ class Layout extends Event<'resize'> {
       row: index,
     }))
 
+    /**
+     * 更新新添加行以下行的行号
+     */
+    for (let i = index, l = this._layout.length; i < l; i++) {
+      this._layout[i].moveDown()
+    }
+
+    /**
+     * 更新描述对象
+     */
     this._describer.splice(index, 0, describer)
 
     this.formatDescriber()
 
     /**
-     * 新建行
+     * 创建新布局
      */
-    const rows = this.buildLayout()
+    const layout = this.buildLayout()
 
     /**
      * 新建计算器
@@ -418,7 +428,7 @@ class Layout extends Event<'resize'> {
 
     this._layout.map(r => r.remove())
 
-    this._layout = rows
+    this._layout = layout
 
     this.mount()
 

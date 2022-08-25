@@ -84,7 +84,7 @@ export type LayoutOptions = {
 
 export const layoutOptions: LayoutOptions = {
   axisHeight: 20,
-  seriesWidth: 60,
+  seriesWidth: 45,
   padding: 0,
 }
 

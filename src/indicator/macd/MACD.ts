@@ -16,7 +16,6 @@ export type MACDInputs = {
   };
 }
 
-
 type MACDResult = ReturnType<typeof calcMACD>
 
 type MACDState = MACDResult['state']
@@ -25,8 +24,6 @@ type MACDValue = Flatten<MACDResult['value']>
 
 class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicator<MACDInputs> {
   static displayType = DisplayType.EXTERNAL
-
-  displayType = DisplayType.EXTERNAL
 
   valueAlign = 0
 
@@ -101,10 +98,20 @@ class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicato
 
   computeLatest (update: UpdatePayload): MACDValue[] {
     if (this.state) {
-      return calcMACD(update.bars.slice(-1), undefined, this.state).value
+      return this.result.slice(-1).concat(calcMACD(update.bars.slice(-1), undefined, this.state).value)
     }
 
     return []
+  }
+
+  resetLatest (): this {
+    const latest = this.lastUpdate?.latest
+    if (latest) {
+      const left = this.fx(latest.date) - this.xAxis.step() + this.xAxis.bandWidth() / 2
+      const width = this.xAxis.step() * 2 - this.xAxis.bandWidth() / 2
+      this.context.clearRect(left, 0, width, this.container.height())
+    }
+    return this
   }
 
   isExternal (): boolean {

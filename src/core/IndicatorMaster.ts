@@ -24,7 +24,7 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
   private _externalContainer: LayoutCell | null = null
   private _externalContext: CanvasRenderingContext2D | null = null
   private _externalBoard: CanvasRenderingContext2D | null = null
-  private _cusor: Line | null = null
+  private _cursor: Line | null = null
 
   constructor (options: RenderMasterOptions) {
     super()
@@ -87,7 +87,7 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
       `
       this._externalContainer.insert(canvas)
 
-      this._cusor = new Line(this._externalBoard, {
+      this._cursor = new Line(this._externalBoard, {
         angle: Math.PI / 2,
         style: 'dashed',
       })
@@ -164,7 +164,7 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
     const ctx = this._externalBoard
     if (ctx && this._externalContainer) {
       ctx.clearRect(0, 0, this._externalContainer.width(), this._externalContainer.height())
-      this._cusor?.transform([x, 0])
+      this._cursor?.transform([x, 0])
     }
   }
 

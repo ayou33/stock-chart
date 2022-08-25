@@ -18,8 +18,6 @@ export type MAInputs = {
 type MAResult = Flatten<ReturnType<typeof calcMA>>
 
 class MA extends AbstractIndicator<MAInputs, MAResult> implements IIndicator<MAInputs> {
-  private readonly backwardDepth = 1
-
   constructor (options: RenderOptions & RecursivePartial<MAInputs>) {
     super(options, 'ma')
   }
@@ -40,11 +38,12 @@ class MA extends AbstractIndicator<MAInputs, MAResult> implements IIndicator<MAI
   }
 
   compute (update: UpdatePayload) {
-    return calcMA(update.bars.slice(0, -this.backwardDepth))
+    return calcMA(update.bars.slice(0, -1))
   }
 
   computeLatest (update: UpdatePayload): MAResult[] {
-    return calcMA(update.bars.slice(-(14 + this.backwardDepth)))
+    // @todo 取最大的period - 1
+    return calcMA(update.bars.slice(-14 - 1)).slice(-1)
   }
 
   paint (result: MAResult[]): this {
@@ -60,7 +59,7 @@ class MA extends AbstractIndicator<MAInputs, MAResult> implements IIndicator<MAI
   }
 
   isCached (update: UpdatePayload): boolean {
-    return this.result[0]?.length === update.bars.length - this.backwardDepth
+    return this.result[0]?.length === update.bars.length - 1
   }
 }
 

@@ -16,8 +16,9 @@ export type CellOptions = {
 class LayoutCell {
   private readonly _layout: Layout
   private readonly $cell: HTMLTableCellElement
-  private readonly _row: number
-  private readonly _column: number
+
+  private _row: number
+  private _column: number
 
   constructor (layout: Layout, options: CellOptions) {
     this._layout = layout
@@ -80,6 +81,14 @@ class LayoutCell {
 
   right () {
     return this._layout.locate([this._column + 1, this._row])
+  }
+
+  moveDown () {
+    this._row = this._row + 1
+  }
+
+  moveRight () {
+    this._column = this._column + 1
   }
 }
 

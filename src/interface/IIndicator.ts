@@ -13,8 +13,6 @@ export enum DisplayType {
 }
 
 interface IIndicator<I = unknown, O = unknown, E extends string = never> extends IChart<E> {
-  readonly displayType: DisplayType
-
   result: O[]
 
   config (inputs: I): this;
