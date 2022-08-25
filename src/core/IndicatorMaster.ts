@@ -3,16 +3,16 @@
  *  @date 2022/8/19 17:27
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import Line from '../drawing/Line'
 import { aa, createAAContext } from '../helper/aa'
 import { IndicatorInputs, IndicatorNames, indicators } from '../indicator/all'
 import IIndicator, { DisplayType, IIndicatorCtor } from '../interface/IIndicator'
 import IIndicatorMaster from '../interface/IIndicatorMaster'
-import { InjectPosition, InjectTypes } from '../interface/IInjectable'
 import Layout from '../layout/Layout'
 import LayoutCell from '../layout/LayoutCell'
 import { RenderMasterOptions } from '../options'
 import AbstractRenderer from '../super/AbstractRenderer'
-import { UpdateLevel, UpdatePayload } from './DataSource'
+import { UpdatePayload } from './DataSource'
 
 class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
   options: RenderMasterOptions
@@ -23,6 +23,8 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
   private _innerContext: CanvasRenderingContext2D | null = null
   private _externalContainer: LayoutCell | null = null
   private _externalContext: CanvasRenderingContext2D | null = null
+  private _externalBoard: CanvasRenderingContext2D | null = null
+  private _cusor: Line | null = null
 
   constructor (options: RenderMasterOptions) {
     super()
@@ -61,9 +63,11 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
     if (this._externalContainer === null) {
       this._externalContainer = this.layout.appendRow({
         name: 'indicator',
-        cells: [{
-          height: 200,
-        }, null],
+        cells: [
+          {
+            height: 200,
+          }, null,
+        ],
       }).at(0)
     }
 
@@ -74,25 +78,43 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
       this._externalContainer.insert(canvas)
     }
 
+    if (!this._externalBoard) {
+      this._externalBoard = createAAContext(this._externalContainer.width(), this._externalContainer.height())
+      const canvas = this._externalBoard.canvas
+      canvas.style.cssText += `
+        position: absolute;
+        inset: 0;
+      `
+      this._externalContainer.insert(canvas)
+
+      this._cusor = new Line(this._externalBoard, {
+        angle: Math.PI / 2,
+        style: 'dashed',
+      })
+    }
+
     return [this._externalContainer, this._externalContext]
   }
 
-  applyInject (name: InjectTypes, position: InjectPosition): this {
-    const handlers = position === 'before' ? this.beforeInjections[name] : this.afterInjections[name]
-
-    handlers.map(fn => fn(this._innerContext!, this.lastUpdate))
-
+  /**
+   * @ignore
+   */
+  applyInject (): this {
     return this
   }
 
-  draw (update: UpdatePayload): this {
+  /**
+   * @ignore
+   */
+  draw () {
+    return this
+  }
+
+  apply (update?: UpdatePayload): this {
     for (let k in this._indicators) {
-      if (update.level === UpdateLevel.PATCH) {
-        this._indicators[k].drawLatest(update)
-      } else {
-        this._indicators[k].drawAll(update)
-      }
+      this._indicators[k].apply(update)
     }
+
     return this
   }
 
@@ -136,6 +158,22 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
     // let [outCtr, outCtx] = this.useExternalContainer()
     // aa(outCtx, outCtr.width(), outCtr.height())
     return super.resize()
+  }
+
+  focus (x: number) {
+    const ctx = this._externalBoard
+    if (ctx && this._externalContainer) {
+      ctx.clearRect(0, 0, this._externalContainer.width(), this._externalContainer.height())
+      this._cusor?.transform([x, 0])
+    }
+  }
+
+  blur () {
+    const ctx = this._externalBoard
+
+    if (ctx && this._externalContainer) {
+      ctx.clearRect(0, 0, this._externalContainer.width(), this._externalContainer.height())
+    }
   }
 }
 

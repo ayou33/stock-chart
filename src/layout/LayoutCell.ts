@@ -26,7 +26,10 @@ class LayoutCell {
 
     const cell = document.createElement('td')
 
-    cell.style.padding = '0'
+    cell.style.cssText = `
+      position: relative;
+      padding: 0;
+    `
 
     if (options.name) cell.setAttribute('name', options.name)
 

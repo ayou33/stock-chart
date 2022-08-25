@@ -15,6 +15,7 @@ abstract class AbstractChart<E extends string = never, O = unknown> extends Abst
   name: string
   xAxis: IMainAxis
   yAxis: IAxis
+  valueAlign = 0.5
 
   protected constructor (options: RenderOptions & O, name = 'chart_' + Math.random().toString(36).slice(2)) {
     super(options.container, options.context)
@@ -26,8 +27,8 @@ abstract class AbstractChart<E extends string = never, O = unknown> extends Abst
     this.yAxis = options.yAxis
   }
 
-  fx (x: number): number {
-    return this.xAxis.value(x)
+  fx (x: number, align = this.valueAlign): number {
+    return this.xAxis.value(x, align)
   }
 
   fy (y: number): number {
@@ -44,9 +45,25 @@ abstract class AbstractChart<E extends string = never, O = unknown> extends Abst
 
   draw (update: UpdatePayload): this {
     if (update.level === UpdateLevel.PATCH) {
+      this.resetLatest()
       this.drawLatest(update)
     } else {
+      this.clear()
       this.drawAll(update)
+    }
+
+    return this
+  }
+
+  resetLatest (): this {
+    if (this.lastUpdate?.latest) {
+      const step = this.xAxis.step()
+      this.context.clearRect(
+        this.fx(this.lastUpdate.latest.date) - step * Math.ceil(this.valueAlign),
+        0,
+        step,
+        this.container.height(),
+      )
     }
 
     return this

@@ -71,7 +71,10 @@ abstract class AbstractRenderer<E extends string = never> extends Event<E> imple
     this.applyInject('update', 'before')
 
     if (update) {
-      this.lastUpdate = update
+      /**
+       * 不同renderer之间需要数据隔离
+       */
+      this.lastUpdate = { ...update }
     } else if (this.lastUpdate && this.lastUpdate.level !== UpdateLevel.REDRAW) {
       this.lastUpdate.lastChange = { ...this.lastUpdate }
       this.lastUpdate.level = UpdateLevel.REDRAW

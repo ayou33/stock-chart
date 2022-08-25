@@ -5,8 +5,8 @@
  */
 import { add, reduce, is, map } from 'ramda'
 
-const makeMACalculator = (period: number, factors: number[] = []) => {
-  const addends: number[] = factors.slice(-period)
+const makeMACalculator = (period: number) => {
+  const addends: number[] = []
   let acc = reduce(add, 0, addends)
 
   return (quote: number, i: number) => {
@@ -28,39 +28,26 @@ const makeMACalculator = (period: number, factors: number[] = []) => {
   }
 }
 
-export type MAState = {
-  addends: number[];
-  index: number;
-}
-
-const dftSMAState: MAState = {
-  addends: [],
-  index: 0,
-}
-
 /**
  * 指定周期period后，当前点SMA计算如下
  *  前period个点的平均值即为当前点的SMA值
  * @param bars
  * @param periods
- * @param defaults
  * @param field
  */
 export function calcMA (
   bars: Bar[],
-  periods: number[] = [7, 14, 20, 30, 60, 90],
-  defaults: MAState = dftSMAState,
+  periods: number[] = [14],
   field: BarValueField = 'close',
 ) {
   const mas: Record<'ma' | 'date', number>[][] = map(() => [], periods)
-  const calculators = map(p => makeMACalculator(p, defaults.addends), periods)
+  const calculators = map(p => makeMACalculator(p), periods)
   const count = bars.length
-  const from = defaults.addends.length < Math.max(...periods) ? defaults.addends.length : defaults.index
 
   for (let k = 0; k < calculators.length; k++) {
     const calc = calculators[k]
 
-    for (let i = from; i < count; i++) {
+    for (let i = 0; i < count; i++) {
       const quote = bars[i]
       const ma = calc(quote[field], i)
 

@@ -43,14 +43,6 @@ export function calcMACD (
     signalPeriod = 9,
   } = inputs ?? {}
   const period = Math.max(fastPeriod, slowPeriod, signalPeriod)
-
-  if (bars.length < period + 1) {
-    return {
-      value: [],
-      state: defaults,
-    }
-  }
-
   const calcFastEMA = makeEMACalculator(fastPeriod, defaults.fast)
   const calcSlowEMA = makeEMACalculator(slowPeriod, defaults.slow)
   const calcSignalEMA = makeEMACalculator(signalPeriod, defaults.signal)
@@ -63,9 +55,10 @@ export function calcMACD (
   let signal = NaN
   let hist = NaN
 
-  const count = bars.length
+  const count = defaults.index + bars.length
+
   for (let i = defaults.index; i < count; i++) {
-    const bar = bars[i]
+    const bar = bars[i - defaults.index]
 
     const value = bar[field]
 

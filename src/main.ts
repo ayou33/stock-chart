@@ -3283,6 +3283,6 @@ chart.attach({
 
 chart.load('BTCUSD')
 
-chart.addStudy('ma')
+// chart.addStudy('ma')
 
 chart.addStudy('macd')

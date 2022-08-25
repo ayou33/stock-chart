@@ -49,7 +49,7 @@ class Line {
 
     this._offsetArray = this.applyAngle(this.parseAngle())
 
-    this._start = this.applyOrigin(this._options.origin)
+    this._start = this.deriveStart(this._options.origin)
   }
 
   private parseAngle () {
@@ -67,7 +67,7 @@ class Line {
 
     this._offsetArray = this.applyAngle(this.parseAngle())
 
-    this._start = this.applyOrigin(this._options.origin)
+    this._start = this.deriveStart(this._options.origin)
 
     this.draw()
   }
@@ -76,7 +76,6 @@ class Line {
     const ctx = this._context
     let [x, y] = this._start
 
-    ctx.save()
     ctx.beginPath()
     ctx.strokeStyle = this._options.color
     ctx.moveTo(x, y)
@@ -93,7 +92,6 @@ class Line {
     }
 
     ctx.stroke()
-    ctx.restore()
   }
 
   measureCanvas () {
@@ -127,7 +125,7 @@ class Line {
     return this._options.dashArray.map(x => ([Math.cos(this._angle) * x, Math.sin(this._angle) * x]))
   }
 
-  private applyOrigin (location: Vector): Vector {
+  private deriveStart (location: Vector): Vector {
     const [x, y] = this._offsetArray[0]
 
     if (x === 0) return [location[0], 0]
@@ -142,7 +140,7 @@ class Line {
   transform (location: Vector, angle?: number) {
     if (angle) this._offsetArray = this.applyAngle(angle)
 
-    this._start = this.applyOrigin(location)
+    this._start = this.deriveStart(location)
 
     this.draw()
   }

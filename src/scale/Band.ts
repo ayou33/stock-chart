@@ -286,13 +286,14 @@ class Band implements IScale<number[]>{
    * 获取domain的坐标位置
    * 返回的位置因valueAlign的值不同而不同
    * @param date
+   * @param align
    */
-  value (date: number): number {
+  value (date: number, align: number = this._valueAlign): number {
     const index = this._domainIndex[date]
 
     if (index === -1) return NaN
 
-    return this._rangeStart + index * this._step + (this._bandWidth * this._valueAlign)
+    return this._rangeStart + index * this._step + (this._bandWidth * align)
   }
 
   /**

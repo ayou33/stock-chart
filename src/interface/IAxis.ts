@@ -23,8 +23,9 @@ interface IAxis<T = Extent> extends ICanvas {
   /**
    * 获取输出
    * @param domainValue
+   * @param align
    */
-  value (domainValue: number): number;
+  value (domainValue: number, align?: number): number;
 
   /**
    * 反向求值

@@ -16,12 +16,23 @@ export type MACDInputs = {
   };
 }
 
-type MACDOutput = ReturnType<typeof calcMACD>
 
-class MACD extends AbstractIndicator<MACDInputs, MACDOutput> implements IIndicator<MACDInputs> {
+type MACDResult = ReturnType<typeof calcMACD>
+
+type MACDState = MACDResult['state']
+
+type MACDValue = Flatten<MACDResult['value']>
+
+class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicator<MACDInputs> {
   static displayType = DisplayType.EXTERNAL
 
-  paintMACD (data: MACDOutput['value']) {
+  displayType = DisplayType.EXTERNAL
+
+  valueAlign = 0
+
+  state: MACDState | null = null
+
+  paintMACD (data: MACDValue[]) {
     let start = false
     for (let i = 0, l = data.length; i < l; i++) {
       const value = data[i]
@@ -29,15 +40,15 @@ class MACD extends AbstractIndicator<MACDInputs, MACDOutput> implements IIndicat
       if (!value.macd) continue
 
       if (start) {
-        this.context.lineTo(this.fx(value.date), this.fy(value.macd))
+        this.context.lineTo(this.fx(value.date, 0.5), this.fy(value.macd))
       } else {
         start = true
-        this.context.moveTo(this.fx(value.date), this.fy(value.macd))
+        this.context.moveTo(this.fx(value.date, 0.5), this.fy(value.macd))
       }
     }
   }
 
-  paintSignal (data: MACDOutput['value']) {
+  paintSignal (data: MACDValue[]) {
     let start = false
     for (let i = 0, l = data.length; i < l; i++) {
       const value = data[i]
@@ -45,15 +56,15 @@ class MACD extends AbstractIndicator<MACDInputs, MACDOutput> implements IIndicat
       if (!value.signal) continue
 
       if (start) {
-        this.context.lineTo(this.fx(value.date), this.fy(value.signal))
+        this.context.lineTo(this.fx(value.date, 0.5), this.fy(value.signal))
       } else {
         start = true
-        this.context.moveTo(this.fx(value.date), this.fy(value.signal))
+        this.context.moveTo(this.fx(value.date, 0.5), this.fy(value.signal))
       }
     }
   }
 
-  paintHist (data: MACDOutput['value'], width: number) {
+  paintHist (data: MACDValue[], width: number) {
     for (let i = 0, l = data.length; i < l; i++) {
       const value = data[i]
 
@@ -63,17 +74,15 @@ class MACD extends AbstractIndicator<MACDInputs, MACDOutput> implements IIndicat
       let top = this.fy(value.hist)
       let bottom = this.fy(0)
       if (value.hist < 0) [top, bottom] = [bottom, top]
-      this.context.fillRect(x - width / 2, top, width, Math.abs(top - bottom))
+      this.context.fillRect(x, top, width, Math.abs(top - bottom))
     }
   }
 
-  paintAll (output: MACDOutput): this {
+  paint (data: MACDValue[]): this {
     this.yAxis.domain([300, -300])
 
     const ctx = this.context
     ctx.beginPath()
-
-    const data = output.value
 
     this.paintMACD(data)
     this.paintSignal(data)
@@ -84,16 +93,18 @@ class MACD extends AbstractIndicator<MACDInputs, MACDOutput> implements IIndicat
     return this
   }
 
-  clearLatest (): this {
-    return this
+  compute (update: UpdatePayload) {
+    const result = calcMACD(update.bars.slice(0, -1))
+    this.state = result.state
+    return result.value
   }
 
-  paintLatest (): this {
-    return this
-  }
+  computeLatest (update: UpdatePayload): MACDValue[] {
+    if (this.state) {
+      return calcMACD(update.bars.slice(-1), undefined, this.state).value
+    }
 
-  calc (update: UpdatePayload) {
-    return calcMACD(update.bars)
+    return []
   }
 
   isExternal (): boolean {

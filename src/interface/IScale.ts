@@ -5,7 +5,7 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 interface IScale<T = any> {
-  value (domainValue: number): number;
+  value (domainValue: number, align?: number): number;
 
   invert (rangeValue: number): number;
 

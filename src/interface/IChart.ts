@@ -14,6 +14,7 @@ interface IChart<E extends string = never> extends ICanvas<E> {
   name: string;
   yAxis: IAxis;
   xAxis: IMainAxis;
+  valueAlign: number;
 
   fx (x: number): number;
 
@@ -24,6 +25,8 @@ interface IChart<E extends string = never> extends ICanvas<E> {
   invertY (y: number): number;
 
   drawAll (update: UpdatePayload): this;
+
+  resetLatest (): this;
 
   drawLatest (update: UpdatePayload): this;
 }

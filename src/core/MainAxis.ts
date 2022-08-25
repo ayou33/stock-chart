@@ -136,8 +136,8 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
       ctx.font = fontSize(options.fontSize)
       ctx.fillText(text, x, y)
       ctx.restore()
-
     }
+
     return this
   }
 

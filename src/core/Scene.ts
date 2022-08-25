@@ -91,10 +91,12 @@ class Scene {
       .on('focus', (_, x: number, y: number) => {
         this._mainAxis.focus(x)
         this._series.default.focus(y)
+        this._indicatorMaster?.focus(x)
       })
       .on('blur', () => {
         this._mainAxis.blur()
         this._series.default.blur()
+        this._indicatorMaster?.blur()
       })
       .on('transform', () => {
         if (this._lastUpdate) {

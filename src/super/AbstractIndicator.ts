@@ -12,13 +12,15 @@ import IIndicator, { DisplayType } from '../interface/IIndicator'
 import { RenderOptions } from '../options'
 import AbstractChart from './AbstractChart'
 
-abstract class AbstractIndicator<I extends { inputs: any }, O = unknown> extends AbstractChart implements IIndicator<I, O> {
+abstract class AbstractIndicator<I extends { inputs: any }, O> extends AbstractChart implements IIndicator<I, O> {
   static displayType = DisplayType.INNER
+
+  result: O[] = []
 
   inputs: I['inputs']
 
-  constructor (options: RenderOptions & RecursivePartial<I>) {
-    super(options)
+  constructor (options: RenderOptions & RecursivePartial<I>, name?: string) {
+    super(options, name)
 
     this.inputs = options.inputs ?? {}
 
@@ -44,28 +46,32 @@ abstract class AbstractIndicator<I extends { inputs: any }, O = unknown> extends
   }
 
   drawAll (update: UpdatePayload): this {
-    this.clear()
+    if (!this.isCached(update)) {
+      this.result = this.compute(update)
+    }
 
-    this.paintAll(this.calc(update))
+    this.paint(this.result)
+
+    this.drawLatest(update)
 
     return this
   }
 
   drawLatest (update: UpdatePayload): this {
-    this.clearLatest()
-
-    this.paintLatest(this.calc(update))
+    this.paint(this.computeLatest(update))
 
     return this
   }
 
-  abstract calc (update: UpdatePayload): O
+  isCached (update: UpdatePayload): boolean {
+    return this.result.length === update.bars.length - 1
+  }
 
-  abstract paintAll (o: O): this
+  abstract compute (update: UpdatePayload): O[]
 
-  abstract clearLatest (): this
+  abstract computeLatest (update: UpdatePayload): O[]
 
-  abstract paintLatest (o: O): this
+  abstract paint (data: O[]): this
 }
 
 export default AbstractIndicator

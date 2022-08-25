@@ -23,8 +23,8 @@ abstract class AbstractAxis<E extends string, U = Extent, T extends IScale = ISc
     return this
   }
 
-  value (domainValue: number): number {
-    return this.scale.value(domainValue)
+  value (domainValue: number, align?: number): number {
+    return this.scale.value(domainValue, align)
   }
 
   invert (rangeValue: number): number {

@@ -9,6 +9,8 @@ import { RenderOptions } from '../options'
 import AbstractChart from '../super/AbstractChart'
 
 class Candle extends AbstractChart implements AbstractChart {
+  valueAlign = 0
+
   constructor (options: RenderOptions) {
     super(options, 'candle')
   }
@@ -20,14 +22,15 @@ class Candle extends AbstractChart implements AbstractChart {
     const bottom = this.fy(isRaise ? bar.open : bar.close)
     const height = Math.max(Math.abs(top - bottom), 1)
     const x = this.fx(bar.date)
+    const halfWidth = width / 2
 
     ctx.beginPath()
 
     ctx.strokeStyle = color
     ctx.fillStyle = color
-    ctx.moveTo(x, this.fy(bar.low))
-    ctx.lineTo(x, this.fy(bar.high))
-    ctx.fillRect(x - width / 2, top, width, height)
+    ctx.fillRect(x, top, width, height)
+    ctx.moveTo(x + halfWidth, this.fy(bar.low))
+    ctx.lineTo(x + halfWidth, this.fy(bar.high))
 
     ctx.stroke()
   }
@@ -35,8 +38,6 @@ class Candle extends AbstractChart implements AbstractChart {
   drawAll (update: UpdatePayload): this {
     const ctx = this.context
     const width = this.xAxis.bandWidth()
-
-    this.clear()
 
     ctx.save()
     for (let i = 0, l = update.bars.length; i < l; i++) {
@@ -47,16 +48,8 @@ class Candle extends AbstractChart implements AbstractChart {
     return this
   }
 
-  clearLatest (bar: Bar) {
-    const bandWidth = this.xAxis.bandWidth()
-    const x = this.fx(bar.date) - bandWidth / 2
-    this.context.clearRect(x, 0, bandWidth + 0.5, this.container.height())
-  }
-
   drawLatest (update: UpdatePayload): this {
     if (update.latest) {
-      this.clearLatest(update.latest)
-
       this.drawBar(this.context, update.latest, this.xAxis.bandWidth())
     }
 

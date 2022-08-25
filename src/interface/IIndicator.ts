@@ -13,13 +13,17 @@ export enum DisplayType {
 }
 
 interface IIndicator<I = unknown, O = unknown, E extends string = never> extends IChart<E> {
+  readonly displayType: DisplayType
+
+  result: O[]
+
   config (inputs: I): this;
 
-  calc (update: UpdatePayload): O
+  compute (update: UpdatePayload): O[]
 
-  paintAll (o: O): this
+  computeLatest (update: UpdatePayload): O[]
 
-  paintLatest (o: O): this
+  paint (data: O[]): this
 }
 
 export interface IIndicatorCtor<I = any, O = unknown> {

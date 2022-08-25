@@ -4,13 +4,13 @@
  *  @date 2022/7/25 17:23
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import { ReversedArray } from 'lunzi'
 import { last, pluck } from 'ramda'
 import Event from '../base/Event'
 import { extent } from '../helper/extent'
 import IDataFeed, { Periodicity, SymbolDescriber } from '../interface/IDataFeed'
 import { DataSourceOptions } from '../options'
 import DataEngine from './DataEngine'
-import { ReversedArray } from 'lunzi'
 
 export type DataSourceEventTypes = 'beforeUpdate' | 'update'
 
@@ -65,7 +65,7 @@ class DataSource extends Event<DataSourceEventTypes> {
 
     const ex = extent(bars, d => d.low, d => d.high)
 
-    const change: UpdatePayload = {
+    this._lastChange = {
       level,
       bars,
       latest: this._latest ?? last(bars),
@@ -76,9 +76,10 @@ class DataSource extends Event<DataSourceEventTypes> {
       lastChange: this._lastChange,
     }
 
-    this._lastChange = change
-
-    return change
+    /**
+     * 隔离输出
+     */
+    return { ...this._lastChange }
   }
 
   private set (data: Bar[], symbol?: SymbolDescriber) {
