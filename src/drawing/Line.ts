@@ -70,6 +70,8 @@ class Line {
     this._start = this.deriveStart(this._options.origin)
 
     this.draw()
+
+    return this
   }
 
   draw () {
@@ -92,17 +94,23 @@ class Line {
     }
 
     ctx.stroke()
+
+    return this
   }
 
   measureCanvas () {
     this._width = parseFloat(this._context.canvas.style.width)
     this._height = parseFloat(this._context.canvas.style.height)
+
+    return this
   }
 
   resize () {
     this.measureCanvas()
 
     this.draw()
+
+    return this
   }
 
   private applyAngle (angle: number): Vector[] {
@@ -143,6 +151,8 @@ class Line {
     this._start = this.deriveStart(location)
 
     this.draw()
+
+    return this
   }
 }
 
