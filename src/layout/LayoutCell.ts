@@ -87,6 +87,10 @@ class LayoutCell {
     this._row = this._row + 1
   }
 
+  moveUp () {
+    this._row = this._row - 1
+  }
+
   moveRight () {
     this._column = this._column + 1
   }

@@ -47,11 +47,7 @@ class StockChart {
     this._dataSource.setPeriodicity(periodicity)
   }
 
-  stream (patch: Patch) {
-    this._dataSource.stream(patch)
-  }
-
-  addStudy<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T]): IIndicator<Inputs<IndicatorInputs[T]>> {
+  addStudy<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T]): IIndicator<IndicatorInputs[T]> {
     return this._scene.addStudy(name, inputs)
   }
 }

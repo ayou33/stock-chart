@@ -62,12 +62,18 @@ class LayoutRow {
   }
 
   remove () {
-    this._layout.removeRow(this.$row)
+    this._layout.unmountRow(this.$row)
   }
 
   moveDown () {
     this._cells.map(c => {
       c.moveDown()
+    })
+  }
+
+  moveUp () {
+    this._cells.map(c => {
+      c.moveUp()
     })
   }
 }

@@ -92,14 +92,9 @@ class MACD extends AbstractIndicator<MACDInputs, MACDOutput> implements IIndicat
   paint (data: MACDOutput[]): this {
     this.yAxis.domain([300, -300])
 
-    const ctx = this.context
-    ctx.beginPath()
-
+    this.paintHist(data, this.xAxis.bandWidth())
     this.paintMACD(data)
     this.paintSignal(data)
-    this.paintHist(data, this.xAxis.bandWidth())
-
-    ctx.stroke()
 
     return this
   }

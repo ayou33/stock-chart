@@ -393,6 +393,30 @@ class Layout extends Event<'resize'> {
     this.emit('resize')
   }
 
+  private rebuild () {
+    this.formatDescriber()
+
+    /**
+     * 创建新布局
+     */
+    const layout = this.buildLayout()
+
+    /**
+     * 新建计算器
+     */
+    this._computer = this.buildComputer()
+
+    this._layout.map(r => r.remove())
+
+    this._layout = layout
+
+    this.mount()
+
+    this.resize()
+
+    return this
+  }
+
   insertRow (describer: RowDescriber, index: number) {
     /**
      * 添加空行占位
@@ -414,25 +438,7 @@ class Layout extends Event<'resize'> {
      */
     this._describer.splice(index, 0, describer)
 
-    this.formatDescriber()
-
-    /**
-     * 创建新布局
-     */
-    const layout = this.buildLayout()
-
-    /**
-     * 新建计算器
-     */
-    this._computer = this.buildComputer()
-
-    this._layout.map(r => r.remove())
-
-    this._layout = layout
-
-    this.mount()
-
-    this.resize()
+    this.rebuild()
 
     return this._layout[index]
   }
@@ -441,7 +447,19 @@ class Layout extends Event<'resize'> {
     return this.insertRow(row, this._layout.length)
   }
 
-  removeRow (row: HTMLTableRowElement) {
+  removeRow (index: number) {
+    for (let i = index, l = this._layout.length; i < l; i++) {
+      this._layout[i].moveUp()
+    }
+
+    this._layout.splice(index, 1)
+
+    this._describer.splice(index, 1)
+
+    this.rebuild()
+  }
+
+  unmountRow (row: HTMLTableRowElement) {
     if (row.parentElement === this.$table) {
       this.$table.removeChild(row)
     }
