@@ -12,8 +12,10 @@ export enum DisplayType {
   EXTERNAL
 }
 
-interface IIndicator<I = unknown, O = unknown, E extends string = never> extends IChart<E> {
-  result: O[]
+interface IIndicator<I extends object = any, O = unknown, E extends string = never> extends IChart<E> {
+  inputs: I
+
+  output: O[]
 
   config (inputs: I): this;
 
@@ -24,12 +26,10 @@ interface IIndicator<I = unknown, O = unknown, E extends string = never> extends
   paint (data: O[]): this
 }
 
-export interface IIndicatorCtor<I = any, O = unknown> {
+export interface IIndicatorCtor<I extends object = any, O = unknown> {
   readonly displayType: DisplayType
 
-  new (options: RenderOptions & RecursivePartial<{
-    inputs: I,
-  }>): IIndicator<I, O>
+  new (options: RenderOptions & RecursivePartial<Inputs<I>>): IIndicator<I, O>
 }
 
 export default IIndicator

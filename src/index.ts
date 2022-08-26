@@ -8,6 +8,7 @@ import Scene from './core/Scene'
 import extend from './helper/extend'
 import { IndicatorInputs, IndicatorNames } from './indicator/all'
 import IDataFeed, { Periodicity } from './interface/IDataFeed'
+import IIndicator from './interface/IIndicator'
 import stockChartOptions, { StockChartOptions } from './options'
 
 class StockChart {
@@ -50,10 +51,8 @@ class StockChart {
     this._dataSource.stream(patch)
   }
 
-  addStudy (name: IndicatorNames, config?: IndicatorInputs[typeof name]) {
-    this._scene.addStudy(name, config)
-
-    return this
+  addStudy<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T]): IIndicator<Inputs<IndicatorInputs[T]>> {
+    return this._scene.addStudy(name, inputs)
   }
 }
 

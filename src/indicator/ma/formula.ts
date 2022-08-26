@@ -28,6 +28,8 @@ const makeMACalculator = (period: number) => {
   }
 }
 
+type Output = Record<`ma_${number}` | 'date', number>
+
 /**
  * 指定周期period后，当前点SMA计算如下
  *  前period个点的平均值即为当前点的SMA值
@@ -37,29 +39,33 @@ const makeMACalculator = (period: number) => {
  */
 export function calcMA (
   bars: Bar[],
-  periods: number[] = [14],
+  periods: number[],
   field: BarValueField = 'close',
 ) {
-  const mas: Record<'ma' | 'date', number>[][] = map(() => [], periods)
-  const calculators = map(p => makeMACalculator(p), periods)
+  const ma: Output[] = []
+
+  const calculators = map(p => ({
+    period: p,
+    compute: makeMACalculator(p),
+  }), periods)
   const count = bars.length
 
-  for (let k = 0; k < calculators.length; k++) {
-    const calc = calculators[k]
+  for (let i = 0; i < count; i++) {
+    const quote = bars[i]
 
-    for (let i = 0; i < count; i++) {
-      const quote = bars[i]
-      const ma = calc(quote[field], i)
-
-
-      mas[k].push({
-        ma,
-        date: quote.date,
-      })
+    const value: Output = {
+      date: quote.date,
     }
+
+    for (let k = 0; k < calculators.length; k++) {
+      const calculator = calculators[k]
+      value[`ma_${calculator.period}`] = calculator.compute(quote[field], i)
+    }
+
+    ma.push(value)
   }
 
-  return mas
+  return ma
 }
 
 export default calcMA

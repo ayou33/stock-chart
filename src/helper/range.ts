@@ -1,7 +1,7 @@
 /**
  *  @file         src/helper/range.ts created by WebStorm
  *  @project      stock-chart
- *  @author       ayooo[ayooooo@petalmail.com]
+ *  @author       阿佑[ayooooo@petalmail.com]
  *  @date         2022/8/22 16:17
  *  @description
  */

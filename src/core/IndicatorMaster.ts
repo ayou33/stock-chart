@@ -6,7 +6,7 @@
 import Line from '../drawing/Line'
 import { aa, createAAContext } from '../helper/aa'
 import { IndicatorInputs, IndicatorNames, indicators } from '../indicator/all'
-import IIndicator, { DisplayType, IIndicatorCtor } from '../interface/IIndicator'
+import IIndicator, { DisplayType } from '../interface/IIndicator'
 import IIndicatorMaster from '../interface/IIndicatorMaster'
 import Layout from '../layout/Layout'
 import LayoutCell from '../layout/LayoutCell'
@@ -31,10 +31,6 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
 
     this.options = options
     this.layout = options.layout
-  }
-
-  private reduce<T> (name: IndicatorNames): IIndicatorCtor<T> {
-    return indicators[name]
   }
 
   private useInnerContext (): [LayoutCell, CanvasRenderingContext2D] {
@@ -118,8 +114,8 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
     return this
   }
 
-  add (name: IndicatorNames, config?: IndicatorInputs[typeof name]): this {
-    const Ctor = this.reduce<typeof config>(name)
+  add<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T]) {
+    const Ctor = indicators[name]
 
     const [container, context] = Ctor.displayType === DisplayType.INNER ? this.useInnerContext()
       : this.useExternalContainer()
@@ -129,12 +125,12 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
       xAxis: this.options.xAxis,
       yAxis: this.options.yAxis,
       context,
-      inputs: config,
+      inputs,
     })
 
     this._indicators[indicator.name] = indicator
 
-    return this
+    return indicator
   }
 
   config (name: IndicatorNames, config: IndicatorInputs[typeof name]): this {

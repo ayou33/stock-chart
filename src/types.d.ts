@@ -88,3 +88,5 @@ type RowDescriber = {
 type LayoutDescriber = RowDescriber[]
 
 type Flatten<P> = P extends (infer P)[] ? P : never
+
+type Inputs<T> = { inputs: T }

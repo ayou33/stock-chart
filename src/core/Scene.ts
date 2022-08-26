@@ -132,10 +132,8 @@ class Scene {
     this._renderers.map(c => c.resize())
   }
 
-  addStudy (name: IndicatorNames, config?: IndicatorInputs[typeof name]) {
-    this.useIndicatorMaster().add(name, config)
-
-    return this
+  addStudy <T extends IndicatorNames>(name: T, inputs?: IndicatorInputs[T]) {
+    return this.useIndicatorMaster().add(name, inputs)
   }
 }
 

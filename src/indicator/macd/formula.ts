@@ -1,7 +1,7 @@
 /**
  *  @file         src/indicator/macd/formula.ts created by WebStorm
  *  @project      stock-chart
- *  @author       ayooo[ayooooo@petalmail.com]
+ *  @author       阿佑[ayooooo@petalmail.com]
  *  @date         2022/8/23 16:27
  *  @description
  */

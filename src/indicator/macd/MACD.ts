@@ -1,35 +1,41 @@
 /**
  *  @file         src/indicator/macd/MACD.ts created by WebStorm
  *  @project      stock-chart
- *  @author       ayooo[ayooooo@petalmail.com]
+ *  @author       阿佑[ayooooo@petalmail.com]
  *  @date         2022/8/23 16:05
  *  @description
  */
+import { macdInputs, MACDInputs } from '../../../options.indicator'
 import { UpdatePayload } from '../../core/DataSource'
+import extend from '../../helper/extend'
 import IIndicator, { DisplayType } from '../../interface/IIndicator'
 import AbstractIndicator from '../../super/AbstractIndicator'
 import calcMACD from './formula'
-
-export type MACDInputs = {
-  inputs: {
-    periods: number;
-  };
-}
 
 type MACDResult = ReturnType<typeof calcMACD>
 
 type MACDState = MACDResult['state']
 
-type MACDValue = Flatten<MACDResult['value']>
+type MACDOutput = Flatten<MACDResult['value']>
 
-class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicator<MACDInputs> {
+class MACD extends AbstractIndicator<MACDInputs, MACDOutput> implements IIndicator<MACDInputs> {
   static displayType = DisplayType.EXTERNAL
 
   valueAlign = 0
 
   state: MACDState | null = null
 
-  paintMACD (data: MACDValue[]) {
+  default (options?: RecursivePartial<MACDInputs>): MACDInputs {
+    return extend(macdInputs, options ?? {})
+  }
+
+  applyConfig (): this {
+    return this
+  }
+
+  paintMACD (data: MACDOutput[]) {
+    this.context.beginPath()
+    this.context.strokeStyle = this.inputs.resultColor
     let start = false
     for (let i = 0, l = data.length; i < l; i++) {
       const value = data[i]
@@ -43,9 +49,12 @@ class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicato
         this.context.moveTo(this.fx(value.date, 0.5), this.fy(value.macd))
       }
     }
+    this.context.stroke()
   }
 
-  paintSignal (data: MACDValue[]) {
+  paintSignal (data: MACDOutput[]) {
+    this.context.beginPath()
+    this.context.strokeStyle = this.inputs.signalColor
     let start = false
     for (let i = 0, l = data.length; i < l; i++) {
       const value = data[i]
@@ -59,9 +68,10 @@ class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicato
         this.context.moveTo(this.fx(value.date, 0.5), this.fy(value.signal))
       }
     }
+    this.context.stroke()
   }
 
-  paintHist (data: MACDValue[], width: number) {
+  paintHist (data: MACDOutput[], width: number) {
     for (let i = 0, l = data.length; i < l; i++) {
       const value = data[i]
 
@@ -70,12 +80,16 @@ class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicato
       const x = this.fx(value.date)
       let top = this.fy(value.hist)
       let bottom = this.fy(0)
-      if (value.hist < 0) [top, bottom] = [bottom, top]
+      this.context.fillStyle = this.inputs.histRaiseColor
+      if (value.hist < 0) {
+        [top, bottom] = [bottom, top]
+        this.context.fillStyle = this.inputs.histFallColor
+      }
       this.context.fillRect(x, top, width, Math.abs(top - bottom))
     }
   }
 
-  paint (data: MACDValue[]): this {
+  paint (data: MACDOutput[]): this {
     this.yAxis.domain([300, -300])
 
     const ctx = this.context
@@ -96,9 +110,9 @@ class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicato
     return result.value
   }
 
-  computeLatest (update: UpdatePayload): MACDValue[] {
+  computeLatest (update: UpdatePayload): MACDOutput[] {
     if (this.state) {
-      return this.result.slice(-1).concat(calcMACD(update.bars.slice(-1), undefined, this.state).value)
+      return this.output.slice(-1).concat(calcMACD(update.bars.slice(-1), undefined, this.state).value)
     }
 
     return []

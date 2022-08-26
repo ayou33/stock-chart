@@ -6,9 +6,10 @@
  *  @file:        src/indicator/all.ts
  *  @description:
  **/
+import { MACDInputs, MAInputs } from '../../options.indicator'
 import { IIndicatorCtor } from '../interface/IIndicator'
-import MA, { MAInputs } from './ma/MA'
-import MACD, { MACDInputs } from './macd/MACD'
+import MA from './ma/MA'
+import MACD from './macd/MACD'
 
 export type IndicatorInputs = {
   ma: MAInputs;
