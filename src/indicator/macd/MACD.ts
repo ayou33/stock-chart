@@ -10,15 +10,13 @@ import { UpdatePayload } from '../../core/DataSource'
 import extend from '../../helper/extend'
 import IIndicator, { DisplayType } from '../../interface/IIndicator'
 import AbstractIndicator from '../../super/AbstractIndicator'
-import calcMACD from './formula'
+import calcMACD, { MACDValue } from './formula'
 
 type MACDResult = ReturnType<typeof calcMACD>
 
 type MACDState = MACDResult['state']
 
-type MACDOutput = Flatten<MACDResult['value']>
-
-class MACD extends AbstractIndicator<MACDInputs, MACDOutput> implements IIndicator<MACDInputs> {
+class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicator<MACDInputs> {
   static displayType = DisplayType.EXTERNAL
 
   valueAlign = 0
@@ -33,7 +31,7 @@ class MACD extends AbstractIndicator<MACDInputs, MACDOutput> implements IIndicat
     return this
   }
 
-  paintMACD (data: MACDOutput[]) {
+  paintMACD (data: MACDValue[]) {
     this.context.beginPath()
     this.context.strokeStyle = this.inputs.resultColor
     let start = false
@@ -52,7 +50,7 @@ class MACD extends AbstractIndicator<MACDInputs, MACDOutput> implements IIndicat
     this.context.stroke()
   }
 
-  paintSignal (data: MACDOutput[]) {
+  paintSignal (data: MACDValue[]) {
     this.context.beginPath()
     this.context.strokeStyle = this.inputs.signalColor
     let start = false
@@ -71,7 +69,7 @@ class MACD extends AbstractIndicator<MACDInputs, MACDOutput> implements IIndicat
     this.context.stroke()
   }
 
-  paintHist (data: MACDOutput[], width: number) {
+  paintHist (data: MACDValue[], width: number) {
     for (let i = 0, l = data.length; i < l; i++) {
       const value = data[i]
 
@@ -89,7 +87,7 @@ class MACD extends AbstractIndicator<MACDInputs, MACDOutput> implements IIndicat
     }
   }
 
-  paint (data: MACDOutput[]): this {
+  paint (data: MACDValue[]): this {
     this.yAxis.domain([300, -300])
 
     this.paintHist(data, this.xAxis.bandWidth())
@@ -100,14 +98,14 @@ class MACD extends AbstractIndicator<MACDInputs, MACDOutput> implements IIndicat
   }
 
   compute (update: UpdatePayload) {
-    const result = calcMACD(update.bars.slice(0, -1))
+    const result = calcMACD(update.bars.slice(0, -1), this.inputs)
     this.state = result.state
     return result.value
   }
 
-  computeLatest (update: UpdatePayload): MACDOutput[] {
+  computeLatest (update: UpdatePayload): MACDValue[] {
     if (this.state) {
-      return this.output.slice(-1).concat(calcMACD(update.bars.slice(-1), undefined, this.state).value)
+      return calcMACD(update.bars, this.inputs, this.state).value
     }
 
     return []

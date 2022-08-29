@@ -143,6 +143,8 @@ class Layout extends Event<'resize'> {
   private createTableEl (width: number, height: number) {
     const table = document.createElement('table')
 
+    table.classList.add('layout_table')
+
     table.style.cssText = `
       width: ${width}px;
       height: ${height}px;

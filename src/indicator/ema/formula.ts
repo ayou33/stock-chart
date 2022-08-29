@@ -5,6 +5,8 @@
  *  @date         2022/8/23 16:29
  *  @description
  */
+import { pluck } from 'ramda'
+import { EMAInputs } from '../../../options.indicator'
 
 export const makeEMACalculator = (period: number, fromEMA = 0) => {
   const multiplier = (2 / (period + 1))
@@ -38,5 +40,68 @@ export const makeEMACalculator = (period: number, fromEMA = 0) => {
 
     // 返回ema的值
     return value
+  }
+}
+
+export type EMAState = {
+  index: EMAValue;
+  position: number;
+}
+
+export const defaultEMAState: EMAState = {
+  index: {
+    date: NaN,
+  },
+  position: 0,
+}
+
+type EMAName = `${IndexName}_${number}`
+
+export type EMAValue = Record<EMAName | 'date', number>
+
+export function calcEMA (
+  quotes: Bar[],
+  inputs: EMAInputs,
+  defaults: EMAState = defaultEMAState,
+  field: BarValueField = 'close',
+) {
+  const count = quotes.length
+
+  if (quotes.length < Math.max(...pluck('period', inputs.periods))) {
+    return {
+      value: [],
+      state: defaults,
+    }
+  }
+
+  const values: EMAValue[] = []
+
+  const computers = inputs.periods.map(i => ({
+    period: i.period,
+    offset: i.offset ?? 0,
+    compute: makeEMACalculator(i.period, defaults.index[`index_${i.period}_${i.offset ?? 0}`]),
+  }))
+
+  for (let i = defaults.position; i < count; i++) {
+    const quote = quotes[i]
+
+    const value: EMAValue = {
+      date: quote.date,
+    }
+
+    for (let k = 0; k < inputs.periods.length; k++) {
+      const calculator = computers[k]
+      value[`index_${calculator.period}_${calculator.offset}`] = calculator.compute(quote[field], i)
+    }
+
+    values.push(value)
+  }
+
+  return {
+    value: values,
+    state: {
+      index: values.slice(-1)[0],
+      position: count,
+    },
   }
 }

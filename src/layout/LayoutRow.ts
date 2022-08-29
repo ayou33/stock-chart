@@ -29,6 +29,7 @@ class LayoutRow {
 
   render () {
     this.$row.setAttribute('name', this._name)
+    this.$row.classList.add('layout_row')
 
     this._cells.map(c => this.$row.appendChild(c.node()))
 

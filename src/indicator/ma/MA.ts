@@ -11,15 +11,11 @@ import IIndicator from '../../interface/IIndicator'
 import { RenderOptions } from '../../options'
 import AbstractIndicator from '../../super/AbstractIndicator'
 import { Color } from '../../theme'
-import calcMA from './formula'
+import calcMA, { MAValue } from './formula'
 
-type MAOutput = Flatten<ReturnType<typeof calcMA>>
-
-type Key = `ma_${number}`
-
-class MA extends AbstractIndicator<MAInputs, MAOutput> implements IIndicator<MAInputs> {
+class MA extends AbstractIndicator<MAInputs, MAValue> implements IIndicator<MAInputs> {
   private _periods: number[] = []
-  private colors: Record<Key, Color> = {}
+  private colors: Record<IndexName, Color> = {}
 
   constructor (options: RenderOptions & RecursivePartial<MAInputs>) {
     super(options, 'ma')
@@ -29,8 +25,9 @@ class MA extends AbstractIndicator<MAInputs, MAOutput> implements IIndicator<MAI
 
   applyConfig (): this {
     this._periods = pluck('period', this.inputs.periods)
+
     this.inputs.periods.map(p => {
-      this.colors[`ma_${p.period}` as Key] = p.color
+      this.colors[`index_${p.period}`] = p.color
     })
 
     return this
@@ -40,8 +37,8 @@ class MA extends AbstractIndicator<MAInputs, MAOutput> implements IIndicator<MAI
     return extend(maInputs, options ?? {})
   }
 
-  paintMA (ma: MAOutput[], period: number) {
-    const key: Key = `ma_${period}`
+  paintMA (ma: MAValue[], period: number) {
+    const key: IndexName = `index_${period}`
 
     this.context.strokeStyle = this.colors[key]
 
@@ -65,11 +62,11 @@ class MA extends AbstractIndicator<MAInputs, MAOutput> implements IIndicator<MAI
     return calcMA(update.bars.slice(0, -1), this._periods)
   }
 
-  computeLatest (update: UpdatePayload): MAOutput[] {
+  computeLatest (update: UpdatePayload): MAValue[] {
     return calcMA(update.bars.slice(-Math.max(...this._periods) - 1), this._periods).slice(-1)
   }
 
-  paint (result: MAOutput[]): this {
+  paint (result: MAValue[]): this {
 
     for (let i = 0, l = this._periods.length; i < l; i++) {
       this.context.beginPath()

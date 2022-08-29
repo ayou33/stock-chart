@@ -90,3 +90,5 @@ type LayoutDescriber = RowDescriber[]
 type Flatten<P> = P extends (infer P)[] ? P : never
 
 type Inputs<T> = { inputs: T }
+
+type IndexName = `index_${number}`

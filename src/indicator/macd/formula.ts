@@ -5,49 +5,40 @@
  *  @date         2022/8/23 16:27
  *  @description
  */
+import { MACDInputs } from '../../../options.indicator'
 import { makeEMACalculator } from '../ema/formula'
-
-export type MACDStudyInputs = {
-  fastPeriod: number;
-  slowPeriod: number;
-  signalPeriod: number;
-  fastColor: string;
-  slowColor: string;
-}
 
 export type MACDState = {
   fast: number;
   slow: number;
   signal: number;
   hist: number;
-  index: number;
+  position: number;
 }
+
+export type MACDValue = Record<'macd' | 'signal' | 'hist' | 'date', number>
 
 const defaultMACD: MACDState = {
   fast: 0,
   slow: 0,
   signal: 0,
   hist: 0,
-  index: 0,
+  position: 0,
 }
 
 export function calcMACD (
   bars: Bar[],
-  inputs?: MACDStudyInputs,
+  inputs: MACDInputs,
   defaults = defaultMACD,
   field: BarValueField = 'close',
 ) {
-  const {
-    fastPeriod = 12,
-    slowPeriod = 26,
-    signalPeriod = 9,
-  } = inputs ?? {}
+  const { fastPeriod = 12, slowPeriod = 26, signalPeriod = 9 } = inputs
   const period = Math.max(fastPeriod, slowPeriod, signalPeriod)
   const calcFastEMA = makeEMACalculator(fastPeriod, defaults.fast)
   const calcSlowEMA = makeEMACalculator(slowPeriod, defaults.slow)
   const calcSignalEMA = makeEMACalculator(signalPeriod, defaults.signal)
 
-  const data: Record<'macd' | 'signal' | 'hist' | 'date', number>[] = []
+  const values: MACDValue[] = []
 
   let fast = NaN
   let slow = NaN
@@ -55,10 +46,10 @@ export function calcMACD (
   let signal = NaN
   let hist = NaN
 
-  const count = defaults.index + bars.length
+  const count = defaults.position + bars.length
 
-  for (let i = defaults.index; i < count; i++) {
-    const bar = bars[i - defaults.index]
+  for (let i = defaults.position; i < count; i++) {
+    const bar = bars[i]
 
     const value = bar[field]
 
@@ -74,7 +65,7 @@ export function calcMACD (
       }
     }
 
-    data.push({
+    values.push({
       macd,
       signal,
       hist,
@@ -83,13 +74,13 @@ export function calcMACD (
   }
 
   return {
-    value: data,
+    value: values,
     state: {
       fast,
       slow,
       signal,
       hist,
-      index: count, // 记录下一个计算的位置，而不是已经计算过的当前位置
+      position: count, // 记录下一个计算的位置，而不是已经计算过的当前位置
     },
   }
 }

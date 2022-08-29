@@ -5,8 +5,8 @@
  */
 import { add, reduce, is, map } from 'ramda'
 
-const makeMACalculator = (period: number) => {
-  const addends: number[] = []
+export const makeMACalculator = (period: number, preset: number[] = []) => {
+  const addends: number[] = preset
   let acc = reduce(add, 0, addends)
 
   return (quote: number, i: number) => {
@@ -28,7 +28,7 @@ const makeMACalculator = (period: number) => {
   }
 }
 
-type Output = Record<`ma_${number}` | 'date', number>
+export type MAValue = Record<IndexName | 'date', number>
 
 /**
  * 指定周期period后，当前点SMA计算如下
@@ -42,7 +42,7 @@ export function calcMA (
   periods: number[],
   field: BarValueField = 'close',
 ) {
-  const ma: Output[] = []
+  const values: MAValue[] = []
 
   const calculators = map(p => ({
     period: p,
@@ -53,19 +53,19 @@ export function calcMA (
   for (let i = 0; i < count; i++) {
     const quote = bars[i]
 
-    const value: Output = {
+    const value: MAValue = {
       date: quote.date,
     }
 
     for (let k = 0; k < calculators.length; k++) {
       const calculator = calculators[k]
-      value[`ma_${calculator.period}`] = calculator.compute(quote[field], i)
+      value[`index_${calculator.period}`] = calculator.compute(quote[field], i)
     }
 
-    ma.push(value)
+    values.push(value)
   }
 
-  return ma
+  return values
 }
 
 export default calcMA

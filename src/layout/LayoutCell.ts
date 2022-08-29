@@ -27,6 +27,8 @@ class LayoutCell {
 
     const cell = document.createElement('td')
 
+    cell.classList.add('layout_cell')
+
     cell.style.cssText = `
       position: relative;
       padding: 0;
