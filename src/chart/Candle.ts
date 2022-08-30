@@ -39,11 +39,9 @@ class Candle extends AbstractChart implements AbstractChart {
     const ctx = this.context
     const width = this.xAxis.bandWidth()
 
-    ctx.save()
     for (let i = 0, l = update.bars.length; i < l; i++) {
       this.drawBar(ctx, update.bars[i], width)
     }
-    ctx.restore()
 
     return this
   }

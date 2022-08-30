@@ -20,16 +20,16 @@ class LayoutCell {
   private _row: number
   private _column: number
 
-  constructor (layout: Layout, options: CellOptions) {
+  constructor (layout: Layout, options: CellOptions, $td?: HTMLTableCellElement) {
     this._layout = layout
     this._row = options.row
     this._column = options.column
 
-    const cell = document.createElement('td')
+    const cell = $td ?? document.createElement('td')
 
     cell.classList.add('layout_cell')
 
-    cell.style.cssText = `
+    cell.style.cssText += `
       position: relative;
       padding: 0;
     `

@@ -5,6 +5,7 @@
  *  @date         2022/8/29 15:52
  *  @description
  */
+import { CCIInputs } from '../../../options.indicator'
 import { makeMACalculator } from '../ma/formula'
 
 const calcTP = (bar: Bar, field: BarValueField = 'close') => {
@@ -19,9 +20,10 @@ export type CCIValue = {
 
 export function calcCCI (
   bars: Bar[],
-  period: number,
+  inputs: CCIInputs,
   field: BarValueField = 'close',
 ) {
+  const period = inputs.period
   const calcMa = makeMACalculator(period)
 
   const values: CCIValue[] = []

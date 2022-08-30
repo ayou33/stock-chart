@@ -3283,16 +3283,16 @@ chart.attach({
 
 chart.load('BTCUSD')
 
-// chart.addStudy('ma', {
-//   periods: [{
-//     period: 7,
-//     color: 'red',
-//   }, {
-//     period: 14,
-//     color: 'steelblue'
-//   }]
-// })
+chart.addStudy('ma', {
+  periods: [{
+    period: 7,
+    color: 'red',
+  }, {
+    period: 14,
+    color: 'steelblue'
+  }]
+})
 
-// chart.addStudy('macd')
+chart.addStudy('macd')
 
-chart.addStudy('boll')
+chart.addStudy('ema')

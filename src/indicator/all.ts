@@ -6,18 +6,35 @@
  *  @file:        src/indicator/all.ts
  *  @description:
  **/
-import { BOLLInputs, EMAInputs, MACDInputs, MAInputs } from '../../options.indicator'
+import {
+  BOLLInputs,
+  CCIInputs,
+  EMAInputs,
+  KDJInputs,
+  MACDInputs,
+  MAInputs,
+  RSIInputs,
+  SARInputs,
+} from '../../options.indicator'
 import { IIndicatorCtor } from '../interface/IIndicator'
 import BOLL from './boll/BOLL'
+import CCI from './cci/CCI'
 import EMA from './ema/EMA'
+import KDJ from './kdj/KDJ'
 import MA from './ma/MA'
 import MACD from './macd/MACD'
+import RSI from './rsi/RSI'
+import SAR from './sar/SAR'
 
 export type IndicatorInputs = {
   ma: MAInputs;
   ema: EMAInputs;
   macd: MACDInputs;
   boll: BOLLInputs;
+  sar: SARInputs;
+  kdj: KDJInputs;
+  rsi: RSIInputs;
+  cci: CCIInputs;
 }
 
 export type IndicatorNames = keyof IndicatorInputs
@@ -27,4 +44,8 @@ export const indicators: Record<IndicatorNames, IIndicatorCtor> = {
   ema: EMA,
   macd: MACD,
   boll: BOLL,
+  sar: SAR,
+  kdj: KDJ,
+  rsi: RSI,
+  cci: CCI,
 }

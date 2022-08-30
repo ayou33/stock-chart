@@ -23,7 +23,7 @@ interface IIndicator<I extends object = any, O = unknown, E extends string = nev
 
   computeLatest (update: UpdatePayload): O[]
 
-  paint (data: O[]): this
+  paint (values: O[]): this
 }
 
 export interface IIndicatorCtor<I extends object = any, O = unknown> {

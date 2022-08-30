@@ -147,22 +147,22 @@ export type RenderMasterOptions = ScaledOptions & { layout: Layout }
 export const useDescriber = (describer?: LayoutDescriber) => {
   return describer ?? [
     {
-      name: 'chart_row',
+      role: 'chart_row',
       cells: [
         {
-          name: 'main_chart_cell',
+          role: 'chart',
         },
         {
-          name: 'default_series_cell', width: layoutOptions.seriesWidth,
+          role: 'series', width: layoutOptions.seriesWidth,
         },
       ],
     },
     {
-      name: 'main_axis_row',
+      role: 'axis',
       height: layoutOptions.axisHeight,
       cells: [
         {
-          name: 'main_axis_cell',
+          role: 'axis',
         },
         null,
       ],

@@ -88,13 +88,13 @@ class Layout extends Event<'resize'> {
    * 在layout的创建创建过程总同步完成对_description的创建
    * @private
    */
-  private _layout: LayoutRow[]
+  private _layout: LayoutRow[] = []
 
   /**
    * 单元size计算器
    * @private
    */
-  private _computer: Computer[][]
+  private _computer: Computer[][] = []
 
   constructor (container: Element, describer?: LayoutDescriber) {
     super()
@@ -107,13 +107,21 @@ class Layout extends Event<'resize'> {
 
     this._space.height = rect.height
 
-    this.$table = this.createTableEl(rect.width, rect.height)
+    const $table = this.$container.querySelector('table')
 
-    this._describer = useDescriber(describer)
+    if ($table !== null) {
+      this.$table = $table
 
-    this.formatDescriber()
+      this._describer = this.parseLayout($table)
+    } else {
+      this.$table = this.createTableEl(rect.width, rect.height)
 
-    this._layout = this.buildLayout()
+      this._describer = useDescriber(describer)
+    }
+
+    this.calcSpacing()
+
+    this._layout = this.buildLayoutDescription()
 
     this._computer = this.buildComputer()
 
@@ -127,12 +135,10 @@ class Layout extends Event<'resize'> {
   }
 
   /**
-   * 格式化
+   * 计算总的行和列
    * @private
    */
-  private formatDescriber () {
-    this._describer.map((_, i) => this._description[i] = [])
-
+  private calcSpacing () {
     this._space.row = this._describer.length
 
     if (this._space.row !== 0) {
@@ -156,12 +162,36 @@ class Layout extends Event<'resize'> {
     return table
   }
 
-  private buildLayout () {
+  static parseSize (size: string) {
+    return !size ? undefined
+      : size.endsWith('%') ? -(parseFloat(size) / 100)
+        : parseFloat(size)
+  }
+
+  private parseLayout ($table: HTMLTableElement) {
+    return [].slice.call($table.querySelectorAll('tr')).map(($tr: HTMLTableRowElement) => {
+      return {
+        role: $tr.dataset.layoutRole ?? '',
+        cells: [].slice.call($tr.querySelectorAll('td')).map(($td: HTMLTableCellElement) => {
+          return {
+            role: $td.dataset.layoutRole,
+            width: Layout.parseSize($td.style.width),
+            height: Layout.parseSize($td.style.height),
+            colSpan: +($td.getAttribute('colspan') ?? 1),
+            rowSpan: +($td.getAttribute('rowspan') ?? 1),
+            node: $td,
+          }
+        }),
+      }
+    })
+  }
+
+  private buildLayoutDescription () {
     return this._describer.map((row, rowIndex) =>
       new LayoutRow(this, {
         ...row,
         row: rowIndex,
-      }).buildCells())
+      }).buildCells(cellIndex => row.cells[cellIndex]?.node))
   }
 
   private monitorResize () {
@@ -303,7 +333,35 @@ class Layout extends Event<'resize'> {
   private set ([col, row]: Vector, describer: SpaceDescriber) {
     this.assertLocation([col, row])
 
+    if (!this._description[row]) {
+      this._description[row] = []
+    }
+
     this._description[row][col] = describer
+  }
+
+  private rebuild () {
+    this.calcSpacing()
+
+    /**
+     * 创建新布局
+     */
+    const layout = this.buildLayoutDescription()
+
+    /**
+     * 新建计算器
+     */
+    this._computer = this.buildComputer()
+
+    this._layout.map(r => r.remove())
+
+    this._layout = layout
+
+    this.mount()
+
+    this.resize()
+
+    return this
   }
 
   describe (row: number, col: number, describer: CellDescriber | null) {
@@ -393,30 +451,6 @@ class Layout extends Event<'resize'> {
     this.$table.style.height = rect.height + 'px'
 
     this.emit('resize')
-  }
-
-  private rebuild () {
-    this.formatDescriber()
-
-    /**
-     * 创建新布局
-     */
-    const layout = this.buildLayout()
-
-    /**
-     * 新建计算器
-     */
-    this._computer = this.buildComputer()
-
-    this._layout.map(r => r.remove())
-
-    this._layout = layout
-
-    this.mount()
-
-    this.resize()
-
-    return this
   }
 
   insertRow (describer: RowDescriber, index: number) {

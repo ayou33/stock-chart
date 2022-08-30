@@ -37,14 +37,14 @@ class MA extends AbstractIndicator<MAInputs, MAValue> implements IIndicator<MAIn
     return extend(maInputs, options ?? {})
   }
 
-  paintMA (ma: MAValue[], period: number) {
+  paintMA (values: MAValue[], period: number) {
     const key: IndexName = `index_${period}`
 
     this.context.strokeStyle = this.colors[key]
 
     let start = false
-    for (let i = 0, l = ma.length; i < l; i++) {
-      const p = ma[i]
+    for (let i = 0, l = values.length; i < l; i++) {
+      const p = values[i]
       const value = p[key]
 
       if (!value) continue

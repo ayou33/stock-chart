@@ -26,6 +26,7 @@ abstract class AbstractIndicator<I extends object, O> extends AbstractChart impl
 
     if (this.isExternal()) {
       this.yAxis = new Series(this.externalSeriesContainer())
+      this.yAxis.domain([100, 0])
     }
   }
 
@@ -73,7 +74,7 @@ abstract class AbstractIndicator<I extends object, O> extends AbstractChart impl
 
   abstract computeLatest (update: UpdatePayload): O[]
 
-  abstract paint (data: O[]): this
+  abstract paint (values: O[]): this
 
   abstract default (options?: RecursivePartial<I>): I
 

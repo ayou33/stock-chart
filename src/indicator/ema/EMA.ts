@@ -37,7 +37,7 @@ class EMA extends AbstractIndicator<EMAInputs, EMAValue> implements IIndicator<E
     return extend(emaInputs, options ?? {})
   }
 
-  paint (data: EMAValue[]): this {
+  paint (values: EMAValue[]): this {
     for (let i = 0, l = this.inputs.periods.length; i < l; i++) {
       const key = `ema_${this.inputs.periods[i].period}_${this.inputs.periods[i].offset ?? 0}` as keyof EMAValue
 
@@ -45,8 +45,8 @@ class EMA extends AbstractIndicator<EMAInputs, EMAValue> implements IIndicator<E
       this.context.strokeStyle = this.inputs.periods[i].color
 
       let start = false
-      for (let j = 0, dl = data.length; j < dl; j++) {
-        const bar = data[j]
+      for (let j = 0, dl = values.length; j < dl; j++) {
+        const bar = values[j]
         const ema = bar[key]
 
         if (!ema) continue

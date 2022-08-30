@@ -11,11 +11,11 @@ export type SARState = {
   af: number;
   ep: number;
   isRise: number;
-  sar: number;
+  value: number;
 }
 
 export type SARValue = {
-  sar: number;
+  index: number;
   date: number;
 }
 
@@ -33,7 +33,7 @@ export function calcSAR (
   // 判断是上涨还是下跌  false：下跌
   let isRise = defaults?.isRise ?? false
 
-  let value = defaults?.sar ?? 0
+  let value = defaults?.value ?? 0
 
   for (let i = 0; i < bars.length - 1; i++) {
     // 上一个周期的sar
@@ -78,7 +78,7 @@ export function calcSAR (
     }
 
     values.push({
-      sar: value,
+      index: value,
       date: bars[i + 1].date,
     })
   }
@@ -89,7 +89,7 @@ export function calcSAR (
       value,
       af,
       ep,
-      isRise,
+      isRise: Number(isRise),
     },
   }
 }

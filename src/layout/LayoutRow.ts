@@ -36,7 +36,7 @@ class LayoutRow {
     return this.$row
   }
 
-  buildCells () {
+  buildCells (readNode: (cellIndex: number) => HTMLTableCellElement | undefined) {
     this._cells = this._options.cells.map((cell, cellIndex) => {
       const extendedCell = {
         ...cell,
@@ -52,7 +52,7 @@ class LayoutRow {
         ...extendedCell,
         row: this._options.row,
         column: cellIndex,
-      })
+      }, readNode(cellIndex))
     })
 
     return this

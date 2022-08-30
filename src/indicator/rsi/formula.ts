@@ -119,8 +119,8 @@ export function calcRSI (
   return {
     value: values,
     state: {
+      ...state,
       position: count,
-      rsi: state,
     },
   }
 }

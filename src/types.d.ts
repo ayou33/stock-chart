@@ -72,15 +72,16 @@ type ConfirmFunctionalKey<O> = {
 }
 
 type CellDescriber = Partial<{
-  name: string;
+  role: string;
   width: number;
   height: number;
   colSpan: number;
   rowSpan: number;
+  node?: HTMLTableCellElement;
 }>
 
 type RowDescriber = {
-  name: string;
+  role: string;
   cells: (CellDescriber | null)[]
   height?: number;
 }

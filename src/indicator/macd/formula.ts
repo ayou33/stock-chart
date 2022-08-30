@@ -46,7 +46,7 @@ export function calcMACD (
   let signal = NaN
   let hist = NaN
 
-  const count = defaults.position + bars.length
+  const count = bars.length
 
   for (let i = defaults.position; i < count; i++) {
     const bar = bars[i]

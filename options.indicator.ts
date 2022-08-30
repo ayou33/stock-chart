@@ -78,11 +78,15 @@ export const bollInputs: BOLLInputs = {
 export type SARInputs = {
   af: number;
   max: number;
+  radius: number;
+  color: Color;
 }
 
 export const sarInputs: SARInputs = {
   af: 0.02,
   max: 0.2,
+  radius: 3,
+  color: themeOptions.primaryColor,
 }
 
 export type KDJInputs = {
@@ -110,6 +114,14 @@ export type TrendInputs = {
   fastPeriod: number;
   slowPeriod: number;
   signalPeriod: number;
+}
+
+export type CCIInputs = {
+  period: number;
+}
+
+export const cciInputs: CCIInputs = {
+  period: 20,
 }
 
 export const trendInputs: TrendInputs = {

@@ -79,7 +79,6 @@ export function calcStochastic (
   let high = NaN
 
   for (let i = defaults.position; i < count; i++) {
-    const quote = bars[i]
     let index = NaN
     let slow = NaN
 
@@ -97,7 +96,7 @@ export function calcStochastic (
     values.push({
       index,
       slow,
-      date: quote.date,
+      date: bars[i].date,
     })
   }
 

@@ -39,17 +39,17 @@ class BOLL extends AbstractIndicator<BOLLInputs, BOLLValue> implements IIndicato
     return []
   }
 
-  paint (data: BOLLValue[]): this {
+  paint (values: BOLLValue[]): this {
     this.context.beginPath()
     this.context.strokeStyle = this.inputs.channelColor
 
     let start = false
-    for (let i = 0, l = data.length; i < l; i++) {
+    for (let i = 0, l = values.length; i < l; i++) {
 
       if (start) {
-        this.context.lineTo(this.fx(data[i].date), this.fy(data[i].index))
+        this.context.lineTo(this.fx(values[i].date), this.fy(values[i].index))
       } else {
-        this.context.moveTo(this.fx(data[i].date), this.fy(data[i].index))
+        this.context.moveTo(this.fx(values[i].date), this.fy(values[i].index))
         start = true
       }
 
