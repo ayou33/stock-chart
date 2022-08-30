@@ -16,7 +16,6 @@ class LayoutRow {
   private readonly $row: HTMLTableRowElement
   private readonly _layout: Layout
   private readonly _options: LayoutRowOptions
-  private readonly _name: string
 
   private _cells: LayoutCell[] = []
 
@@ -24,11 +23,9 @@ class LayoutRow {
     this.$row = document.createElement('tr')
     this._options = options
     this._layout = layout
-    this._name = options.name
   }
 
   render () {
-    this.$row.setAttribute('name', this._name)
     this.$row.classList.add('layout_row')
 
     this._cells.map(c => this.$row.appendChild(c.node()))

@@ -34,7 +34,7 @@ class LayoutCell {
       padding: 0;
     `
 
-    if (options.name) cell.setAttribute('name', options.name)
+    if (options.role) cell.setAttribute('data-layout-role', options.role)
 
     if (options.colSpan) {
       cell.setAttribute('colspan', options.colSpan.toString())

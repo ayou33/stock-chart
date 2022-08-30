@@ -12,6 +12,10 @@ import { useDescriber } from '../options'
 import LayoutRow from './LayoutRow'
 import { memoizeWith } from 'ramda'
 
+const reservedKeyRoles = ['chart', 'series', 'axis', 'indicator'] as const
+
+type ReservedKeyRoles = typeof reservedKeyRoles[number]
+
 export type SpaceDescriber = {
   /**
    * 自适应高度
@@ -49,6 +53,13 @@ export type Computer = {
 class Layout extends Event<'resize'> {
   private readonly $container: Element
   private readonly $table: HTMLTableElement
+
+  private readonly _keyPositions: Record<ReservedKeyRoles, Vector> = {
+    chart: [0, 0],
+    series: [1, 0],
+    axis: [0, 1],
+    indicator: [0, 2],
+  }
 
   /**
    * 总的布局空间信息
@@ -114,10 +125,12 @@ class Layout extends Event<'resize'> {
 
       this._describer = this.parseLayout($table)
     } else {
-      this.$table = this.createTableEl(rect.width, rect.height)
+      this.$table = document.createElement('table')
 
       this._describer = useDescriber(describer)
     }
+
+    this.styleTable(this.$table, rect.width, rect.height)
 
     this.calcSpacing()
 
@@ -146,17 +159,16 @@ class Layout extends Event<'resize'> {
     }
   }
 
-  private createTableEl (width: number, height: number) {
-    const table = document.createElement('table')
-
+  private styleTable (table: HTMLTableElement, width: number, height: number) {
     table.classList.add('layout_table')
 
-    table.style.cssText = `
+    table.style.cssText += `
       width: ${width}px;
       height: ${height}px;
       border: none;
       border-collapse: collapse;
       border-spacing: 0;
+      overflow: hidden;
     `
 
     return table
@@ -320,7 +332,7 @@ class Layout extends Event<'resize'> {
   private read ([col, row]: Vector) {
     this.assertLocation([col, row])
 
-    return this._description[row][col]
+    return this._description[row]?.[col]
   }
 
   private raw (location: Vector) {
@@ -365,10 +377,11 @@ class Layout extends Event<'resize'> {
   }
 
   describe (row: number, col: number, describer: CellDescriber | null) {
+    const cell = this.read([col, row])
+
     /**
      * 占位单元不处理
      */
-    const cell = this.read([col, row])
     if (cell?.isLink === true) {
       return cell.source
     }
@@ -378,11 +391,11 @@ class Layout extends Event<'resize'> {
     /**
      * 参考同列的宽度
      */
-    const width = describer?.width ?? this.refColumnWidth(col) ?? -1
+    const width = describer?.width ?? (col > 0 && this.refColumnWidth(col) || -1)
     /**
      * 参考同行的高度
      */
-    const height = describer?.height ?? this.refRowHeight(row) ?? -1
+    const height = describer?.height ?? (row > 0 && this.refRowHeight(row) || -1)
 
     this.set([col, row], {
       isLink: false,
@@ -393,6 +406,11 @@ class Layout extends Event<'resize'> {
       colSpan: cs,
       rowSpan: rs,
     })
+
+    const role = describer?.role as ReservedKeyRoles
+    if (reservedKeyRoles.indexOf(role) !== -1) {
+      this._keyPositions[role] = [col, row]
+    }
 
     /**
      * expand row/column span
@@ -430,15 +448,15 @@ class Layout extends Event<'resize'> {
   }
 
   chart () {
-    return this.locate([0, 0])
+    return this.locate(this._keyPositions.chart)
   }
 
   mainAxis () {
-    return this.locate([0, 1])
+    return this.locate(this._keyPositions.axis)
   }
 
   series () {
-    return this.locate([1, 0])
+    return this.locate(this._keyPositions.series)
   }
 
   resize () {
