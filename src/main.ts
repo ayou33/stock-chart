@@ -3249,8 +3249,12 @@ chart.attach({
 
   read (symbol: SymbolDescriber): Promise<FeedSnapshot> {
     console.log('read', symbol)
-    return Promise.resolve({
-      data: bars,
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve({
+          data: bars,
+        })
+      }, 1000)
     })
   },
 
@@ -3283,16 +3287,18 @@ chart.attach({
 
 chart.load('BTCUSD')
 
-chart.addStudy('ma', {
-  periods: [{
-    period: 7,
-    color: 'red',
-  }, {
-    period: 14,
-    color: 'steelblue'
-  }]
+chart.showStudy('ma', {
+  periods: [
+    {
+      period: 7,
+      color: 'red',
+    }, {
+      period: 14,
+      color: 'steelblue',
+    },
+  ],
 })
 
-chart.addStudy('macd')
+chart.showStudy('macd')
 
-chart.addStudy('ema')
+chart.showStudy('ema')

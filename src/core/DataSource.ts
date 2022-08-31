@@ -12,7 +12,7 @@ import IDataFeed, { Periodicity, SymbolDescriber } from '../interface/IDataFeed'
 import { DataSourceOptions } from '../options'
 import DataEngine from './DataEngine'
 
-export type DataSourceEventTypes = 'beforeUpdate' | 'update'
+export type DataSourceEventTypes = 'beforeUpdate' | 'update' | 'loading' | 'loaded'
 
 export enum UpdateLevel {
   REDRAW, // 重绘
@@ -45,6 +45,8 @@ class DataSource extends Event<DataSourceEventTypes> {
     super()
 
     this._dataEngine = new DataEngine(options)
+      .on('loading', () => this.emit('loading'))
+      .on('loaded', () => this.emit('loaded'))
 
     this._dataEngine.on('load', (_, symbol: SymbolDescriber, bars: Bar[]) => {
       this._symbol = symbol

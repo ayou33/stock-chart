@@ -7,7 +7,7 @@ import IAxis from './interface/IAxis'
 import IMainAxis from './interface/IMainAxis'
 import LayoutCell from './layout/LayoutCell'
 import { Color, themeOptions, ThemeOptions, BLACK, WHITE } from './theme'
-import Layout from './layout/Layout'
+import Layout, { ReservedRoles } from './layout/Layout'
 
 type AxisOptions = {
   tick: null | number; // 不显示或者设置大小
@@ -80,12 +80,19 @@ export type LayoutOptions = {
   axisHeight: number;
   seriesWidth: number;
   padding: BoxPadding;
+  positions: Record<ReservedRoles, Vector>;
 }
 
 export const layoutOptions: LayoutOptions = {
   axisHeight: 20,
   seriesWidth: 45,
   padding: 0,
+  positions: {
+    chart: [0, 0],
+    series: [1, 0],
+    axis: [0, 1],
+    indicator: [0, 2],
+  },
 }
 
 export type GridOptions = {
@@ -144,22 +151,22 @@ export type RendererOptions = RenderOptions & StockChartOptions
 
 export type RenderMasterOptions = ScaledOptions & { layout: Layout }
 
-export const useDescriber = (describer?: LayoutDescriber) => {
+export const useDescriber = (options: LayoutOptions, describer?: LayoutDescriber) => {
   return describer ?? [
     {
-      role: 'chart_row',
+      role: 'chart',
       cells: [
         {
           role: 'chart',
         },
         {
-          role: 'series', width: layoutOptions.seriesWidth,
+          role: 'series', width: options.seriesWidth,
         },
       ],
     },
     {
       role: 'axis',
-      height: layoutOptions.axisHeight,
+      height: options.axisHeight,
       cells: [
         {
           role: 'axis',

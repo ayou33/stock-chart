@@ -10,7 +10,7 @@ import { duration, durationMinute } from '../helper/timeFormat'
 import IDataFeed, { Periodicity, SymbolDescriber } from '../interface/IDataFeed'
 import { DataSourceOptions } from '../options'
 
-export type DataEvents = 'load' | 'refresh' | 'append'
+export type DataEvents = 'loading' | 'loaded' | 'load' | 'refresh' | 'append'
 
 class DataEngine extends Event<DataEvents> {
   private readonly _options: DataSourceOptions
@@ -67,7 +67,12 @@ class DataEngine extends Event<DataEvents> {
   async load (symbolCode: string) {
     if (symbolCode && this._dataFeed !== null) {
       const symbol = await this._dataFeed.resolveSymbol(symbolCode)
-      const result = await this._dataFeed.read(symbol)
+
+      this.emit('loading')
+
+      const result = await this._dataFeed.read(symbol).finally(() => {
+        this.emit('loaded')
+      })
 
       if (symbol !== this._symbol) {
         if (this._symbol) this._dataFeed.unSubscribe(this._symbol)

@@ -13,6 +13,7 @@ import LayoutCell from '../layout/LayoutCell'
 import { SeriesOptions, seriesOptions } from '../options'
 import Linear from '../scale/Linear'
 import AbstractAxis from '../super/AbstractAxis'
+import { BLACK } from '../theme'
 import { UpdatePayload } from './DataSource'
 
 class Series extends AbstractAxis<'transform'> implements IAxis {
@@ -54,11 +55,11 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
 
     this.clear()
 
-    ctx.save()
     ctx.beginPath()
     ctx.textBaseline = 'middle'
     ctx.textAlign = 'start'
     ctx.font = fontSize(options.labelSize)
+    ctx.fillStyle = BLACK
 
     for (let y = range[0]; y < range[1]; y += this._tickInterval) {
       if (this._options.tick) {
@@ -82,7 +83,6 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
     }
 
     ctx.stroke()
-    ctx.restore()
 
     return this
   }
@@ -106,15 +106,11 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
       const ctx = this.context
       const options = this._options.focus
 
-      ctx.save()
-      ctx.beginPath()
       ctx.textBaseline = 'middle'
       ctx.textAlign = 'start'
       ctx.font = fontSize(options.fontSize)
 
       drawSeriesLabel(ctx, y, this.invert(y).toString(), options)
-
-      ctx.restore()
     }
 
     return this

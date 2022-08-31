@@ -10,7 +10,7 @@ import { UpdatePayload } from '../../core/DataSource'
 import extend from '../../helper/extend'
 import IIndicator from '../../interface/IIndicator'
 import AbstractIndicator from '../../super/AbstractIndicator'
-import { calcEMA, EMAValue } from './formula'
+import { calcEMA, EMAName, EMAValue } from './formula'
 
 class EMA extends AbstractIndicator<EMAInputs, EMAValue> implements IIndicator<EMAInputs> {
   private state: ReturnType<typeof calcEMA>['state'] | null = null
@@ -39,7 +39,7 @@ class EMA extends AbstractIndicator<EMAInputs, EMAValue> implements IIndicator<E
 
   paint (values: EMAValue[]): this {
     for (let i = 0, l = this.inputs.periods.length; i < l; i++) {
-      const key = `ema_${this.inputs.periods[i].period}_${this.inputs.periods[i].offset ?? 0}` as keyof EMAValue
+      const key = `index_${this.inputs.periods[i].period}_${this.inputs.periods[i].offset ?? 0}` as EMAName
 
       this.context.beginPath()
       this.context.strokeStyle = this.inputs.periods[i].color

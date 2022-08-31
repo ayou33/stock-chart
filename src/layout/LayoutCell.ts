@@ -30,6 +30,7 @@ class LayoutCell {
     cell.classList.add('layout_cell')
 
     cell.style.cssText += `
+      overflow: hidden;
       position: relative;
       padding: 0;
     `

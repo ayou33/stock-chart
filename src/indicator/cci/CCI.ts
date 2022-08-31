@@ -15,6 +15,8 @@ import { calcCCI, CCIValue } from './formula'
 class CCI extends AbstractIndicator<CCIInputs, CCIValue> implements IIndicator<CCIInputs> {
   static displayType = DisplayType.EXTERNAL
 
+  displayType = DisplayType.EXTERNAL
+
   isExternal (): boolean {
     return true
   }

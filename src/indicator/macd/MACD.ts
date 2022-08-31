@@ -19,6 +19,8 @@ type MACDState = MACDResult['state']
 class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicator<MACDInputs> {
   static displayType = DisplayType.EXTERNAL
 
+  displayType = DisplayType.EXTERNAL
+
   valueAlign = 0
 
   state: MACDState | null = null

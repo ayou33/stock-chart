@@ -13,7 +13,7 @@ import LayoutCell from '../layout/LayoutCell'
 import { mainAxisOptions, MainAxisOptions } from '../options'
 import Band from '../scale/Band'
 import AbstractAxis from '../super/AbstractAxis'
-import { WHITE } from '../theme'
+import { BLACK, WHITE } from '../theme'
 import { UpdateLevel, UpdatePayload } from './DataSource'
 
 const defaultFormat: (date: number, p: number) => string = v => v.toString(0)
@@ -67,11 +67,11 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     const width = this.container.width()
     const options = this._options
 
-    ctx.save()
     ctx.beginPath()
     ctx.textBaseline = 'top'
     ctx.textAlign = 'center'
     ctx.font = fontSize(options.labelSize)
+    ctx.fillStyle = BLACK
 
     for (let x = 0; x < width; x += this._tickInterval) {
       if (options.tick) {
@@ -88,7 +88,6 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     }
 
     ctx.stroke()
-    ctx.restore()
 
     return this
   }
@@ -115,8 +114,6 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
       const ctx = this.context
       const options = this._options.focus
 
-      ctx.save()
-      ctx.beginPath()
       ctx.textBaseline = 'top'
       ctx.textAlign = 'center'
 
@@ -135,7 +132,6 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
       ctx.fillStyle = options.background ? options.color : WHITE
       ctx.font = fontSize(options.fontSize)
       ctx.fillText(text, x, y)
-      ctx.restore()
     }
 
     return this

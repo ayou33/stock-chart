@@ -15,6 +15,9 @@ import { calcStochastic, KDJValue } from './formula'
 class KDJ extends AbstractIndicator<KDJInputs, KDJValue> implements IIndicator<KDJInputs> {
   static displayType = DisplayType.EXTERNAL
 
+  displayType = DisplayType.EXTERNAL
+
+
   private state: ReturnType<typeof calcStochastic>['state'] | null = null
 
   applyConfig (): this {

@@ -13,7 +13,9 @@ import { RenderOptions } from '../options'
 import AbstractChart from './AbstractChart'
 
 abstract class AbstractIndicator<I extends object, O> extends AbstractChart implements IIndicator<I, O> {
-  static displayType = DisplayType.INNER
+  static displayType: DisplayType = DisplayType.INNER
+
+  displayType = DisplayType.INNER
 
   output: O[] = []
 

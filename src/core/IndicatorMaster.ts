@@ -58,7 +58,7 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
   private useExternalContainer (): [LayoutCell, CanvasRenderingContext2D] {
     if (this._externalContainer === null) {
       this._externalContainer = this.layout.appendRow({
-        name: 'indicator',
+        role: 'indicator',
         cells: [
           {
             height: 200,
@@ -107,14 +107,14 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
   }
 
   apply (update?: UpdatePayload): this {
-    for (let k in this._indicators) {
-      this._indicators[k].apply(update)
+    for (const name in this._indicators) {
+      this._indicators[name].apply(update)
     }
 
     return this
   }
 
-  add<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T]) {
+  add<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T], typeUnique = false) {
     const Ctor = indicators[name]
 
     const [container, context] = Ctor.displayType === DisplayType.INNER ? this.useInnerContext()
@@ -127,6 +127,15 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
       context,
       inputs,
     })
+
+    if (typeUnique) {
+      for (const name in this._indicators) {
+        if (this._indicators[name].displayType === Ctor.displayType) {
+          this._indicators[name].clear()
+          delete this._indicators[name]
+        }
+      }
+    }
 
     this._indicators[indicator.name] = indicator
 

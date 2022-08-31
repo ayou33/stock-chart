@@ -55,7 +55,7 @@ export const defaultEMAState: EMAState = {
   position: 0,
 }
 
-type EMAName = `${IndexName}_${number}`
+export type EMAName = `${IndexName}_${number}`
 
 export type EMAValue = Record<EMAName | 'date', number>
 

@@ -13,6 +13,8 @@ export enum DisplayType {
 }
 
 interface IIndicator<I extends object = any, O = unknown, E extends string = never> extends IChart<E> {
+  displayType: DisplayType
+
   inputs: I
 
   output: O[]

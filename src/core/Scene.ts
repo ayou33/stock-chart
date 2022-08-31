@@ -18,12 +18,14 @@ import MainAxis from './MainAxis'
 import Series from './Series'
 
 class Scene {
+  private readonly $container: Element
   private readonly _options: StockChartOptions
   private readonly _layout: Layout
   private readonly _mainAxis
   private readonly _series: Record<'default' | string, IAxis> = {}
   private readonly _renderers: IRenderer[] = []
 
+  private $loading: Element | null = null
   private _indicatorMaster: IndicatorMaster | null = null
   private _lastUpdate: UpdatePayload | null = null
 
@@ -36,7 +38,9 @@ class Scene {
       throw new ReferenceError('Invalid container reference!')
     }
 
-    this._layout = new Layout(container)
+    this.$container = container
+
+    this._layout = new Layout(container, this._options.layout)
       .on('resize', this.onResize.bind(this))
 
     const mainAxisContainer = this._layout.mainAxis()
@@ -132,8 +136,32 @@ class Scene {
     this._renderers.map(c => c.resize())
   }
 
-  addStudy <T extends IndicatorNames>(name: T, inputs?: IndicatorInputs[T]) {
-    return this.useIndicatorMaster().add(name, inputs)
+  addStudy <T extends IndicatorNames>(name: T, inputs?: IndicatorInputs[T], typeUnique = false) {
+    return this.useIndicatorMaster().add(name, inputs, typeUnique)
+  }
+
+  loading () {
+    if (!this.$loading) {
+      const div = document.createElement('div')
+
+      div.classList.add('sc_loading')
+
+      div.innerHTML = `
+        <div class="mask"></div>
+        <div class="halo"></div>
+        <div class="face"></div>
+    `
+
+      this.$loading = div
+    }
+
+    this.$container.append(this.$loading)
+  }
+
+  loaded () {
+    if (this.$loading) {
+      this.$container.removeChild(this.$loading)
+    }
   }
 }
 

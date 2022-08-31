@@ -15,6 +15,8 @@ import { calcRSI, RSIValue } from './formula'
 class RSI extends AbstractIndicator<RSIInputs, RSIValue> implements IIndicator<RSIInputs> {
   static displayType = DisplayType.EXTERNAL
 
+  displayType = DisplayType.EXTERNAL
+
   private state: ReturnType<typeof calcRSI>['state'] | null = null
 
   isExternal (): boolean {

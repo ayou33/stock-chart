@@ -1,0 +1,67 @@
+/**
+ *  @file         src/index.css created by WebStorm
+ *  @project      stock-chart
+ *  @author       阿佑[ayooooo@petalmail.com]
+ *  @date         2022/8/31 15:24
+ *  @description
+ */
+.sc_loading .mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.sc_loading {
+  z-index: 1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  padding: 2px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.sc_loading .halo {
+  position: absolute;
+  top: -100%;
+  left: -20%;
+  width: 200%;
+  height: 300%;
+  background: #F24A3A;
+  animation: sc_pa 1s linear infinite;
+}
+
+.sc_loading .halo::before {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  background: #00B167;
+  content: '';
+}
+
+.sc_loading .face {
+  border-radius: 50%;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes sc_pa {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}

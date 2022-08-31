@@ -10,6 +10,7 @@ import { IndicatorInputs, IndicatorNames } from './indicator/all'
 import IDataFeed, { Periodicity } from './interface/IDataFeed'
 import IIndicator from './interface/IIndicator'
 import stockChartOptions, { StockChartOptions } from './options'
+import './index.css'
 
 class StockChart {
   private readonly _options: StockChartOptions
@@ -26,6 +27,8 @@ class StockChart {
     this._scene = new Scene(this._options)
 
     this._dataSource = new DataSource(this._options.dataSource)
+      .on('loading', () => this._scene.loading())
+      .on('loaded', () => this._scene.loaded())
 
     this._dataSource.on('update', (_, update) => {
       this._scene.apply(update)
@@ -47,8 +50,12 @@ class StockChart {
     this._dataSource.setPeriodicity(periodicity)
   }
 
-  addStudy<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T]): IIndicator<IndicatorInputs[T]> {
-    return this._scene.addStudy(name, inputs)
+  addStudy<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T], typeUnique = false): IIndicator<IndicatorInputs[T]> {
+    return this._scene.addStudy(name, inputs, typeUnique)
+  }
+
+  showStudy<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T]): IIndicator<IndicatorInputs[T]> {
+    return this.addStudy(name, inputs, true)
   }
 }
 

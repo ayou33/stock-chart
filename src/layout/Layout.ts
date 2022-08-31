@@ -8,13 +8,13 @@
 import debounce from 'lodash.debounce'
 import Event from '../base/Event'
 import { isOut } from '../helper/range'
-import { useDescriber } from '../options'
+import { LayoutOptions, useDescriber } from '../options'
 import LayoutRow from './LayoutRow'
 import { memoizeWith } from 'ramda'
 
-const reservedKeyRoles = ['chart', 'series', 'axis', 'indicator'] as const
+const reservedRoles = ['chart', 'series', 'axis', 'indicator'] as const
 
-type ReservedKeyRoles = typeof reservedKeyRoles[number]
+export type ReservedRoles = typeof reservedRoles[number]
 
 export type SpaceDescriber = {
   /**
@@ -52,14 +52,10 @@ export type Computer = {
 
 class Layout extends Event<'resize'> {
   private readonly $container: Element
+
   private readonly $table: HTMLTableElement
 
-  private readonly _keyPositions: Record<ReservedKeyRoles, Vector> = {
-    chart: [0, 0],
-    series: [1, 0],
-    axis: [0, 1],
-    indicator: [0, 2],
-  }
+  private readonly _keyPositions: Record<ReservedRoles, Vector>
 
   /**
    * 总的布局空间信息
@@ -107,34 +103,32 @@ class Layout extends Event<'resize'> {
    */
   private _computer: Computer[][] = []
 
-  constructor (container: Element, describer?: LayoutDescriber) {
+  private readonly _options: LayoutOptions
+
+  constructor (container: Element, options: LayoutOptions, describer?: LayoutDescriber) {
     super()
 
     this.$container = container
 
-    const rect = this.$container.getBoundingClientRect()
+    this._options = options
 
-    this._space.width = rect.width
-
-    this._space.height = rect.height
+    this._keyPositions = this._options.positions
 
     const $table = this.$container.querySelector('table')
 
     if ($table !== null) {
       this.$table = $table
-
       this._describer = this.parseLayout($table)
     } else {
       this.$table = document.createElement('table')
-
-      this._describer = useDescriber(describer)
+      this._describer = useDescriber(this._options, describer)
     }
-
-    this.styleTable(this.$table, rect.width, rect.height)
 
     this.calcSpacing()
 
-    this._layout = this.buildLayoutDescription()
+    this.styleTable(this.$table, this._space.width, this._space.height)
+
+    this._layout = this.buildLayoutAndDescription()
 
     this._computer = this.buildComputer()
 
@@ -143,15 +137,27 @@ class Layout extends Event<'resize'> {
     this.monitorResize()
   }
 
+  static parseSize (size: string) {
+    return !size ? undefined
+      : size.endsWith('%') ? -(parseFloat(size) / 100)
+        : parseFloat(size)
+  }
+
   private mount () {
     this.$container.appendChild(this.render())
   }
 
   /**
-   * 计算总的行和列
+   * 计算总的size，行和列
    * @private
    */
   private calcSpacing () {
+    const rect = this.$container.getBoundingClientRect()
+
+    this._space.width = rect.width
+
+    this._space.height = rect.height
+
     this._space.row = this._describer.length
 
     if (this._space.row !== 0) {
@@ -174,12 +180,6 @@ class Layout extends Event<'resize'> {
     return table
   }
 
-  static parseSize (size: string) {
-    return !size ? undefined
-      : size.endsWith('%') ? -(parseFloat(size) / 100)
-        : parseFloat(size)
-  }
-
   private parseLayout ($table: HTMLTableElement) {
     return [].slice.call($table.querySelectorAll('tr')).map(($tr: HTMLTableRowElement) => {
       return {
@@ -198,7 +198,10 @@ class Layout extends Event<'resize'> {
     })
   }
 
-  private buildLayoutDescription () {
+  private buildLayoutAndDescription () {
+    // 格式化(清空)描述对象
+    this._description.length = 0
+
     return this._describer.map((row, rowIndex) =>
       new LayoutRow(this, {
         ...row,
@@ -345,6 +348,7 @@ class Layout extends Event<'resize'> {
   private set ([col, row]: Vector, describer: SpaceDescriber) {
     this.assertLocation([col, row])
 
+    // 新建 行 描述对象的 位置空间
     if (!this._description[row]) {
       this._description[row] = []
     }
@@ -358,7 +362,7 @@ class Layout extends Event<'resize'> {
     /**
      * 创建新布局
      */
-    const layout = this.buildLayoutDescription()
+    const layout = this.buildLayoutAndDescription()
 
     /**
      * 新建计算器
@@ -407,8 +411,8 @@ class Layout extends Event<'resize'> {
       rowSpan: rs,
     })
 
-    const role = describer?.role as ReservedKeyRoles
-    if (reservedKeyRoles.indexOf(role) !== -1) {
+    const role = describer?.role as ReservedRoles
+    if (reservedRoles.indexOf(role) !== -1) {
       this._keyPositions[role] = [col, row]
     }
 
@@ -443,18 +447,27 @@ class Layout extends Event<'resize'> {
   }
 
   compute (dimension: 'width' | 'height', location: Vector) {
-    location = this.raw(location)
-    return this._computer[location[1]][location[0]]?.[dimension]()
+    const _location = this.raw(location)
+    return this._computer[_location[1]][_location[0]]?.[dimension]()
   }
 
+  /**
+   * @alias
+   */
   chart () {
     return this.locate(this._keyPositions.chart)
   }
 
+  /**
+   * @alias
+   */
   mainAxis () {
     return this.locate(this._keyPositions.axis)
   }
 
+  /**
+   * @alias
+   */
   series () {
     return this.locate(this._keyPositions.series)
   }
@@ -497,8 +510,15 @@ class Layout extends Event<'resize'> {
     return this._layout[index]
   }
 
-  appendRow (row: RowDescriber) {
-    return this.insertRow(row, this._layout.length)
+  appendRow (describer: RowDescriber) {
+    let rowIndex = this._layout.length
+    const role = describer.role as ReservedRoles
+
+    if (reservedRoles.indexOf(role) !== -1) {
+      rowIndex = this._keyPositions[role][1]
+    }
+
+    return this.insertRow(describer, rowIndex)
   }
 
   removeRow (index: number) {

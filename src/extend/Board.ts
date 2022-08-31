@@ -31,6 +31,7 @@ class Board extends Gesture<CrosshairEvents> {
         this._focus = false
         this.emit('blur')
         this.clear()
+        this.drawPriceLine()
       })
 
       this.canvas.addEventListener('mousemove', (e) => {
