@@ -52,14 +52,12 @@ class BOLL extends AbstractIndicator<BOLLInputs, BOLLValue> implements IIndicato
         this.context.moveTo(this.fx(values[i].date), this.fy(values[i].index))
         start = true
       }
-
     }
 
     this.context.stroke()
 
     return this
   }
-
 }
 
 export default BOLL

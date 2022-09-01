@@ -294,7 +294,7 @@ class Layout extends Event<'resize'> {
 
   private refRowHeight (row: number) {
     let height
-    for (let c = 0, l = this._description[row].length; c < l && height === undefined; c++) {
+    for (let c = 0, l = this._description[row]?.length; c < l && height === undefined; c++) {
       const cell = this.read([c, row])
       if (!cell || cell.isLink) continue
       height = cell.height

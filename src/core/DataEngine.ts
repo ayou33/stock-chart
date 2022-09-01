@@ -94,7 +94,7 @@ class DataEngine extends Event<DataEvents> {
       }
 
       this._dataFeed.subscribe(symbol, patch => {
-        if (this._symbol?.symbol === patch.symbol && this._symbol.exchange === patch.exchange) {
+        if (this._symbol?.code === patch.code && this._symbol.exchange === patch.exchange) {
           this.generator.insert(patch.time, patch.price)
         }
       })
@@ -106,7 +106,7 @@ class DataEngine extends Event<DataEvents> {
   }
 
   stream (patch: Patch) {
-    if (this._symbol?.symbol === patch.symbol && this._symbol.exchange === patch.exchange) {
+    if (this._symbol?.code === patch.code && this._symbol.exchange === patch.exchange) {
       this.generator.insert(patch.time, patch.price)
     }
   }

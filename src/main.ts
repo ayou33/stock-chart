@@ -3238,7 +3238,7 @@ chart.attach({
     console.log('resolveSymbol', symbol)
     return Promise.resolve({
       name: 'BTCUSD',
-      symbol: 'BTCUSD',
+      code: 'BTCUSD',
       description: '比特币',
       exchange: 'EX',
       periodicity: {

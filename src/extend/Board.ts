@@ -35,7 +35,8 @@ class Board extends Gesture<CrosshairEvents> {
       })
 
       this.canvas.addEventListener('mousemove', (e) => {
-        if (this._focus) this.drawCrosshair(e.clientX, e.clientY)
+        const p = this.pointer(e.clientX, e.clientY)
+        if (this._focus) this.drawCrosshair(p[0], p[1])
       })
 
       this._priceLine = new Line(this.context, {

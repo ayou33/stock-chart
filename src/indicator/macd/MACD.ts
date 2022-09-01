@@ -90,7 +90,7 @@ class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicato
   }
 
   paint (values: MACDValue[]): this {
-    this.yAxis.domain([300, -300])
+    this.yAxis.domain([200, -200])
 
     this.paintHist(values, this.xAxis.bandWidth())
     this.paintMACD(values)
@@ -120,6 +120,7 @@ class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicato
       const width = this.xAxis.step() * 2 - this.xAxis.bandWidth() / 2
       this.context.clearRect(left, 0, width, this.container.height())
     }
+
     return this
   }
 

@@ -25,7 +25,7 @@ type Bar = {
 type BarValueField = Exclude<keyof Bar, 'DT' | 'volume'>
 
 type Patch = {
-  symbol: string;
+  code: string;
   exchange: string;
   price: number;
   time: number;
@@ -54,7 +54,7 @@ type RecursiveRequired<T> = {
     T[P]
 }
 
-type RecursivePartial<T> = {
+declare type RecursivePartial<T> = {
   [P in keyof T]?:
   // T[P] extends (infer U)[] ? RecursivePartial<U>[] :
   T[P] extends Record<string, unknown> ? RecursivePartial<T[P]> :
@@ -88,7 +88,7 @@ type RowDescriber = {
 
 type LayoutDescriber = RowDescriber[]
 
-type Flatten<P> = P extends (infer P)[] ? P : never
+type Flatten<P> = P extends (infer T)[] ? T : never
 
 type Inputs<T> = { inputs: T }
 

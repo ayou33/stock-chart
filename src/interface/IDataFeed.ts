@@ -13,7 +13,7 @@ export type Periodicity = {
 
 export type SymbolDescriber = {
   name: string;
-  symbol: string;
+  code: string;
   exchange: string;
   periodicity: Periodicity;
   description?: string,
@@ -24,7 +24,7 @@ export type FeedSnapshot = {
 }
 
 interface IDataFeed {
-  resolveSymbol (symbol: string): Promise<SymbolDescriber>;
+  resolveSymbol (code: string): Promise<SymbolDescriber>;
 
   read (symbol: SymbolDescriber): Promise<FeedSnapshot>;
 
