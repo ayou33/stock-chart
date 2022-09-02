@@ -1,10 +1,10 @@
-import Band from '../../src/scale/Band'
+import Band from '../../scale/Band'
 
 
 describe('', () => {
   const _band = new Band()
   _band.range([0, 100])
-  
+
   test('paddingOuter', () => {
     expect(_band.paddingOuter(0)).toBe(0)
     expect(_band.paddingOuter(1)).toBe(0)

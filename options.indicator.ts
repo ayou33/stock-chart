@@ -5,7 +5,7 @@
  *  @date         2022/8/26 16:19
  *  @description
  */
-import { Color, themeOptions } from './src/theme'
+import { Color, themeOptions } from './theme'
 
 export type MAInputs = {
   periods: {
