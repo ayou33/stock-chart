@@ -53,12 +53,13 @@ class Scene {
   }
 
   private useIndicatorMaster () {
-    if (this._indicatorMaster === null)
+    if (this._indicatorMaster === null) {
       this._indicatorMaster = new IndicatorMaster({
         xAxis: this._mainAxis,
         yAxis: this._series.default,
         layout: this._layout,
       })
+    }
 
     return this._indicatorMaster
   }
@@ -136,7 +137,7 @@ class Scene {
     this._renderers.map(c => c.resize())
   }
 
-  addStudy <T extends IndicatorNames>(name: T, inputs?: IndicatorInputs[T], typeUnique = false) {
+  addStudy<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T], typeUnique = false) {
     return this.useIndicatorMaster().add(name, inputs, typeUnique)
   }
 

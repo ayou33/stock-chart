@@ -64,7 +64,6 @@ class EMA extends AbstractIndicator<EMAInputs, EMAValue> implements IIndicator<E
 
     return this
   }
-
 }
 
 export default EMA

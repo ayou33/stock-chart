@@ -21,6 +21,7 @@ class DataEngine extends Event<DataEvents> {
     period: 1,
     timeUnit: 'minute',
   }
+
   private _interval = durationMinute
   private generator = createDataGenerator(this.onPush.bind(this))
 
@@ -48,6 +49,7 @@ class DataEngine extends Event<DataEvents> {
   }
 
   private rollup () {
+    throw new Error('NO IMPLEMENT')
   }
 
   private stop () {

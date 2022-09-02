@@ -43,6 +43,10 @@ export const makeEMACalculator = (period: number, fromEMA = 0) => {
   }
 }
 
+export type EMAName = `${IndexName}_${number}`
+
+export type EMAValue = Record<EMAName | 'date', number>
+
 export type EMAState = {
   index: EMAValue;
   position: number;
@@ -54,10 +58,6 @@ export const defaultEMAState: EMAState = {
   },
   position: 0,
 }
-
-export type EMAName = `${IndexName}_${number}`
-
-export type EMAValue = Record<EMAName | 'date', number>
 
 export function calcEMA (
   quotes: Bar[],

@@ -9,7 +9,7 @@ export function expandPadding (padding: BoxPadding): BoxPaddingObject {
       top: padding,
       right: padding,
       bottom: padding,
-      left: padding
+      left: padding,
     }
   }
 

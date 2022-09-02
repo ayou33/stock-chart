@@ -10,7 +10,6 @@ import AbstractChart from '../super/AbstractChart'
 export type GestureEvents = 'transform'
 
 class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T, StockChartOptions> implements AbstractChart<GestureEvents | T> {
-
   protected constructor (options: RendererOptions) {
     super(options)
 

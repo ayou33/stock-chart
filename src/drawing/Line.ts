@@ -55,8 +55,10 @@ class Line {
   private parseAngle () {
     if (this._options.angle !== undefined) return this._options.angle
 
-    if (!this._options.origin || !this._options.stop) throw new ReferenceError(
-      'No Angle or enough points provide to determine line\'s direction!')
+    if (!this._options.origin || !this._options.stop) {
+      throw new ReferenceError(
+        'No Angle or enough points provide to determine line\'s direction!')
+    }
 
     return Math.atan(
       (this._options.stop[1] - this._options.origin[1]) / (this._options.stop[0] - this._options.origin[0]))
@@ -130,7 +132,8 @@ class Line {
       return this._options.dashArray.map(y => ([0, y]))
     }
 
-    return this._options.dashArray.map(x => ([Math.cos(this._angle) * x, Math.sin(this._angle) * x]))
+    return this._options.dashArray.map(
+      x => ([Math.cos(this._angle) * x, Math.sin(this._angle) * x]))
   }
 
   private deriveStart (location: Vector): Vector {
