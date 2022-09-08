@@ -12,8 +12,8 @@ import AbstractCanvas from './AbstractCanvas'
 abstract class AbstractAxis<E extends string, U = Extent, T extends IScale = IScale<U>> extends AbstractCanvas<E> implements IAxis<U> {
   readonly scale: T
 
-  protected constructor (container: LayoutCell) {
-    super(container)
+  protected constructor (container: LayoutCell, context?: CanvasRenderingContext2D) {
+    super(container, context)
 
     this.scale = this.makeScale()
   }

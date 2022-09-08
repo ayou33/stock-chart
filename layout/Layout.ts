@@ -131,11 +131,11 @@ export class Layout extends Event<'resize'> {
 
     this._keyPositions = this._options.positions
 
-    const $table = this.$container.querySelector('table')
+    const $table = this.$container.querySelector('table.layout')
 
     if ($table !== null) {
-      this.$table = $table
-      this._describer = this.parseLayout($table)
+      this.$table = $table as HTMLTableElement
+      this._describer = this.parseLayout(this.$table)
     } else {
       this.$table = document.createElement('table')
       this._describer = useDescriber(this._options, describer)
@@ -183,7 +183,9 @@ export class Layout extends Event<'resize'> {
   }
 
   private styleTable (table: HTMLTableElement, width: number, height: number) {
-    table.classList.add('layout_table')
+    table.classList.add('layout')
+
+    console.log('jojojo', height)
 
     table.style.cssText += `
       width: ${width}px;

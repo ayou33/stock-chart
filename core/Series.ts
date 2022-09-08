@@ -26,7 +26,7 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
   private _tickInterval: number
 
   constructor (container: LayoutCell, options?: RecursivePartial<SeriesOptions>) {
-    super(container)
+    super(container, options?.context)
 
     this._options = extend(seriesOptions, options ?? {})
 

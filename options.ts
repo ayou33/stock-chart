@@ -25,6 +25,7 @@ type AxisOptions = {
   labelPadding: number; // padding-top or left
   border: null | number;
   borderColor: Color;
+  context?: CanvasRenderingContext2D;
 }
 
 const axisOptions: AxisOptions = {

@@ -27,7 +27,11 @@ abstract class AbstractIndicator<I extends object, O> extends AbstractChart impl
     this.inputs = this.default(options.inputs)
 
     if (this.isExternal()) {
-      this.yAxis = new Series(this.externalSeriesContainer())
+      /**
+       * 副图指标的y轴不渲染，这里用chart的context阻止新的y轴的canvas生成
+       * @todo 支持配置是否渲染y轴
+       */
+      this.yAxis = new Series(this.externalSeriesContainer(), { context: options.context })
       this.yAxis.domain([100, 0])
     }
   }
