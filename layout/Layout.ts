@@ -185,8 +185,6 @@ export class Layout extends Event<'resize'> {
   private styleTable (table: HTMLTableElement, width: number, height: number) {
     table.classList.add('layout')
 
-    console.log('jojojo', height)
-
     table.style.cssText += `
       width: ${width}px;
       height: ${height}px;
