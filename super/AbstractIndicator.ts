@@ -5,7 +5,7 @@
  *  @date         2022/8/23 16:08
  *  @description
  */
-import { UpdatePayload } from '../core/DataSource'
+import { UpdateLevel, UpdatePayload } from '../core/DataSource'
 import Series from '../core/Series'
 import extend from '../helper/extend'
 import IIndicator, { DisplayType, Inputs } from '../interface/IIndicator'
@@ -55,7 +55,7 @@ abstract class AbstractIndicator<I extends object, O> extends AbstractChart impl
   }
 
   drawAll (update: UpdatePayload): this {
-    if (!this.isCached(update)) {
+    if (update.level ===  UpdateLevel.FULL || !this.isCached(update)) {
       this.output = this.compute(update)
     }
 

@@ -24,7 +24,6 @@ export type SymbolDescriber = {
   name: string;
   code: string;
   exchange: string;
-  periodicity: Periodicity;
   description?: string,
 }
 
@@ -35,7 +34,7 @@ export type FeedSnapshot = {
 interface IDataFeed {
   resolveSymbol (code: string): Promise<SymbolDescriber>;
 
-  read (symbol: SymbolDescriber): Promise<FeedSnapshot>;
+  read (symbol: SymbolDescriber, periodicity: Periodicity | null): Promise<FeedSnapshot>;
 
   subscribe (symbol: SymbolDescriber, streamCallback: (patch: Patch) => void): Fn
 

@@ -3,7 +3,7 @@
  *  @date 2022/8/15 11:37
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { ResolutionLiteral } from '../interface/IDataFeed'
+import { Periodicity, ResolutionLiteral } from '../interface/IDataFeed'
 
 export const durationSecond = 1000,
   durationMinute = durationSecond * 60,
@@ -29,7 +29,7 @@ function timeSecond (date: Date) {
   return new Date(date).setTime(+date - date.getMilliseconds())
 }
 
-function timeMinute (date: Date) {
+export function timeMinute (date: Date) {
   return new Date().setTime(+date - date.getMilliseconds() - date.getSeconds() * durationSecond)
 }
 
@@ -68,6 +68,7 @@ type Resolution = {
   formatPattern: string;
   searchPattern: RegExp;
   duration: number;
+  periodicity: Required<Periodicity>;
 }
 
 const resolution: Record<ResolutionLiteral, Resolution> = {
@@ -76,54 +77,99 @@ const resolution: Record<ResolutionLiteral, Resolution> = {
     formatPattern: 'S.L',
     searchPattern: /L+/g,
     duration: 1,
+    periodicity: {
+      timeUnit: 'tick',
+      interval: 1,
+      period: 1,
+    },
   },
   millisecond: {
     symbol: 'L',
     formatPattern: 'S.L',
     searchPattern: /L+/g,
     duration: 1,
+    periodicity: {
+      timeUnit: 'tick',
+      interval: 1,
+      period: 1,
+    },
   },
   second: {
     symbol: 'S',
     formatPattern: 'M:S',
     searchPattern: /S+/g,
     duration: durationSecond,
+    periodicity: {
+      timeUnit: 'second',
+      interval: 1,
+      period: 1,
+    },
   },
   minute: {
     symbol: 'M',
     formatPattern: 'H:M',
     searchPattern: /M+/g,
     duration: durationMinute,
+    periodicity: {
+      timeUnit: 'minute',
+      interval: 1,
+      period: 1,
+    },
   },
   hour: {
     symbol: 'H',
     formatPattern: 'd/m H:M',
     searchPattern: /H+/g,
     duration: durationHour,
+    periodicity: {
+      timeUnit: 'hour',
+      interval: 1,
+      period: 1,
+    },
   },
   day: {
     symbol: 'd',
     formatPattern: 'd/m',
     searchPattern: /d+/g,
     duration: durationDay,
+    periodicity: {
+      timeUnit: 'day',
+      interval: 1,
+      period: 1,
+    },
   },
   week: {
     symbol: 'w',
     formatPattern: 'd/m w',
     searchPattern: /w+/g,
     duration: durationWeek,
+    periodicity: {
+      timeUnit: 'day',
+      interval: 7,
+      period: 1,
+    },
   },
   month: {
     symbol: 'm',
     formatPattern: 'm/y',
     searchPattern: /m+/g,
     duration: durationMonth,
+    periodicity: {
+      timeUnit: 'month',
+      interval: 1,
+      period: 1,
+    },
   },
   year: {
     symbol: 'y',
     formatPattern: 'y',
     searchPattern: /y+/g,
     duration: durationYear,
+    periodicity: {
+      timeUnit: 'year',
+      interval: 1,
+      period: 1,
+    },
   },
 }
 
