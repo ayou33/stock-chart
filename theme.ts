@@ -19,6 +19,8 @@ export type ThemeOptions = {
   dottedColor: Color;
   primaryColor: Color;
   bullishColor: Color; // 看多颜色
+  bullishBg: Color;
+  bearishBg: Color;
   bearishColor: Color;
   lineWidth: number;
   dashWidth: number;
@@ -35,6 +37,8 @@ export const themeOptions: ThemeOptions = {
   dotArray: [2, 2],
   bullishColor: '#00B167', // 看多颜色
   bearishColor: '#F24A3A',
+  bullishBg: 'rgba(0, 177, 103, 0.1)', // 看多颜色
+  bearishBg: 'rgba(242, 74, 58, 0.1)',
   color: BLACK,
   background: 'rgba(0, 0, 0, 0.1)',
   dashedColor: '#FCE9D6',

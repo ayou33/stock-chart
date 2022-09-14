@@ -109,10 +109,10 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
   apply (update?: UpdatePayload): this {
     if (update) {
       this.lastUpdate = update
-    }
 
-    for (const name in this._indicators) {
-      this._indicators[name].apply(update)
+      for (const name in this._indicators) {
+        this._indicators[name].apply(this.lastUpdate)
+      }
     }
 
     return this
@@ -143,7 +143,7 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
 
     this._indicators[indicator.name] = indicator
 
-    return indicator.apply(this.lastUpdate)
+    return indicator.replay(this.lastUpdate)
   }
 
   config (name: IndicatorNames, config: IndicatorInputs[typeof name]): this {
@@ -153,11 +153,6 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
 
   remove (name: IndicatorNames): this {
     console.log('indicator master remove', name)
-    return this
-  }
-
-  replace (name: IndicatorNames, config?: IndicatorInputs[typeof name]): this {
-    console.log('indicator master replace', name, config)
     return this
   }
 

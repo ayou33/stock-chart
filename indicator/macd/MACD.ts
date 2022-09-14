@@ -90,7 +90,7 @@ class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicato
   }
 
   paint (values: MACDValue[]): this {
-    this.yAxis.domain([200, -200])
+    this.yAxis.domain([0.1, -0.1])
 
     this.paintHist(values, this.xAxis.bandWidth())
     this.paintMACD(values)

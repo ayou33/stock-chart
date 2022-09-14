@@ -108,7 +108,7 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
 
   focus (x: number): this {
     if (this._options.focus) {
-      this.apply()
+      this.replay()
 
       const date = this.invert(x)
       const ctx = this.context
@@ -140,7 +140,7 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
   tickFormat (format: (value: number, pos: number) => string): this {
     this._format = format
     this.clear()
-    this.apply()
+    this.replay()
 
     return this
   }
@@ -148,7 +148,7 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
   ticks (interval: number): this {
     this._tickInterval = interval
     this.clear()
-    this.apply()
+    this.replay()
     return this
   }
 }

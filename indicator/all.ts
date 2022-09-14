@@ -14,7 +14,7 @@ import {
   MACDInputs,
   MAInputs,
   RSIInputs,
-  SARInputs,
+  SARInputs, TrendInputs,
 } from '../options.indicator'
 import { IIndicatorCtor } from '../interface/IIndicator'
 import BOLL from './boll/BOLL'
@@ -25,6 +25,7 @@ import MA from './ma/MA'
 import MACD from './macd/MACD'
 import RSI from './rsi/RSI'
 import SAR from './sar/SAR'
+import Trend from './trend/Trend'
 
 export type IndicatorInputs = {
   ma: MAInputs;
@@ -35,6 +36,7 @@ export type IndicatorInputs = {
   kdj: KDJInputs;
   rsi: RSIInputs;
   cci: CCIInputs;
+  trend: TrendInputs;
 }
 
 export type IndicatorNames = keyof IndicatorInputs
@@ -48,4 +50,5 @@ export const indicators: Record<IndicatorNames, IIndicatorCtor> = {
   kdj: KDJ,
   rsi: RSI,
   cci: CCI,
+  trend: Trend,
 }

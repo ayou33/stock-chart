@@ -12,7 +12,9 @@ import Event from '../base/Event'
 interface IRenderer<E extends string = never> extends Event<E>, IInjectable {
   lastUpdate: UpdatePayload | null;
 
-  apply (update?: UpdatePayload | null): this;
+  apply (update: UpdatePayload): this;
+
+  replay (update?: UpdatePayload | null): this;
 
   draw (update: UpdatePayload): this;
 

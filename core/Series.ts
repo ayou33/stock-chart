@@ -118,7 +118,7 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
 
   rerender () {
     this.clear()
-    this.apply()
+    this.replay()
   }
 
   tickFormat (format: (value: number, pos: number) => string): this {

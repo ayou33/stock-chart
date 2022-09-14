@@ -109,13 +109,6 @@ export const rsiInputs: RSIInputs = {
   periods: [14],
 }
 
-export type TrendInputs = {
-  period: number;
-  fastPeriod: number;
-  slowPeriod: number;
-  signalPeriod: number;
-}
-
 export type CCIInputs = {
   period: number;
 }
@@ -124,9 +117,24 @@ export const cciInputs: CCIInputs = {
   period: 20,
 }
 
+export type TrendInputs = {
+  period: number;
+  fastPeriod: number;
+  slowPeriod: number;
+  signalPeriod: number;
+  bullishColor: Color; // 看多颜色
+  bullishBg: Color;
+  bearishBg: Color;
+  bearishColor: Color;
+}
+
 export const trendInputs: TrendInputs = {
   period: 3,
   fastPeriod: 5,
   slowPeriod: 8,
   signalPeriod: 5,
+  bullishColor: '#00B167', // 看多颜色
+  bearishColor: '#F24A3A',
+  bullishBg: 'rgba(0, 177, 103, 0.1)', // 看多颜色
+  bearishBg: 'rgba(242, 74, 58, 0.1)',
 }

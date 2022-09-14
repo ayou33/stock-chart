@@ -19,7 +19,7 @@ abstract class AbstractAxis<E extends string, U = Extent, T extends IScale = ISc
   }
 
   blur (): this {
-    this.apply()
+    this.replay()
 
     return this
   }

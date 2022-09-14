@@ -111,7 +111,7 @@ abstract class AbstractCanvas<E extends string = never> extends AbstractRenderer
 
     this.applyInject('resize', 'after')
 
-    this.apply()
+    this.replay()
 
     return this
   }

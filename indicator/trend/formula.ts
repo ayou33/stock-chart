@@ -24,7 +24,7 @@ export const defaultTrendPointState: TrendPointState = {
 }
 
 const makeTurningPointCalculator = (
-  defaults = defaultTrendPointState,
+  defaults: TrendPointState,
   period = 13,
   kPeriod = 5,
   dPeriod = 5,

@@ -40,11 +40,13 @@ class SAR extends AbstractIndicator<SARInputs, SARValue> implements IIndicator<S
   }
 
   paint (values: SARValue[]): this {
+    const radius = this.xAxis.bandWidth() / 2
+
     for (let i = 0, l = values.length; i < l; i++) {
       const bar = values[i]
       this.context.beginPath()
       this.context.strokeStyle = this.inputs.color
-      this.context.arc(this.fx(bar.date), this.fy(bar.index), this.inputs.radius, 0, Math.PI * 2)
+      this.context.arc(this.fx(bar.date), this.fy(bar.index), radius, 0, Math.PI * 2)
       this.context.stroke()
     }
 

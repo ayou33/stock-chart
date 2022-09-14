@@ -17,8 +17,6 @@ interface IIndicatorMaster<E extends string = never> extends IRenderer<E> {
 
   remove (name: IndicatorNames): this;
 
-  replace (name: IndicatorNames, config?: IndicatorInputs[typeof name]): this;
-
   config (name: IndicatorNames, config: IndicatorInputs[typeof name]): this;
 }
 

@@ -41,7 +41,7 @@ abstract class AbstractIndicator<I extends object, O> extends AbstractChart impl
 
     this.applyConfig()
 
-    this.apply()
+    this.replay()
 
     return this
   }
@@ -55,7 +55,7 @@ abstract class AbstractIndicator<I extends object, O> extends AbstractChart impl
   }
 
   drawAll (update: UpdatePayload): this {
-    if (update.level ===  UpdateLevel.FULL || !this.isCached(update)) {
+    if (update.level === UpdateLevel.FULL || !this.isCached(update)) {
       this.output = this.compute(update)
     }
 

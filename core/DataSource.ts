@@ -15,7 +15,7 @@ import DataEngine from './DataEngine'
 export type DataSourceEventTypes = 'beforeUpdate' | 'update' | 'loading' | 'loaded'
 
 export enum UpdateLevel {
-  REDRAW, // 重绘
+  REPLAY, // 重绘
   PATCH, // 补丁更新
   FULL, // 完全更新
   EXTENT, // y轴范围更新

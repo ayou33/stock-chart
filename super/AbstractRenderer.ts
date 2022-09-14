@@ -67,26 +67,34 @@ abstract class AbstractRenderer<E extends string = never> extends Event<E> imple
     return this
   }
 
-  apply (update?: UpdatePayload | null): this {
+  apply (update: UpdatePayload): this {
     this.applyInject('update', 'before')
 
-    if (update) {
-      /**
-       * 不同renderer之间需要数据隔离
-       */
-      this.lastUpdate = { ...update }
-    } else if (this.lastUpdate && this.lastUpdate.level !== UpdateLevel.REDRAW) {
-      this.lastUpdate.lastChange = { ...this.lastUpdate }
-      this.lastUpdate.level = UpdateLevel.REDRAW
-    }
+    /**
+     * 不同renderer之间 数据隔离
+     */
+    this.lastUpdate = { ...update }
 
-    if (this.lastUpdate) {
-      this.applyInject('draw', 'before')
-      this.draw(this.lastUpdate)
-      this.applyInject('draw', 'after')
-    }
+    this.applyInject('draw', 'before')
+
+    this.draw(this.lastUpdate)
+
+    this.applyInject('draw', 'after')
 
     this.applyInject('update', 'after')
+
+    return this
+  }
+
+  replay (update?: UpdatePayload | null) {
+    const rendered = update ?? this.lastUpdate
+
+    if (rendered) {
+      rendered.lastChange = rendered
+      rendered.level = UpdateLevel.REPLAY
+
+      this.apply(rendered)
+    }
 
     return this
   }
@@ -103,7 +111,7 @@ abstract class AbstractRenderer<E extends string = never> extends Event<E> imple
   abstract applyInject (name: InjectTypes, type: 'before' | 'after'): this
 
   resize (): this {
-    this.apply()
+    this.replay()
 
     return this
   }
