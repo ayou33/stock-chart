@@ -90,6 +90,10 @@ class Board extends Gesture<CrosshairEvents> {
     this._currentPriceLine?.transform([0, this._priceY])
   }
 
+  /**
+   * @override
+   * @param update
+   */
   draw (update: UpdatePayload) {
     this.clear()
 
@@ -102,6 +106,8 @@ class Board extends Gesture<CrosshairEvents> {
 
     return this
   }
+
+  createDrawing () {}
 }
 
 export default Board

@@ -49,9 +49,9 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
     this.domain(update.extent)
 
     const options = this._options
-    const range = this.range()
     const ctx = this.context
     const x = (options.tick ?? 0)
+    const height = this.container.height()
 
     this.clear()
 
@@ -61,7 +61,7 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
     ctx.font = fontSize(options.labelSize)
     ctx.fillStyle = BLACK
 
-    for (let y = range[0]; y < range[1]; y += this._tickInterval) {
+    for (let y = this._tickInterval; y < height; y += this._tickInterval) {
       if (this._options.tick) {
         ctx.moveTo(0, y)
         ctx.lineTo(this._options.tick, y)

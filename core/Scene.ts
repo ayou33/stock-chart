@@ -27,6 +27,7 @@ class Scene {
 
   private $loading: Element | null = null
   private _indicatorMaster: IndicatorMaster | null = null
+  private _board: Board | null = null
   private _lastUpdate: UpdatePayload | null = null
 
   constructor (options: StockChartOptions) {
@@ -91,7 +92,7 @@ class Scene {
 
     const candle = new Candle(chartOptions).render()
 
-    const board = new Board(chartOptions)
+    this._board = new Board(chartOptions)
       .render()
       .on('focus', (_, x: number, y: number) => {
         this._mainAxis.focus(x)
@@ -110,7 +111,7 @@ class Scene {
         }
       })
 
-    this._renderers.push(candle, board, this.useIndicatorMaster())
+    this._renderers.push(candle, this._board, this.useIndicatorMaster())
   }
 
   render () {
@@ -139,6 +140,10 @@ class Scene {
 
   addStudy<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T], typeUnique = false) {
     return this.useIndicatorMaster().add(name, inputs, typeUnique)
+  }
+
+  draw () {
+    this._board?.createDrawing()
   }
 
   loading () {

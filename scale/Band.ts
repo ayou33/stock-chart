@@ -4,6 +4,7 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  *  @see https://github.com/d3/d3-scale/blob/v4.0.2/README.md#band-scales
  */
+import { parseResolution } from '../helper/timeFormat'
 import IScale from '../interface/IScale'
 
 const START = 0
@@ -45,6 +46,8 @@ class Band implements IScale<number[]>{
    * @private
    */
   private _domain: number[] = [0, 1]
+
+  private _domainStep = 1
 
   /**
    * domain的索引表
@@ -273,10 +276,17 @@ class Band implements IScale<number[]>{
   }
 
   domain (domain?: number[]): number[] {
-    if (undefined !== domain) {
+    if (undefined !== domain && domain.length !== 0) {
       this._domain = [...new Set(domain)]
       this._domainIndex = this.generateDomainIndex()
       this.updateRange()
+      const lastTwo = this._domain.slice(-2)
+
+      if (lastTwo.length === 2) {
+        this._domainStep = Math.abs(lastTwo[0] - lastTwo[1])
+      } else {
+        this._domainStep = parseResolution(new Date(lastTwo[0])).duration
+      }
     }
 
     return this._domain
@@ -301,11 +311,16 @@ class Band implements IScale<number[]>{
    * @param x
    */
   invert (x: number): number {
-    if (x < this._rangeStart || x > this._rangeStop) return NaN
-
     const index = Math.floor((x - this._rangeStart) / this._step)
 
-    if (index > this._domain.length - 1) return NaN
+    if (index < 0) {
+      return this._domain[0] - this._domainStep * Math.abs(index)
+    }
+
+    const maxIndex = this._domain.length - 1
+    if (index > maxIndex) {
+      return this._domain[maxIndex] + this._domainStep * (index - maxIndex)
+    }
 
     return this._domain[index]
   }

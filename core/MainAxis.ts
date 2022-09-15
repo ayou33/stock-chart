@@ -73,7 +73,7 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     ctx.font = fontSize(options.labelSize)
     ctx.fillStyle = BLACK
 
-    for (let x = 0; x < width; x += this._tickInterval) {
+    for (let x = this._tickInterval; x < width; x += this._tickInterval) {
       if (options.tick) {
         ctx.moveTo(x, 0)
         ctx.lineTo(x, y)

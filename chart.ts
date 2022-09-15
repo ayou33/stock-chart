@@ -57,6 +57,10 @@ export class StockChart {
   showStudy<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T]): IIndicator<IndicatorInputs[T]> {
     return this.addStudy(name, inputs, true)
   }
+
+  draw () {
+    this._scene.draw()
+  }
 }
 
 export default StockChart

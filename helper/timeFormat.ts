@@ -174,13 +174,13 @@ const resolution: Record<ResolutionLiteral, Resolution> = {
 }
 
 export const parseResolution = (date: Date): Resolution => {
-  return (timeSecond(date) < +date ? resolution.millisecond
+  return timeSecond(date) < +date ? resolution.millisecond
     : timeMinute(date) < +date ? resolution.second
       : timeHour(date) < +date ? resolution.minute
         : timeDay(date) < +date ? resolution.hour
           : timeMonth(date) < date ? (timeWeek(date) < date ? resolution.day : resolution.week)
             : timeYear(date) < date ? resolution.month
-              : resolution.year)
+              : resolution.year
 }
 
 export const timeFormat = (pattern: string) => {
