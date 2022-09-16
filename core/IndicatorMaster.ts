@@ -3,6 +3,7 @@
  *  @date 2022/8/19 17:27
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import { nanie, Transform, API } from 'nanie'
 import Line from '../drawing/Line'
 import { aa, createAAContext } from '../helper/aa'
 import { IndicatorInputs, IndicatorNames, indicators } from '../indicator/all'
@@ -14,7 +15,9 @@ import { RenderMasterOptions } from '../options'
 import AbstractRenderer from '../super/AbstractRenderer'
 import { UpdatePayload } from './DataSource'
 
-class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
+type IndicatorMasterEvents = 'transform' | 'focus' | 'transformed'
+
+class IndicatorMaster extends AbstractRenderer<IndicatorMasterEvents> implements IIndicatorMaster {
   options: RenderMasterOptions
   layout: Layout
 
@@ -25,6 +28,7 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
   private _externalContext: CanvasRenderingContext2D | null = null
   private _externalBoard: CanvasRenderingContext2D | null = null
   private _cursor: Line | null = null
+  private _zoom: API | null = null
 
   constructor (options: RenderMasterOptions) {
     super()
@@ -55,6 +59,16 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
     return [this._innerContainer, this._innerContext]
   }
 
+  private nanieBoard (canvas: HTMLCanvasElement) {
+    this._zoom = nanie(canvas, e => {
+      if (e.type === 'end') {
+        // this.options.xAxis.transform()
+        console.log(e.transform)
+        this.emit('transformed', e.transform)
+      }
+    })
+  }
+
   private useExternalContainer (): [LayoutCell, CanvasRenderingContext2D] {
     if (this._externalContainer === null) {
       this._externalContainer = this.layout.appendRow({
@@ -77,6 +91,9 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
     if (!this._externalBoard) {
       this._externalBoard = createAAContext(this._externalContainer.width(), this._externalContainer.height())
       const canvas = this._externalBoard.canvas
+
+      this.nanieBoard(canvas)
+
       canvas.style.cssText += `
         position: absolute;
         inset: 0;
@@ -178,6 +195,10 @@ class IndicatorMaster extends AbstractRenderer implements IIndicatorMaster {
     if (ctx && this._externalContainer) {
       ctx.clearRect(0, 0, this._externalContainer.width(), this._externalContainer.height())
     }
+  }
+
+  applyTransform (transform: Transform) {
+    this._zoom?.apply(transform)
   }
 }
 

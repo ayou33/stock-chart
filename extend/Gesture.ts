@@ -3,19 +3,19 @@
  *  @date 2022/8/3 15:08
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import nanie from 'nanie'
+import { nanie, API, Transform } from 'nanie'
 import { RendererOptions, StockChartOptions } from '../options'
 import AbstractChart from '../super/AbstractChart'
 
-export type GestureEvents = 'transform'
+export type GestureEvents = 'transform' | 'transformed'
 
 class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T, StockChartOptions> implements AbstractChart<GestureEvents | T> {
+  zoom: API
+
   protected constructor (options: RendererOptions) {
     super(options)
 
     this.options = options
-
-    options.container.node().style.position = 'relative'
 
     this.canvas.style.cssText += `
       position: absolute;
@@ -25,7 +25,7 @@ class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T, S
       left: 0;
     `
 
-    nanie(this.canvas, (e) => {
+    this.zoom = nanie(this.canvas, (e) => {
       if (e.type === 'zoom') {
         requestAnimationFrame(() => {
           const event = e.sourceEvent as MouseEvent
@@ -34,6 +34,10 @@ class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T, S
           this.yAxis.transform(e.transform)
           this.emit('transform')
         })
+      }
+
+      if (e.type === 'end') {
+        this.emit('transformed', e.transform)
       }
     })
   }
@@ -44,6 +48,10 @@ class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T, S
 
   drawLatest (): this {
     return this
+  }
+
+  applyTransform (transform: Transform) {
+    this.zoom.apply(transform)
   }
 }
 

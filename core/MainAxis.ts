@@ -29,6 +29,7 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
 
   constructor (container: LayoutCell, options: RecursivePartial<MainAxisOptions>) {
     super(container)
+
     this._options = extend(mainAxisOptions, options)
 
     this._tickInterval = this._options.tickInterval

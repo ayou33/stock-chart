@@ -4,6 +4,7 @@
  *  @date 2022/7/27 17:52
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import { Transform } from 'nanie'
 import Candle from '../chart/Candle'
 import Board from '../extend/Board'
 import extend from '../helper/extend'
@@ -60,6 +61,15 @@ class Scene {
         yAxis: this._series.default,
         layout: this._layout,
       })
+        .on('focus', (_, x: number) => {
+          this._mainAxis.focus(x)
+        })
+        .on('transformed', (_, transform: Transform) => {
+          /**
+           * 保持主图和副图的transform信息一致
+           */
+          this._board?.applyTransform(transform)
+        })
     }
 
     return this._indicatorMaster
@@ -92,6 +102,9 @@ class Scene {
 
     const candle = new Candle(chartOptions).render()
 
+    /**
+     * 主图画板,承载用户手势与图形绘制
+     */
     this._board = new Board(chartOptions)
       .render()
       .on('focus', (_, x: number, y: number) => {
@@ -109,6 +122,12 @@ class Scene {
           this._lastUpdate.level = UpdateLevel.FULL
           this.apply()
         }
+      })
+      .on('transformed', (_, transform: Transform) => {
+        /**
+         * 保持主图和副图的transform信息一致
+         */
+        this.useIndicatorMaster().applyTransform(transform)
       })
 
     this._renderers.push(candle, this._board, this.useIndicatorMaster())
