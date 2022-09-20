@@ -30,13 +30,13 @@ class Band implements IScale<number[]>{
   private _range: Extent = [0, 1]
 
   /**
-   * range内画图的起始位置即（range[0] + 左侧的paddingOuter）
+   * range有效区域起始位置即（range[0] + 左侧的paddingOuter）
    * @private
    */
   private _rangeStart = 0
 
   /**
-   * 标志range内画图的结束位置即（range[1] - 右侧的paddingOuter）
+   * range有效区域结束位置即（range[-1] - 右侧的paddingOuter）
    * @private
    */
   private _rangeStop = 1
@@ -257,6 +257,10 @@ class Band implements IScale<number[]>{
     }
 
     return this._range
+  }
+
+  domainIndex (domain: number) {
+    return this._domainIndex[domain]
   }
 
   translate (x: number) {

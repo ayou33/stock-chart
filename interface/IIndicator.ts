@@ -5,7 +5,7 @@
  */
 import { UpdatePayload } from '../core/DataSource'
 import { RenderOptions } from '../options'
-import IChart from './IChart'
+import IShape from './IShape'
 
 export enum DisplayType {
   INNER,
@@ -16,7 +16,7 @@ export type Inputs<T> = { inputs: T }
 
 export type IndexName = `index_${number}`
 
-interface IIndicator<I extends object = any, O = unknown, E extends string = never> extends IChart<E> {
+interface IIndicator<I extends object = any, O = unknown, E extends string = never> extends IShape<E> {
   displayType: DisplayType
 
   inputs: I

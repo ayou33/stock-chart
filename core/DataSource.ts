@@ -35,7 +35,7 @@ export type UpdatePayload = {
 
 class DataSource extends Event<DataSourceEventTypes> {
   private readonly _dataEngine: DataEngine
-  private readonly _bars: ReversedArray<Bar> = new ReversedArray()
+  private readonly _intuitiveBars: ReversedArray<Bar> = new ReversedArray()
 
   private _symbol: SymbolDescriber | null = null
   private _latest: Bar | null = null
@@ -62,8 +62,13 @@ class DataSource extends Event<DataSourceEventTypes> {
     })
   }
 
+  /**
+   * todo 高效处理append操作
+   * @param level
+   * @private
+   */
   private makeUpdatePayload (level: UpdateLevel): UpdatePayload {
-    const bars = [...this._bars.value()]
+    const bars = [...this._intuitiveBars.value()]
 
     const ex = extent(bars, d => d.low, d => d.high)
 
@@ -85,8 +90,8 @@ class DataSource extends Event<DataSourceEventTypes> {
   }
 
   private set (data: Bar[], symbol?: SymbolDescriber) {
-    this._bars.empty()
-    this._bars.unshift(data)
+    this._intuitiveBars.empty()
+    this._intuitiveBars.unshift(data)
 
     if (symbol) {
       this._symbol = symbol
@@ -96,17 +101,15 @@ class DataSource extends Event<DataSourceEventTypes> {
   }
 
   private refresh (bar: Bar) {
-    console.log('jojo refresh')
     this._latest = bar
-    this._bars.update(0, this._latest)
+    this._intuitiveBars.update(0, this._latest)
 
     this.emit('update', this.makeUpdatePayload(UpdateLevel.PATCH))
   }
 
   private append (bar: Bar) {
-    console.log('jojo append')
     this._latest = bar
-    this._bars.push(this._latest)
+    this._intuitiveBars.push(this._latest)
 
     this.emit('update', this.makeUpdatePayload(UpdateLevel.APPEND))
   }

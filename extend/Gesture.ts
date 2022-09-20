@@ -5,11 +5,11 @@
  */
 import { nanie, API, Transform } from 'nanie'
 import { RendererOptions, StockChartOptions } from '../options'
-import AbstractChart from '../super/AbstractChart'
+import AbstractShape from '../super/AbstractShape'
 
 export type GestureEvents = 'transform' | 'transformed'
 
-class Gesture<T extends string = any> extends AbstractChart<GestureEvents | T, StockChartOptions> implements AbstractChart<GestureEvents | T> {
+class Gesture<T extends string = any> extends AbstractShape<GestureEvents | T, StockChartOptions> implements AbstractShape<GestureEvents | T> {
   zoom: API
 
   protected constructor (options: RendererOptions) {

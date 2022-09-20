@@ -107,6 +107,10 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     return this
   }
 
+  index (x: number) {
+    return this.scale.domainIndex(this.invert(x))
+  }
+
   focus (x: number): this {
     if (this._options.focus) {
       this.replay()

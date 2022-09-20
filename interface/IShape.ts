@@ -9,7 +9,7 @@ import IAxis from './IAxis'
 import ICanvas from './ICanvas'
 import IMainAxis from './IMainAxis'
 
-interface IChart<E extends string = never> extends ICanvas<E> {
+interface IShape<E extends string = never> extends ICanvas<E> {
   options: RenderOptions;
   name: string;
   yAxis: IAxis;
@@ -31,4 +31,4 @@ interface IChart<E extends string = never> extends ICanvas<E> {
   drawLatest (update: UpdatePayload): this;
 }
 
-export default IChart
+export default IShape

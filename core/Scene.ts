@@ -146,8 +146,17 @@ class Scene {
 
     if (this._lastUpdate) {
       this._mainAxis.apply(this._lastUpdate)
-      this._series.default.apply(this._lastUpdate)
-      this._renderers.map(c => c.apply(this._lastUpdate as UpdatePayload))
+
+      const renderStart = this._mainAxis.index(0) ?? 0
+      const renderStop = this._mainAxis.index(this._layout.mainAxis()?.width()) ?? (renderStart ? this._lastUpdate.bars.length - 1 : 0)
+
+      const update: UpdatePayload = {
+        ...this._lastUpdate,
+        span: [renderStart, renderStop],
+      }
+
+      this._series.default.apply(update)
+      this._renderers.map(c => c.apply(update))
     }
   }
 

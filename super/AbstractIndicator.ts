@@ -10,9 +10,9 @@ import Series from '../core/Series'
 import extend from '../helper/extend'
 import IIndicator, { DisplayType, Inputs } from '../interface/IIndicator'
 import { RenderOptions } from '../options'
-import AbstractChart from './AbstractChart'
+import AbstractShape from './AbstractShape'
 
-abstract class AbstractIndicator<I extends object, O> extends AbstractChart implements IIndicator<I, O> {
+abstract class AbstractIndicator<I extends object, O> extends AbstractShape implements IIndicator<I, O> {
   static displayType: DisplayType = DisplayType.INNER
 
   displayType = DisplayType.INNER
@@ -59,7 +59,7 @@ abstract class AbstractIndicator<I extends object, O> extends AbstractChart impl
       this.output = this.compute(update)
     }
 
-    this.paint(this.output)
+    this.paint(this.output.slice(update.span[0], update.span[1]))
 
     this.drawLatest(update)
 
