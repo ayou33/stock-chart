@@ -52,8 +52,6 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
   }
 
   draw (update: UpdatePayload): this {
-    this.domain(update.domain)
-
     if (update.level === UpdateLevel.PATCH) return this
 
     this.clear()

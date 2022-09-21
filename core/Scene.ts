@@ -139,24 +139,41 @@ class Scene {
     this.renderChart()
   }
 
+  private setUpdateSpan (update: UpdatePayload) {
+    const rightMostRange = this._layout.mainAxis()?.width() ?? 0
+    const [left, right] = update.span
+    const leftMostRender = this._mainAxis.invert(0)
+    const rightMostRender = this._mainAxis.invert(rightMostRange)
+
+    if (update.domain[right] < leftMostRender || update.domain[left] > rightMostRender) {
+      return {
+        ...update,
+        span: [0, 0],
+      } as UpdatePayload
+    }
+
+    return {
+      ...update,
+      span: [this._mainAxis.index(0) ?? 0, (this._mainAxis.index(rightMostRange) ?? right) + 1],
+    } as UpdatePayload
+  }
+
   apply (update?: UpdatePayload) {
     if (update) {
       this._lastUpdate = update
+
+      if (update.level !== UpdateLevel.PATCH) {
+        this._mainAxis.domain(update.domain)
+      }
     }
 
     if (this._lastUpdate) {
       this._mainAxis.apply(this._lastUpdate)
 
-      const renderStart = this._mainAxis.index(0) ?? 0
-      const renderStop = this._mainAxis.index(this._layout.mainAxis()?.width()) ?? (renderStart ? this._lastUpdate.bars.length - 1 : 0)
+      const focusedUpdate = this.setUpdateSpan(this._lastUpdate)
 
-      const update: UpdatePayload = {
-        ...this._lastUpdate,
-        span: [renderStart, renderStop],
-      }
-
-      this._series.default.apply(update)
-      this._renderers.map(c => c.apply(update))
+      this._series.default.apply(focusedUpdate)
+      this._renderers.map(c => c.apply(focusedUpdate))
     }
   }
 

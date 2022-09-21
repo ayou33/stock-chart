@@ -47,6 +47,7 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
     this.clear()
 
     this.domain(update.extent)
+    // this.domain(extent(update.bars.slice(update.span[0], update.span[1]), d => d.low, d => d.high).reverse())
 
     const options = this._options
     const ctx = this.context

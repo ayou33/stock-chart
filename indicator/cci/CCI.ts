@@ -5,6 +5,7 @@
  *  @date         2022/8/30 15:03
  *  @description
  */
+import { extent } from '../../helper/extent'
 import { cciInputs, CCIInputs } from '../../options.indicator'
 import { UpdatePayload } from '../../core/DataSource'
 import extend from '../../helper/extend'
@@ -35,6 +36,12 @@ class CCI extends AbstractIndicator<CCIInputs, CCIValue> implements IIndicator<C
 
   default (options: RecursivePartial<CCIInputs> | undefined): CCIInputs {
     return extend(cciInputs, options ?? {})
+  }
+
+  beforeRepaint (values: CCIValue[]): this {
+    this.yAxis.domain(extent(values, d => d.index, d => d.index).reverse() as Extent)
+
+    return this
   }
 
   paint (values: CCIValue[]): this {

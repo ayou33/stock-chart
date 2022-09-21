@@ -5,6 +5,7 @@
  *  @date         2022/8/23 16:05
  *  @description
  */
+import { extent } from '../../helper/extent'
 import { macdInputs, MACDInputs } from '../../options.indicator'
 import { UpdatePayload } from '../../core/DataSource'
 import extend from '../../helper/extend'
@@ -89,9 +90,17 @@ class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicato
     }
   }
 
-  paint (values: MACDValue[]): this {
-    this.yAxis.domain([0.1, -0.1])
+  beforeRepaint (values: MACDValue[]) {
+    const ex = extent(values, d => Math.min(d.macd, d.signal), d => Math.max(d.macd, d.signal))
 
+    const max = Math.max(...ex.map(Math.abs))
+
+    this.yAxis.domain([max, -max])
+
+    return this
+  }
+
+  paint (values: MACDValue[]): this {
     this.paintHist(values, this.xAxis.bandWidth())
     this.paintMACD(values)
     this.paintSignal(values)

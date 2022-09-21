@@ -54,12 +54,22 @@ abstract class AbstractIndicator<I extends object, O> extends AbstractShape impl
     return this.container.right()
   }
 
+  beforeRepaint (values: O[]): this
+
+  beforeRepaint () {
+    return this
+  }
+
   drawAll (update: UpdatePayload): this {
     if (update.level === UpdateLevel.FULL || !this.isCached(update)) {
       this.output = this.compute(update)
     }
 
-    this.paint(this.output.slice(update.span[0], update.span[1]))
+    const values = this.output.slice(update.span[0], update.span[1])
+
+    this.beforeRepaint(values)
+
+    this.paint(values)
 
     this.drawLatest(update)
 
