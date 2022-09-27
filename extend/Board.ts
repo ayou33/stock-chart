@@ -107,7 +107,12 @@ class Board extends Gesture<CrosshairEvents> {
     return this
   }
 
-  createDrawing () {}
+  createDrawing (type: string) {
+    switch (type) {
+      case '':
+        return
+    }
+  }
 }
 
 export default Board

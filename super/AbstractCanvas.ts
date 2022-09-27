@@ -27,6 +27,10 @@ abstract class AbstractCanvas<E extends string = never> extends AbstractRenderer
     if (!context) this.render()
   }
 
+  getContext () {
+    return this.context
+  }
+
   createBounding (el?: HTMLElement): Bounding {
     const element = el ?? this.canvas
     const rect = element.getBoundingClientRect()

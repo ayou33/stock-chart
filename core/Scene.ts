@@ -14,6 +14,7 @@ import IRenderer from '../interface/IRenderer'
 import Layout from '../layout/Layout'
 import { StockChartOptions } from '../options'
 import { UpdateLevel, UpdatePayload } from './DataSource'
+import DrawingMaster from './DrawingMaster'
 import IndicatorMaster from './IndicatorMaster'
 import MainAxis from './MainAxis'
 import Series from './Series'
@@ -28,6 +29,7 @@ class Scene {
 
   private $loading: Element | null = null
   private _indicatorMaster: IndicatorMaster | null = null
+  private _drawingMaster: DrawingMaster | null = null
   private _board: Board | null = null
   private _lastUpdate: UpdatePayload | null = null
 
@@ -187,8 +189,24 @@ class Scene {
     return this.useIndicatorMaster().add(name, inputs, typeUnique)
   }
 
-  draw () {
-    this._board?.createDrawing()
+  private useDrawing () {
+    if (!this._drawingMaster) {
+      if (this._board) {
+        this._drawingMaster = new DrawingMaster(this._board.getContext())
+      } else {
+        throw new ReferenceError('No Drawing Context Find!')
+      }
+    }
+
+    return this._drawingMaster
+  }
+
+  createDrawing (type: string) {
+    return this.useDrawing().create(type)
+  }
+
+  renderDrawing () {
+    return this.useDrawing().render()
   }
 
   loading () {

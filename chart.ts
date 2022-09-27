@@ -58,8 +58,12 @@ export class StockChart {
     return this.addStudy(name, inputs, true)
   }
 
-  draw () {
-    this._scene.draw()
+  draw (type: string) {
+    return this._scene.createDrawing(type)
+  }
+
+  render () {
+    return this._scene.renderDrawing()
   }
 }
 

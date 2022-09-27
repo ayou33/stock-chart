@@ -5,6 +5,7 @@
  *  直线
  */
 import extend from '../helper/extend'
+import AbstractDrawing from '../super/AbstractDrawing'
 import { BLACK, Color, themeOptions } from '../theme'
 
 export type LineRenderOptions = {
@@ -31,7 +32,7 @@ const lineOptions: LineOptions = {
   dashArray: themeOptions.dashArray,
 }
 
-class Line {
+class Line extends AbstractDrawing {
   private readonly _context: CanvasRenderingContext2D
   private _options: LineOptions
   private _width = 300
@@ -40,12 +41,14 @@ class Line {
   private _angle = 0
   private _offsetArray: Vector[]
 
-  constructor (context: CanvasRenderingContext2D, options: RecursivePartial<LineOptions>) {
+  constructor (context: CanvasRenderingContext2D, options?: RecursivePartial<LineOptions>) {
+    super()
+
     this._context = context
 
     this.measureCanvas()
 
-    this._options = extend(lineOptions, options)
+    this._options = extend(lineOptions, options ?? {})
 
     this._offsetArray = this.applyAngle(this.parseAngle())
 
@@ -115,7 +118,7 @@ class Line {
     return this
   }
 
-  private applyAngle (angle: number): Vector[] {
+  protected applyAngle (angle: number): Vector[] {
     this._angle = angle
 
     if (this._options.style === 'solid') {
@@ -136,7 +139,7 @@ class Line {
       x => ([Math.cos(this._angle) * x, Math.sin(this._angle) * x]))
   }
 
-  private deriveStart (location: Vector): Vector {
+  protected deriveStart (location: Vector): Vector {
     const [x, y] = this._offsetArray[0]
 
     if (x === 0) return [location[0], 0]
