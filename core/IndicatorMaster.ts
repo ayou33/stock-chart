@@ -181,12 +181,13 @@ class IndicatorMaster extends AbstractRenderer<IndicatorMasterEvents> implements
     return super.resize()
   }
 
-  focus (x: number) {
+  focus (x: number, date: number) {
     const ctx = this._externalBoard
     if (ctx && this._externalContainer) {
       ctx.clearRect(0, 0, this._externalContainer.width(), this._externalContainer.height())
       this._cursor?.transform([x, 0])
     }
+    console.log(this.options.xAxis.scale.domainIndex(date))
   }
 
   blur () {

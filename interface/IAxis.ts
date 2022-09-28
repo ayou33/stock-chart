@@ -43,8 +43,9 @@ interface IAxis<T = Extent> extends ICanvas {
   /**
    * 标记指定的range
    * @param position
+   * @param domain
    */
-  focus (position: number): this;
+  focus (position: number, domain: number): this;
 
   /**
    * 取消标记指定位置

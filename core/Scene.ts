@@ -109,10 +109,10 @@ class Scene {
      */
     this._board = new Board(chartOptions)
       .render()
-      .on('focus', (_, x: number, y: number) => {
-        this._mainAxis.focus(x)
-        this._series.default.focus(y)
-        this._indicatorMaster?.focus(x)
+      .on('focus', (_, x: number, y: number, date: number) => {
+        this._mainAxis.focus(x, date)
+        this._series.default.focus(y, NaN)
+        this._indicatorMaster?.focus(x, date)
       })
       .on('blur', () => {
         this._mainAxis.blur()
@@ -130,6 +130,9 @@ class Scene {
          * 保持主图和副图的transform信息一致
          */
         this.useIndicatorMaster().applyTransform(transform)
+      })
+      .on('click', (_, [x, y]: Vector) => {
+        this.useDrawing().pick(x, y)
       })
 
     this._renderers.push(candle, this._board, this.useIndicatorMaster())

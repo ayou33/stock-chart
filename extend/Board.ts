@@ -71,7 +71,7 @@ class Board extends Gesture<CrosshairEvents> {
   private drawCrossLine () {
     this._timeLine?.transform([this._lastX, 0])
     this._priceLine?.transform([0, this._lastY])
-    this.emit('focus', this._lastX, this._lastY)
+    this.emit('focus', this._lastX, this._lastY, this.xAxis.invert(this._lastX))
   }
 
   private drawCrosshair (x: number, y: number) {

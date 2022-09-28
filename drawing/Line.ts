@@ -5,6 +5,7 @@
  *  直线
  */
 import extend from '../helper/extend'
+import IDrawing from '../interface/IDrawing'
 import AbstractDrawing from '../super/AbstractDrawing'
 import { BLACK, Color, themeOptions } from '../theme'
 
@@ -32,7 +33,7 @@ const lineOptions: LineOptions = {
   dashArray: themeOptions.dashArray,
 }
 
-class Line extends AbstractDrawing {
+class Line extends AbstractDrawing implements IDrawing<LineRenderOptions & Partial<StyleOptions>> {
   private readonly _context: CanvasRenderingContext2D
   private _options: LineOptions
   private _width = 300
@@ -79,6 +80,10 @@ class Line extends AbstractDrawing {
     return this
   }
 
+  create () {
+    return this
+  }
+
   draw () {
     const ctx = this._context
     let [x, y] = this._start
@@ -122,7 +127,7 @@ class Line extends AbstractDrawing {
     this._angle = angle
 
     if (this._options.style === 'solid') {
-      return [[this._width, this._height]]
+      return [[this._width * Math.cos(this._angle), this._height * Math.sin(this._angle)]]
     }
 
     // 水平线
@@ -151,8 +156,8 @@ class Line extends AbstractDrawing {
     return location
   }
 
-  transform (location: Vector, angle?: number) {
-    if (angle) this._offsetArray = this.applyAngle(angle)
+  transform (location: Vector, radian?: number) {
+    if (radian !== undefined) this._offsetArray = this.applyAngle(radian)
 
     this._start = this.deriveStart(location)
 

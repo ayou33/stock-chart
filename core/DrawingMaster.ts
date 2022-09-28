@@ -6,9 +6,11 @@
  *  @description
  */
 import HorizontalLine from '../drawing/HorizontalLine'
+import IDrawing from '../interface/IDrawing'
 
 class DrawingMaster {
   private readonly context: CanvasRenderingContext2D
+  private drawing: IDrawing | null = null
 
   constructor (context: CanvasRenderingContext2D) {
     this.context = context
@@ -17,10 +19,15 @@ class DrawingMaster {
   define () {}
 
   create () {
-    return new HorizontalLine(this.context)
+    return this.drawing = new HorizontalLine(this.context)
   }
 
   render () {}
+
+  pick (x: number, y: number) {
+    this.drawing?.transform([x, y])
+    // console.log('click point', x, y)
+  }
 }
 
 export default DrawingMaster

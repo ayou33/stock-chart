@@ -5,12 +5,12 @@
  *  @date         2022/9/27 14:44
  *  @description
  */
-interface IDrawing {
-  render (): this;
+interface IDrawing<T = unknown> {
+  render (options: T): this;
 
   create (): this;
 
-  transform (): this;
+  transform (location: Vector, radian?: number): this;
 }
 
 export default IDrawing

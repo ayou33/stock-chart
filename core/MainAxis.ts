@@ -109,11 +109,10 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     return this.scale.domainIndex(this.invert(x))
   }
 
-  focus (x: number): this {
+  focus (x: number, date: number): this {
     if (this._options.focus) {
       this.replay()
 
-      const date = this.invert(x)
       const ctx = this.context
       const options = this._options.focus
 

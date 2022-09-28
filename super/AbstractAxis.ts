@@ -48,7 +48,7 @@ abstract class AbstractAxis<E extends string, U = Extent, T extends IScale = ISc
 
   abstract makeScale (): T
 
-  abstract focus (position: number): this
+  abstract focus (position: number, domain: number): this
 }
 
 export default AbstractAxis
