@@ -4,6 +4,7 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import DataSource from './core/DataSource'
+import { DrawingTypes } from './core/DrawingMaster'
 import Scene from './core/Scene'
 import extend from './helper/extend'
 import { IndicatorInputs, IndicatorNames } from './indicator/all'
@@ -58,12 +59,20 @@ export class StockChart {
     return this.addStudy(name, inputs, true)
   }
 
-  draw (type: string) {
+  draw (type: DrawingTypes) {
     return this._scene.createDrawing(type)
   }
 
   render () {
     return this._scene.renderDrawing()
+  }
+
+  progress (state: boolean) {
+    if (state) {
+      this._scene.loading()
+    } else {
+      this._scene.loaded()
+    }
   }
 }
 

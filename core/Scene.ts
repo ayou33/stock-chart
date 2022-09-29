@@ -63,8 +63,8 @@ class Scene {
         yAxis: this._series.default,
         layout: this._layout,
       })
-        .on('focus', (_, x: number) => {
-          this._mainAxis.focus(x)
+        .on('focus', (_, x: number, date: number) => {
+          this._mainAxis.focus(x, date)
         })
         .on('transformed', (_, transform: Transform) => {
           /**
@@ -77,6 +77,10 @@ class Scene {
     return this._indicatorMaster
   }
 
+  private renderMainAxis () {
+    this._mainAxis.range([-Infinity, this._layout.mainAxis().width()])
+  }
+
   private renderSeries () {
     const container = this._layout.series()
     this._series.default = new Series(
@@ -86,10 +90,6 @@ class Scene {
         currentPrice: this._options.currentPrice,
       }, this._options.defaultSeries),
     )
-  }
-
-  private renderMainAxis () {
-    this._mainAxis.range([-Infinity, this._layout.mainAxis().width()])
   }
 
   private renderChart () {

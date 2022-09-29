@@ -7,7 +7,9 @@
  */
 import Event from '../base/Event'
 
-type DrawingEvents = 'move' | 'click' | 'cancel' | 'done' | 'transform' | 'focus' | 'blur'
+export type DrawingEvents = 'move' | 'click' | 'cancel' | 'done' | 'transform' | 'focus' | 'blur'
+
+export type DrawingOptions = {}
 
 class AbstractDrawing<E extends string = never> extends Event<DrawingEvents | E> {}
 

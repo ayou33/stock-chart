@@ -8,6 +8,8 @@
 import HorizontalLine from '../drawing/HorizontalLine'
 import IDrawing from '../interface/IDrawing'
 
+export type DrawingTypes = 'position' | 'trendLine' | 'text' | 'dir' | string
+
 class DrawingMaster {
   private readonly context: CanvasRenderingContext2D
   private drawing: IDrawing | null = null
@@ -18,8 +20,13 @@ class DrawingMaster {
 
   define () {}
 
-  create () {
-    return this.drawing = new HorizontalLine(this.context)
+  create (type: DrawingTypes) {
+    switch (type) {
+      case 'position':
+        return this.drawing = new HorizontalLine(this.context)
+    }
+
+    throw new TypeError(`Drawing type "${type}" is not recognized!`)
   }
 
   render () {}
