@@ -11,14 +11,14 @@ import IIndicator, { DisplayType } from '../interface/IIndicator'
 import IIndicatorMaster from '../interface/IIndicatorMaster'
 import Layout from '../layout/Layout'
 import LayoutCell from '../layout/LayoutCell'
-import { RenderMasterOptions } from '../options'
 import AbstractRenderer from '../super/AbstractRenderer'
+import Board from '../ui/Board'
 import { UpdatePayload } from './DataSource'
 
 type IndicatorMasterEvents = 'transform' | 'focus' | 'transformed'
 
 class IndicatorMaster extends AbstractRenderer<IndicatorMasterEvents> implements IIndicatorMaster {
-  options: RenderMasterOptions
+  board: Board
   layout: Layout
 
   private readonly _indicators: Record<string, IIndicator> = {}
@@ -30,11 +30,20 @@ class IndicatorMaster extends AbstractRenderer<IndicatorMasterEvents> implements
   private _cursor: Line | null = null
   private _zoom: API | null = null
 
-  constructor (options: RenderMasterOptions) {
+  constructor (board: Board, layout: Layout) {
     super()
 
-    this.options = options
-    this.layout = options.layout
+    this.board = board
+    this.layout = layout
+
+    this.board
+      .on('focus', (_, x: number, __, date: number) => {
+        this.focus(x, date)
+      })
+      .on('blur', () => this.blur())
+      .on('transformed', (_, t) => {
+        this.applyTransform(t)
+      })
   }
 
   private useInnerContext (): [LayoutCell, CanvasRenderingContext2D] {
@@ -61,10 +70,11 @@ class IndicatorMaster extends AbstractRenderer<IndicatorMasterEvents> implements
 
   private nanieBoard (canvas: HTMLCanvasElement) {
     this._zoom = nanie(canvas, e => {
+      if (e.type === 'zoom') {
+        // this.board.apply()
+      }
       if (e.type === 'end') {
-        // this.options.xAxis.transform()
-        console.log(e.transform)
-        this.emit('transformed', e.transform)
+        this.board.applyTransform(e.transform)
       }
     })
   }
@@ -82,14 +92,16 @@ class IndicatorMaster extends AbstractRenderer<IndicatorMasterEvents> implements
     }
 
     if (!this._externalContext) {
-      const context = createAAContext(this._externalContainer.width(), this._externalContainer.height())
+      const context = createAAContext(
+        this._externalContainer.width(), this._externalContainer.height())
       const canvas = context.canvas
       this._externalContext = context
       this._externalContainer.insert(canvas)
     }
 
     if (!this._externalBoard) {
-      this._externalBoard = createAAContext(this._externalContainer.width(), this._externalContainer.height())
+      this._externalBoard = createAAContext(
+        this._externalContainer.width(), this._externalContainer.height())
       const canvas = this._externalBoard.canvas
 
       this.nanieBoard(canvas)
@@ -139,12 +151,12 @@ class IndicatorMaster extends AbstractRenderer<IndicatorMasterEvents> implements
     const Ctor = indicators[name]
 
     const [container, context] = Ctor.displayType === DisplayType.INNER ? this.useInnerContext()
-      : this.useExternalContainer()
+                                                                        : this.useExternalContainer()
 
     const indicator = new Ctor({
       container,
-      xAxis: this.options.xAxis,
-      yAxis: this.options.yAxis,
+      xAxis: this.board.xAxis,
+      yAxis: this.board.yAxis,
       context,
       inputs,
     })
@@ -181,13 +193,13 @@ class IndicatorMaster extends AbstractRenderer<IndicatorMasterEvents> implements
     return super.resize()
   }
 
-  focus (x: number, date: number) {
+  focus (x: number, _: number) {
     const ctx = this._externalBoard
     if (ctx && this._externalContainer) {
       ctx.clearRect(0, 0, this._externalContainer.width(), this._externalContainer.height())
       this._cursor?.transform([x, 0])
     }
-    console.log(this.options.xAxis.scale.domainIndex(date))
+    // console.log(this.board.xAxis.scale.domainIndex(date))
   }
 
   blur () {

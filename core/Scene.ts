@@ -4,9 +4,8 @@
  *  @date 2022/7/27 17:52
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { Transform } from 'nanie'
 import Candle from '../chart/Candle'
-import Board from '../extend/Board'
+import Board from '../ui/Board'
 import extend from '../helper/extend'
 import { IndicatorInputs, IndicatorNames } from '../indicator/all'
 import IAxis from '../interface/IAxis'
@@ -58,20 +57,11 @@ class Scene {
 
   private useIndicatorMaster () {
     if (this._indicatorMaster === null) {
-      this._indicatorMaster = new IndicatorMaster({
-        xAxis: this._mainAxis,
-        yAxis: this._series.default,
-        layout: this._layout,
-      })
-        .on('focus', (_, x: number, date: number) => {
-          this._mainAxis.focus(x, date)
-        })
-        .on('transformed', (_, transform: Transform) => {
-          /**
-           * 保持主图和副图的transform信息一致
-           */
-          this._board?.applyTransform(transform)
-        })
+      if (!this._board) {
+        throw new ReferenceError('User Interface BOARD should be init before indicator master!')
+      }
+
+      this._indicatorMaster = new IndicatorMaster(this._board, this._layout)
     }
 
     return this._indicatorMaster
@@ -112,24 +102,13 @@ class Scene {
       .on('focus', (_, x: number, y: number, date: number) => {
         this._mainAxis.focus(x, date)
         this._series.default.focus(y, NaN)
-        this._indicatorMaster?.focus(x, date)
       })
       .on('blur', () => {
         this._mainAxis.blur()
         this._series.default.blur()
-        this._indicatorMaster?.blur()
       })
       .on('transform', () => {
-        if (this._lastUpdate) {
-          this._lastUpdate.level = UpdateLevel.FULL
-          this.apply()
-        }
-      })
-      .on('transformed', (_, transform: Transform) => {
-        /**
-         * 保持主图和副图的transform信息一致
-         */
-        this.useIndicatorMaster().applyTransform(transform)
+        this.applyTransform()
       })
       .on('click', (_, [x, y]: Vector) => {
         this.useDrawing().pick(x, y)
@@ -179,6 +158,13 @@ class Scene {
 
       this._series.default.apply(focusedUpdate)
       this._renderers.map(c => c.apply(focusedUpdate))
+    }
+  }
+
+  applyTransform () {
+    if (this._lastUpdate) {
+      this._lastUpdate.level = UpdateLevel.FULL
+      this.apply()
     }
   }
 
