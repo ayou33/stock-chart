@@ -1,5 +1,8 @@
 /**
- *  AbstractRender.ts of project stock-chart
+ *  Renderer是具有绘制/重绘全周期可注入并提供窗口大小自适应可卸载的支持事件模型的渲染引擎抽象模型
+ *  是指标和chart绘制的基础
+ *
+ *  AbstractRenderer.ts of project stock-chart
  *  @date 2022/8/19 14:45
  *  @author 阿佑[ayooooo@petalmail.com]
  */

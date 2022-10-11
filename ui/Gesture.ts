@@ -4,15 +4,15 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import { nanie, API, Transform } from 'nanie'
-import { RendererOptions, StockChartOptions } from '../options'
-import AbstractShape from '../super/AbstractShape'
+import { GraphOptions, StockChartOptions } from '../options'
+import AbstractGraph from '../super/AbstractGraph'
 
 export type GestureEvents = 'transform' | 'transformed' | 'click'
 
-class Gesture<T extends string = any> extends AbstractShape<GestureEvents | T, StockChartOptions> implements AbstractShape<GestureEvents | T> {
+class Gesture<T extends string = any> extends AbstractGraph<GestureEvents | T, StockChartOptions> implements AbstractGraph<GestureEvents | T> {
   zoom: API
 
-  protected constructor (options: RendererOptions) {
+  protected constructor (options: StockChartOptions & GraphOptions) {
     super(options)
 
     this.options = options

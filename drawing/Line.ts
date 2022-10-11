@@ -80,6 +80,9 @@ class Line extends AbstractDrawing implements IDrawing<LineRenderOptions & Parti
     return this
   }
 
+  /**
+   * @deprecated This method is empty!
+   */
   create () {
     return this
   }

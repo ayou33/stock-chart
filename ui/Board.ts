@@ -5,7 +5,7 @@
  */
 import { UpdatePayload } from '../core/DataSource'
 import Line from '../drawing/Line'
-import { RendererOptions } from '../options'
+import { GraphOptions, StockChartOptions } from '../options'
 import Gesture from './Gesture'
 
 export type CrosshairEvents = 'focus' | 'blur'
@@ -19,7 +19,7 @@ class Board extends Gesture<CrosshairEvents> {
   private _priceLine: Line | null = null
   private _timeLine: Line | null = null
 
-  constructor (options: RendererOptions) {
+  constructor (options: GraphOptions & StockChartOptions) {
     super(options)
 
     if (this.options.crosshair) {

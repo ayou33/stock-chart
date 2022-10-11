@@ -15,7 +15,7 @@ import AbstractRenderer from '../super/AbstractRenderer'
 import Board from '../ui/Board'
 import { UpdatePayload } from './DataSource'
 
-type IndicatorMasterEvents = 'transform' | 'focus' | 'transformed'
+type IndicatorMasterEvents = 'transform'
 
 class IndicatorMaster extends AbstractRenderer<IndicatorMasterEvents> implements IIndicatorMaster {
   board: Board

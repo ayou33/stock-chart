@@ -4,8 +4,8 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import { UpdatePayload } from '../core/DataSource'
-import { RenderOptions } from '../options'
-import IShape from './IShape'
+import { GraphOptions } from '../options'
+import IGraph from './IGraph'
 
 export enum DisplayType {
   INNER,
@@ -16,7 +16,7 @@ export type Inputs<T> = { inputs: T }
 
 export type IndexName = `index_${number}`
 
-interface IIndicator<I extends object = any, O = unknown, E extends string = never> extends IShape<E> {
+interface IIndicator<I extends object = any, O = unknown, E extends string = never> extends IGraph<E> {
   displayType: DisplayType
 
   inputs: I
@@ -35,7 +35,7 @@ interface IIndicator<I extends object = any, O = unknown, E extends string = nev
 export interface IIndicatorCtor<I extends object = any, O = unknown> {
   readonly displayType: DisplayType
 
-  new (options: RenderOptions & RecursivePartial<Inputs<I>>): IIndicator<I, O>
+  new (options: GraphOptions & RecursivePartial<Inputs<I>>): IIndicator<I, O>
 }
 
 export default IIndicator

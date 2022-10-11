@@ -1,23 +1,25 @@
 /**
+ *  Shape是[基于平面坐标系统]的[数据驱动]的[动态绘制]的图形的超类
+ *
  *  AbstractChart.ts of project stock-chart
  *  @date 2022/8/19 16:45
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import { UpdateLevel, UpdatePayload } from '../core/DataSource'
 import IAxis from '../interface/IAxis'
-import IShape from '../interface/IShape'
+import IGraph from '../interface/IGraph'
 import IMainAxis from '../interface/IMainAxis'
-import { RenderOptions } from '../options'
+import { GraphOptions } from '../options'
 import AbstractCanvas from './AbstractCanvas'
 
-abstract class AbstractShape<E extends string = never, O = unknown> extends AbstractCanvas<E> implements IShape<E> {
-  options: RenderOptions & O
+abstract class AbstractGraph<E extends string = never, O = unknown> extends AbstractCanvas<E> implements IGraph<E> {
+  options: GraphOptions & O
   name: string
   xAxis: IMainAxis
   yAxis: IAxis
   valueAlign = 0.5
 
-  protected constructor (options: RenderOptions & O, name = 'chart_' + Math.random().toString(36).slice(2)) {
+  protected constructor (options: GraphOptions & O, name = 'chart_' + Math.random().toString(36).slice(2)) {
     super(options.container, options.context)
 
     this.options = options
@@ -74,4 +76,4 @@ abstract class AbstractShape<E extends string = never, O = unknown> extends Abst
   abstract drawLatest (update: UpdatePayload): this
 }
 
-export default AbstractShape
+export default AbstractGraph

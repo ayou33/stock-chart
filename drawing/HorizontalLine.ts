@@ -21,6 +21,10 @@ class HorizontalLine extends Line {
   transform (location: Vector): this {
     return super.transform(location, this._horizontalAngle)
   }
+
+  create (): this {
+    return this
+  }
 }
 
 export default HorizontalLine

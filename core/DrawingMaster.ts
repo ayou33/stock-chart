@@ -7,15 +7,21 @@
  */
 import HorizontalLine from '../drawing/HorizontalLine'
 import IDrawing from '../interface/IDrawing'
+import Board from '../ui/Board'
 
 export type DrawingTypes = 'position' | 'trendLine' | 'text' | 'dir' | string
 
 class DrawingMaster {
   private readonly context: CanvasRenderingContext2D
   private drawing: IDrawing | null = null
+  private drawings: IDrawing[] = []
 
-  constructor (context: CanvasRenderingContext2D) {
-    this.context = context
+  constructor (board: Board) {
+    this.context = board.context
+
+    board.on('click', (_, [x, y]: Vector) => {
+      this.pick(x, y)
+    })
   }
 
   define () {}
@@ -23,7 +29,8 @@ class DrawingMaster {
   create (type: DrawingTypes) {
     switch (type) {
       case 'position':
-        return this.drawing = new HorizontalLine(this.context)
+        this.drawings.push(this.drawing = new HorizontalLine(this.context))
+        return this.drawing
     }
 
     throw new TypeError(`Drawing type "${type}" is not recognized!`)

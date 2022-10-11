@@ -7,8 +7,7 @@ import IAxis from './interface/IAxis'
 import IMainAxis from './interface/IMainAxis'
 import LayoutCell from './layout/LayoutCell'
 import { Color, themeOptions, ThemeOptions, BLACK, WHITE } from './theme'
-import Layout, { LayoutDescriber, ReservedRoles } from './layout/Layout'
-import Board from './ui/Board'
+import { LayoutDescriber, ReservedRoles } from './layout/Layout'
 
 type BoxPaddingObject = {
   top: number;
@@ -153,16 +152,9 @@ export type ScaledOptions = {
   xAxis: IMainAxis;
 }
 
-export type RenderOptions = ScaledOptions & {
+export type GraphOptions = ScaledOptions & {
   container: LayoutCell;
   context?: CanvasRenderingContext2D;
-}
-
-export type RendererOptions = RenderOptions & StockChartOptions
-
-export type RenderMasterOptions = {
-  layout: Layout,
-  board: Board,
 }
 
 export const useDescriber = (options: LayoutOptions, describer?: LayoutDescriber) => {

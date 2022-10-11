@@ -4,13 +4,13 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import { UpdatePayload } from '../core/DataSource'
-import { RenderOptions } from '../options'
+import { GraphOptions } from '../options'
 import IAxis from './IAxis'
 import ICanvas from './ICanvas'
 import IMainAxis from './IMainAxis'
 
-interface IShape<E extends string = never> extends ICanvas<E> {
-  options: RenderOptions;
+interface IGraph<E extends string = never> extends ICanvas<E> {
+  options: GraphOptions;
   name: string;
   yAxis: IAxis;
   xAxis: IMainAxis;
@@ -31,4 +31,4 @@ interface IShape<E extends string = never> extends ICanvas<E> {
   drawLatest (update: UpdatePayload): this;
 }
 
-export default IShape
+export default IGraph

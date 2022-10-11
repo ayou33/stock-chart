@@ -1,4 +1,6 @@
 /**
+ *  canvas绘图基础类
+ *
  *  AbstractCanvas.ts of project stock-chart
  *  @date 2022/8/19 16:39
  *  @author 阿佑[ayooooo@petalmail.com]
@@ -25,10 +27,6 @@ abstract class AbstractCanvas<E extends string = never> extends AbstractRenderer
     this.canvas = this.context.canvas
 
     if (!context) this.render()
-  }
-
-  getContext () {
-    return this.context
   }
 
   createBounding (el?: HTMLElement): Bounding {

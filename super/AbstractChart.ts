@@ -6,9 +6,9 @@
  *  @description
  */
 import { UpdateLevel, UpdatePayload } from '../core/DataSource'
-import AbstractShape from './AbstractShape'
+import AbstractGraph from './AbstractGraph'
 
-abstract class AbstractChart extends AbstractShape {
+abstract class AbstractChart extends AbstractGraph {
   draw (update: UpdatePayload): this {
     if (update.level === UpdateLevel.PATCH) {
       this.resetLatest()

@@ -8,7 +8,7 @@ import { maInputs, MAInputs } from '../../options.indicator'
 import { UpdatePayload } from '../../core/DataSource'
 import extend from '../../helper/extend'
 import IIndicator, { IndexName } from '../../interface/IIndicator'
-import { RenderOptions } from '../../options'
+import { GraphOptions } from '../../options'
 import AbstractIndicator from '../../super/AbstractIndicator'
 import { Color } from '../../theme'
 import calcMA, { MAValue } from './formula'
@@ -17,7 +17,7 @@ class MA extends AbstractIndicator<MAInputs, MAValue> implements IIndicator<MAIn
   private _periods: number[] = []
   private colors: Record<IndexName, Color> = {}
 
-  constructor (options: RenderOptions & RecursivePartial<MAInputs>) {
+  constructor (options: GraphOptions & RecursivePartial<MAInputs>) {
     super(options, 'ma')
 
     this.applyConfig()

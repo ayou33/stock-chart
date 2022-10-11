@@ -24,7 +24,7 @@ class Scene {
   private readonly _layout: Layout
   private readonly _mainAxis
   private readonly _series: Record<'default' | string, IAxis> = {}
-  private readonly _renderers: IRenderer[] = []
+  private readonly _layers: IRenderer[] = []
 
   private $loading: Element | null = null
   private _indicatorMaster: IndicatorMaster | null = null
@@ -52,13 +52,15 @@ class Scene {
       focus: this._options.crosshair,
     }, this._options.mainAxis))
 
-    this.render()
+    this.buildCoordinate()
+
+    this.buildLayers()
   }
 
   private useIndicatorMaster () {
     if (this._indicatorMaster === null) {
       if (!this._board) {
-        throw new ReferenceError('User Interface BOARD should be init before indicator master!')
+        throw new ReferenceError('No Indicator Context provide!')
       }
 
       this._indicatorMaster = new IndicatorMaster(this._board, this._layout)
@@ -67,11 +69,9 @@ class Scene {
     return this._indicatorMaster
   }
 
-  private renderMainAxis () {
+  private buildCoordinate () {
     this._mainAxis.range([-Infinity, this._layout.mainAxis().width()])
-  }
 
-  private renderSeries () {
     const container = this._layout.series()
     this._series.default = new Series(
       container,
@@ -82,7 +82,7 @@ class Scene {
     )
   }
 
-  private renderChart () {
+  private buildLayers () {
     const container = this._layout.chart()
 
     const chartOptions = {
@@ -110,17 +110,8 @@ class Scene {
       .on('transform', () => {
         this.applyTransform()
       })
-      .on('click', (_, [x, y]: Vector) => {
-        this.useDrawing().pick(x, y)
-      })
 
-    this._renderers.push(candle, this._board, this.useIndicatorMaster())
-  }
-
-  render () {
-    this.renderMainAxis()
-    this.renderSeries()
-    this.renderChart()
+    this._layers.push(candle, this._board, this.useIndicatorMaster())
   }
 
   private setUpdateSpan (update: UpdatePayload) {
@@ -157,7 +148,8 @@ class Scene {
       const focusedUpdate = this.setUpdateSpan(this._lastUpdate)
 
       this._series.default.apply(focusedUpdate)
-      this._renderers.map(c => c.apply(focusedUpdate))
+
+      this._layers.map(c => c.apply(focusedUpdate))
     }
   }
 
@@ -171,7 +163,7 @@ class Scene {
   private onResize () {
     this._mainAxis.resize()
     this._series.default.resize()
-    this._renderers.map(c => c.resize())
+    this._layers.map(c => c.resize())
   }
 
   addStudy<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T], typeUnique = false) {
@@ -181,9 +173,9 @@ class Scene {
   private useDrawing () {
     if (!this._drawingMaster) {
       if (this._board) {
-        this._drawingMaster = new DrawingMaster(this._board.getContext())
+        this._drawingMaster = new DrawingMaster(this._board)
       } else {
-        throw new ReferenceError('No Drawing Context Find!')
+        throw new ReferenceError('No Drawing Context provide!')
       }
     }
 

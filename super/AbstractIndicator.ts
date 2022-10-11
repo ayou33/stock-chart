@@ -9,10 +9,10 @@ import { UpdateLevel, UpdatePayload } from '../core/DataSource'
 import Series from '../core/Series'
 import extend from '../helper/extend'
 import IIndicator, { DisplayType, Inputs } from '../interface/IIndicator'
-import { RenderOptions } from '../options'
-import AbstractShape from './AbstractShape'
+import { GraphOptions } from '../options'
+import AbstractGraph from './AbstractGraph'
 
-abstract class AbstractIndicator<I extends object, O> extends AbstractShape implements IIndicator<I, O> {
+abstract class AbstractIndicator<I extends object, O> extends AbstractGraph implements IIndicator<I, O> {
   static displayType: DisplayType = DisplayType.INNER
 
   displayType = DisplayType.INNER
@@ -21,7 +21,7 @@ abstract class AbstractIndicator<I extends object, O> extends AbstractShape impl
 
   inputs: I
 
-  constructor (options: RenderOptions & RecursivePartial<Inputs<I>>, name?: string) {
+  constructor (options: GraphOptions & RecursivePartial<Inputs<I>>, name?: string) {
     super(options, name)
 
     this.inputs = this.default(options.inputs)

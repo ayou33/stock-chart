@@ -17,8 +17,6 @@ interface ICanvas<E extends string = never> extends IRenderer<E> {
   disabled: boolean;
   bounding: Bounding | null
 
-  getContext (): CanvasRenderingContext2D
-
   createBounding (el?: HTMLElement): Bounding
 
   pointer (x: number, y: number, el?: HTMLElement) : Vector
