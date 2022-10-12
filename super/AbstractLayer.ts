@@ -20,8 +20,8 @@ export type LayerOptions = ScaledOptions & {
 abstract class AbstractLayer implements ILayer {
   options: LayerOptions
 
-  protected constructor (options: LayerOptions) {
-    this.options = options
+  constructor (layerOptions: LayerOptions) {
+    this.options = layerOptions
   }
 
   newDraft (): CanvasRenderingContext2D {

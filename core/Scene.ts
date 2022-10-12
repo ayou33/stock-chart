@@ -4,17 +4,15 @@
  *  @date 2022/7/27 17:52
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import Candle from '../chart/Candle'
-import Board from '../ui/Board'
+import ChartLayer from '../layer/ChartLayer'
+import IndicatorLayer from '../layer/IndicatorLayer'
+import ReactiveLayer from '../layer/ReactiveLayer'
 import extend from '../helper/extend'
 import { IndicatorInputs, IndicatorNames } from '../indicator/all'
 import IAxis from '../interface/IAxis'
-import IRenderer from '../interface/IRenderer'
 import Layout from '../layout/Layout'
 import { StockChartOptions } from '../options'
 import { UpdateLevel, UpdatePayload } from './DataSource'
-import DrawingMaster from './DrawingMaster'
-import IndicatorMaster from './IndicatorMaster'
 import MainAxis from './MainAxis'
 import Series from './Series'
 
@@ -24,13 +22,12 @@ class Scene {
   private readonly _layout: Layout
   private readonly _mainAxis
   private readonly _series: Record<'default' | string, IAxis> = {}
-  private readonly _layers: IRenderer[] = []
+  private readonly _chartLayer: ChartLayer
+  private readonly _indicatorLayer: IndicatorLayer
+  private readonly _reactiveLayer: ReactiveLayer
 
-  private $loading: Element | null = null
-  private _indicatorMaster: IndicatorMaster | null = null
-  private _drawingMaster: DrawingMaster | null = null
-  private _board: Board | null = null
   private _lastUpdate: UpdatePayload | null = null
+  private _$loading: Element | null = null
 
   constructor (options: StockChartOptions) {
     this._options = options
@@ -52,66 +49,33 @@ class Scene {
       focus: this._options.crosshair,
     }, this._options.mainAxis))
 
-    this.buildCoordinate()
-
-    this.buildLayers()
-  }
-
-  private useIndicatorMaster () {
-    if (this._indicatorMaster === null) {
-      if (!this._board) {
-        throw new ReferenceError('No Indicator Context provide!')
-      }
-
-      this._indicatorMaster = new IndicatorMaster(this._board, this._layout)
-    }
-
-    return this._indicatorMaster
-  }
-
-  private buildCoordinate () {
     this._mainAxis.range([-Infinity, this._layout.mainAxis().width()])
 
-    const container = this._layout.series()
     this._series.default = new Series(
-      container,
+      this._layout.series(),
       extend({
         focus: this._options.crosshair,
         currentPrice: this._options.currentPrice,
       }, this._options.defaultSeries),
     )
-  }
 
-  private buildLayers () {
-    const container = this._layout.chart()
-
-    const chartOptions = {
-      container,
+    const layerOptions = {
       xAxis: this._mainAxis,
       yAxis: this._series.default,
-      ...this._options,
+      container: this._layout.chart(),
+      layout: this._layout,
     }
 
-    const candle = new Candle(chartOptions).render()
+    this._chartLayer = new ChartLayer(layerOptions).addChart('candle', options)
 
-    /**
-     * 主图画板,承载用户手势与图形绘制
-     */
-    this._board = new Board(chartOptions)
-      .render()
-      .on('focus', (_, x: number, y: number, date: number) => {
-        this._mainAxis.focus(x, date)
-        this._series.default.focus(y, NaN)
-      })
-      .on('blur', () => {
-        this._mainAxis.blur()
-        this._series.default.blur()
-      })
-      .on('transform', () => {
-        this.applyTransform()
-      })
+    const applyTransform = this.applyTransform.bind(this)
 
-    this._layers.push(candle, this._board, this.useIndicatorMaster())
+    this._reactiveLayer = new ReactiveLayer(layerOptions, options, applyTransform)
+
+    this._indicatorLayer = new IndicatorLayer({
+      ...layerOptions,
+      board: this._reactiveLayer.board(),
+    }, applyTransform)
   }
 
   private setUpdateSpan (update: UpdatePayload) {
@@ -133,6 +97,21 @@ class Scene {
     } as UpdatePayload
   }
 
+  private onResize () {
+    this._mainAxis.resize()
+    this._series.default.resize()
+    this._chartLayer.resize()
+    this._indicatorLayer.resize()
+    this._reactiveLayer.resize()
+  }
+
+  private applyTransform () {
+    if (this._lastUpdate) {
+      this._lastUpdate.level = UpdateLevel.FULL
+      this.apply()
+    }
+  }
+
   apply (update?: UpdatePayload) {
     if (update) {
       this._lastUpdate = update
@@ -148,50 +127,26 @@ class Scene {
       const focusedUpdate = this.setUpdateSpan(this._lastUpdate)
 
       this._series.default.apply(focusedUpdate)
-
-      this._layers.map(c => c.apply(focusedUpdate))
+      this._chartLayer.apply(focusedUpdate)
+      this._indicatorLayer.apply(focusedUpdate)
+      this._reactiveLayer.apply(focusedUpdate)
     }
-  }
-
-  applyTransform () {
-    if (this._lastUpdate) {
-      this._lastUpdate.level = UpdateLevel.FULL
-      this.apply()
-    }
-  }
-
-  private onResize () {
-    this._mainAxis.resize()
-    this._series.default.resize()
-    this._layers.map(c => c.resize())
   }
 
   addStudy<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T], typeUnique = false) {
-    return this.useIndicatorMaster().add(name, inputs, typeUnique)
-  }
-
-  private useDrawing () {
-    if (!this._drawingMaster) {
-      if (this._board) {
-        this._drawingMaster = new DrawingMaster(this._board)
-      } else {
-        throw new ReferenceError('No Drawing Context provide!')
-      }
-    }
-
-    return this._drawingMaster
+    return this._indicatorLayer.add(name, inputs, typeUnique)
   }
 
   createDrawing (type: string) {
-    return this.useDrawing().create(type)
+    return this._reactiveLayer.createDrawing(type)
   }
 
   renderDrawing () {
-    return this.useDrawing().render()
+    return this._reactiveLayer.renderDrawing()
   }
 
   loading () {
-    if (!this.$loading) {
+    if (!this._$loading) {
       const div = document.createElement('div')
 
       div.classList.add('sc_loading')
@@ -202,15 +157,15 @@ class Scene {
         <div class="face"></div>
     `
 
-      this.$loading = div
+      this._$loading = div
     }
 
-    this.$container.append(this.$loading)
+    this.$container.append(this._$loading)
   }
 
   loaded () {
-    if (this.$loading) {
-      this.$container.removeChild(this.$loading)
+    if (this._$loading) {
+      this.$container.removeChild(this._$loading)
     }
   }
 }

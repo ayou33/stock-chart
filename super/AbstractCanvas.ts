@@ -72,8 +72,33 @@ abstract class AbstractCanvas<E extends string = never> extends AbstractRenderer
     return this
   }
 
+  prepend () {
+    this.container.node().prepend(this.canvas)
+
+    return this
+  }
+
+  append () {
+    this.container.node().append(this.canvas)
+
+    return this
+  }
+
+  insertTo (position: number) {
+    const $parent = this.container.node()
+    if ($parent.childElementCount >= Math.max(0, position + 1)) {
+      const $ref = $parent.children.item(position)
+
+      if ($ref) {
+        $ref.insertAdjacentElement('afterend', this.canvas)
+      }
+    }
+
+    return this
+  }
+
   render () {
-    this.container.node().appendChild(this.canvas)
+    this.append()
 
     return this
   }

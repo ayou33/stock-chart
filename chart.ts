@@ -4,12 +4,12 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import DataSource from './core/DataSource'
-import { DrawingTypes } from './core/DrawingMaster'
 import Scene from './core/Scene'
 import extend from './helper/extend'
 import { IndicatorInputs, IndicatorNames } from './indicator/all'
 import IDataFeed, { Periodicity } from './interface/IDataFeed'
 import IIndicator from './interface/IIndicator'
+import { DrawingTypes } from './layer/ReactiveLayer'
 import stockChartOptions, { StockChartOptions } from './options'
 import './index.css'
 

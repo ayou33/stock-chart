@@ -19,7 +19,13 @@ interface ICanvas<E extends string = never> extends IRenderer<E> {
 
   createBounding (el?: HTMLElement): Bounding
 
-  pointer (x: number, y: number, el?: HTMLElement) : Vector
+  pointer (x: number, y: number, el?: HTMLElement): Vector
+
+  append (): this
+
+  prepend (): this
+
+  insertTo (position: number): this
 
   render (): this;
 
