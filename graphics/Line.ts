@@ -5,8 +5,6 @@
  *  直线
  */
 import extend from '../helper/extend'
-import IDrawing from '../interface/IDrawing'
-import AbstractDrawing from '../super/AbstractDrawing'
 import { BLACK, Color, themeOptions } from '../theme'
 
 export type LineRenderOptions = {
@@ -24,7 +22,7 @@ export type StyleOptions = {
 
 export type LineOptions = LineRenderOptions & StyleOptions
 
-const lineOptions: LineOptions = {
+export const lineOptions: LineOptions = {
   origin: [0, 0],
   type: 'line',
   angle: 0,
@@ -33,7 +31,7 @@ const lineOptions: LineOptions = {
   dashArray: themeOptions.dashArray,
 }
 
-class Line extends AbstractDrawing implements IDrawing<LineRenderOptions & Partial<StyleOptions>> {
+class Line {
   private readonly _context: CanvasRenderingContext2D
   private _options: LineOptions
   private _width = 300
@@ -43,8 +41,6 @@ class Line extends AbstractDrawing implements IDrawing<LineRenderOptions & Parti
   private _offsetArray: Vector[]
 
   constructor (context: CanvasRenderingContext2D, options?: RecursivePartial<LineOptions>) {
-    super()
-
     this._context = context
 
     this.measureCanvas()
@@ -77,13 +73,6 @@ class Line extends AbstractDrawing implements IDrawing<LineRenderOptions & Parti
 
     this.draw()
 
-    return this
-  }
-
-  /**
-   * @deprecated This method is empty!
-   */
-  create () {
     return this
   }
 

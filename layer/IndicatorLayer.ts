@@ -7,7 +7,7 @@
  */
 import { API, nanie, Transform } from 'nanie'
 import { UpdatePayload } from '../core/DataSource'
-import Line from '../drawing/Line'
+import Line from '../graphics/Line'
 import { createAAContext } from '../helper/aa'
 import { IndicatorInputs, IndicatorNames, indicators } from '../indicator/all'
 import IIndicator, { DisplayType } from '../interface/IIndicator'

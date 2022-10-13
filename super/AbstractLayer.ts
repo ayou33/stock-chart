@@ -20,7 +20,7 @@ export type LayerOptions = ScaledOptions & {
 abstract class AbstractLayer implements ILayer {
   options: LayerOptions
 
-  constructor (layerOptions: LayerOptions) {
+  protected constructor (layerOptions: LayerOptions) {
     this.options = layerOptions
   }
 

@@ -49,6 +49,10 @@ interface ICanvas<E extends string = never> extends IRenderer<E> {
 
   remove (): this;
 
+  save (): this;
+
+  restore (): this;
+
   /**
    * 清空画布
    */

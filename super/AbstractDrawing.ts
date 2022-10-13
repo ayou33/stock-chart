@@ -6,11 +6,44 @@
  *  @description
  */
 import Event from '../base/Event'
+import IDrawing, { DrawingEvents } from '../interface/IDrawing'
 
-export type DrawingEvents = 'move' | 'click' | 'cancel' | 'done' | 'transform' | 'focus' | 'blur'
+abstract class AbstractDrawing<O = unknown, E extends string = never> extends Event<DrawingEvents | E> implements IDrawing<O> {
+  context: CanvasRenderingContext2D
+  options: O
 
-export type DrawingOptions = {}
+  private readonly _positions: Vector[] = []
 
-class AbstractDrawing<E extends string = never> extends Event<DrawingEvents | E> {}
+  protected constructor (context: CanvasRenderingContext2D, options: O) {
+    super()
+
+    this.context = context
+    this.options = options
+  }
+
+  protected collect (position: Vector) {
+    this._positions.push(position)
+  }
+
+  protected collectAll (positions: Vector[]) {
+    this._positions.length = 0
+    this._positions.push(...positions)
+
+    return this
+  }
+
+  positions () {
+    return this._positions
+  }
+
+  abstract transform (location: Vector, radian?: number): this
+
+  abstract use (location: Vector, position: Vector): this
+
+  abstract render (options: O): this
+
+  abstract draw (points: Vector[]): this
+}
+
 
 export default AbstractDrawing

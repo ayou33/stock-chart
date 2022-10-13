@@ -6,8 +6,6 @@
  *  @description
  */
 import { UpdatePayload } from '../core/DataSource'
-import HorizontalLine from '../drawing/HorizontalLine'
-import IDrawing from '../interface/IDrawing'
 import ILayer from '../interface/ILayer'
 import { StockChartOptions } from '../options'
 import AbstractLayer, { LayerOptions } from '../super/AbstractLayer'
@@ -16,15 +14,13 @@ import Board from '../ui/Board'
 export type DrawingTypes = 'position' | 'trendLine' | 'text' | 'dir' | string
 
 class ReactiveLayer extends AbstractLayer implements ILayer {
-  private readonly _board: Board
-  private drawing: IDrawing | null = null
-  private drawings: IDrawing[] = []
+  readonly board: Board
 
   constructor (
     layerOptions: LayerOptions, chartOptions: StockChartOptions, applyTransform: () => void) {
     super(layerOptions)
 
-    this._board = new Board({
+    this.board = new Board({
       ...layerOptions,
       ...chartOptions,
     })
@@ -42,30 +38,14 @@ class ReactiveLayer extends AbstractLayer implements ILayer {
       })
   }
 
-  createDrawing (type: DrawingTypes) {
-    switch (type) {
-      case 'position':
-        this.drawings.push(this.drawing = new HorizontalLine(this._board.context))
-        return this.drawing
-    }
-
-    throw new TypeError(`Drawing type "${type}" is not recognized!`)
-  }
-
-  renderDrawing () {}
-
-  board () {
-    return this._board
-  }
-
   apply (update: UpdatePayload): this {
-    this._board.apply(update)
+    this.board.apply(update)
 
     return this
   }
 
   resize (): this {
-    this._board.resize()
+    this.board.resize()
 
     return this
   }

@@ -66,15 +66,18 @@ class Scene {
       layout: this._layout,
     }
 
-    this._chartLayer = new ChartLayer(layerOptions).addChart('candle', options)
-
     const applyTransform = this.applyTransform.bind(this)
 
     this._reactiveLayer = new ReactiveLayer(layerOptions, options, applyTransform)
 
+    this._chartLayer = new ChartLayer({
+      ...layerOptions,
+      board: this._reactiveLayer.board,
+    }).addChart('candle', options)
+
     this._indicatorLayer = new IndicatorLayer({
       ...layerOptions,
-      board: this._reactiveLayer.board(),
+      board: this._reactiveLayer.board,
     }, applyTransform)
   }
 
@@ -138,11 +141,11 @@ class Scene {
   }
 
   createDrawing (type: string) {
-    return this._reactiveLayer.createDrawing(type)
+    return this._chartLayer.createDrawing(type)
   }
 
   renderDrawing () {
-    return this._reactiveLayer.renderDrawing()
+    return this._chartLayer.renderDrawing()
   }
 
   loading () {

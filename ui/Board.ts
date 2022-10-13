@@ -4,7 +4,7 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import { UpdatePayload } from '../core/DataSource'
-import Line from '../drawing/Line'
+import Line from '../graphics/Line'
 import { GraphOptions, StockChartOptions } from '../options'
 import Gesture from './Gesture'
 
@@ -36,7 +36,7 @@ class Board extends Gesture<CrosshairEvents> {
 
       this.canvas.addEventListener('mousemove', (e) => {
         const p = this.pointer(e.clientX, e.clientY)
-        if (this._focus) this.drawCrosshair(p[0], p[1])
+        if (this._focus) this.drawPrices(p[0], p[1])
       })
 
       this._priceLine = new Line(this.context, {
@@ -74,7 +74,7 @@ class Board extends Gesture<CrosshairEvents> {
     this.emit('focus', this._lastX, this._lastY, this.xAxis.invert(this._lastX))
   }
 
-  private drawCrosshair (x: number, y: number) {
+  private drawPrices (x: number, y: number) {
     if (this.disabled || !this.options.crosshair) return
 
     this.clear()
@@ -105,13 +105,6 @@ class Board extends Gesture<CrosshairEvents> {
     if (this._focus) this.drawCrossLine()
 
     return this
-  }
-
-  createDrawing (type: string) {
-    switch (type) {
-      case '':
-        return
-    }
   }
 }
 

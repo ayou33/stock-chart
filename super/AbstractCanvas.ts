@@ -19,6 +19,8 @@ abstract class AbstractCanvas<E extends string = never> extends AbstractRenderer
   bounding: { left: number, top: number } | null = null
   disabled = false
 
+  private _lastFrame: HTMLImageElement | null = null
+
   protected constructor (container: LayoutCell, context?: CanvasRenderingContext2D | null) {
     super()
 
@@ -115,6 +117,27 @@ abstract class AbstractCanvas<E extends string = never> extends AbstractRenderer
     return this
   }
 
+  save () {
+    // release old img
+    this._lastFrame = null
+
+    const img = new Image(this.container.width(), this.container.height())
+    img.src = this.canvas.toDataURL('image/png', 1)
+
+    this._lastFrame = img
+
+    return this
+  }
+
+  restore () {
+    if (this._lastFrame) {
+      this.clear()
+      this.context.drawImage(this._lastFrame, 0, 0, this.container.width(), this.container.height())
+    }
+
+    return this
+  }
+
   clear (): this {
     this.context.clearRect(0, 0, this.container.width(), this.container.height())
 
@@ -144,7 +167,8 @@ abstract class AbstractCanvas<E extends string = never> extends AbstractRenderer
   }
 
   applyInject (name: InjectTypes, position: InjectPosition): this {
-    const handlers = position === 'before' ? this.beforeInjections[name] : this.afterInjections[name]
+    const handlers = position === 'before' ? this.beforeInjections[name]
+                                           : this.afterInjections[name]
 
     handlers.map(fn => fn(this.context, this.lastUpdate))
 
