@@ -16,7 +16,7 @@ type BoxPaddingObject = {
   left: number;
 }
 
-type BoxPadding = Partial<BoxPaddingObject> | number
+export type BoxPadding = Partial<BoxPaddingObject> | number
 
 type AxisOptions = {
   tick: null | number; // 不显示或者设置大小

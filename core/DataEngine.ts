@@ -34,7 +34,7 @@ class DataEngine extends Event<DataEvents> {
     throw new Error('NO IMPLEMENT')
   }
 
-  private stop () {
+  private stopFeed () {
     this.generator.stop()
   }
 
@@ -42,7 +42,7 @@ class DataEngine extends Event<DataEvents> {
     this.emit(isCreate ? 'append' : 'refresh', this._symbol, bar)
   }
 
-  continue (latest?: Bar) {
+  startFeed (latest?: Bar) {
     if (latest && this._periodicity) {
       const { interval, timeUnit, period } = this._periodicity
       this.generator.start(latest, interval * duration[timeUnit] * period)
@@ -83,8 +83,8 @@ class DataEngine extends Event<DataEvents> {
       this.emit('load', symbol, result.data)
 
       if (this._options.autoFeed) {
-        this.stop()
-        this.continue(last(result.data))
+        this.stopFeed()
+        this.startFeed(last(result.data))
       }
 
       this._dataFeed.subscribe(symbol, patch => {

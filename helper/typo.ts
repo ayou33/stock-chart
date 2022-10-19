@@ -3,6 +3,7 @@
  *  @date 2022/8/15 16:27
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import { BoxPadding } from '../options'
 import { expandPadding } from './format'
 
 export function fontSize (size: number) {

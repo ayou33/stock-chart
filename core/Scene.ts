@@ -4,12 +4,12 @@
  *  @date 2022/7/27 17:52
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import ChartLayer from '../layer/ChartLayer'
-import IndicatorLayer from '../layer/IndicatorLayer'
-import ReactiveLayer from '../layer/ReactiveLayer'
 import extend from '../helper/extend'
 import { IndicatorInputs, IndicatorNames } from '../indicator/all'
 import IAxis from '../interface/IAxis'
+import ChartLayer from '../layer/ChartLayer'
+import IndicatorLayer from '../layer/IndicatorLayer'
+import ReactiveLayer from '../layer/ReactiveLayer'
 import Layout from '../layout/Layout'
 import { StockChartOptions } from '../options'
 import { UpdateLevel, UpdatePayload } from './DataSource'
@@ -119,9 +119,11 @@ class Scene {
     if (update) {
       this._lastUpdate = update
 
-      if (update.level !== UpdateLevel.PATCH) {
+      if (update.level === UpdateLevel.APPEND || update.level === UpdateLevel.FULL) {
         this._mainAxis.domain(update.domain)
       }
+
+      console.log(update.level, 'jojo', update.domain.slice(-1)[0], this._mainAxis.domain().slice(-1)[0])
     }
 
     if (this._lastUpdate) {

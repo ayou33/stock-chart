@@ -16,12 +16,15 @@ class Candle extends AbstractChart implements AbstractChart {
   }
 
   private drawBar (ctx: CanvasRenderingContext2D, bar: Bar, width: number) {
+    const x = this.fx(bar.date)
+
+    if (!x) return
+
     const isRaise = bar.open <= bar.close
     const color = isRaise ? '#00B167' : '#F24A3A'
     const top = this.fy(isRaise ? bar.close : bar.open)
     const bottom = this.fy(isRaise ? bar.open : bar.close)
     const height = Math.max(Math.abs(top - bottom), 1)
-    const x = this.fx(bar.date)
     const halfWidth = width / 2
 
     ctx.beginPath()

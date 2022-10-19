@@ -15,25 +15,32 @@ export function createDataGenerator (consume: (bar: Bar, isCreate: boolean) => v
   function push (time: number) {
     if (_bar) {
       _bar.date = time
-      _bar.DT = new Date(time)
 
-      const isCreate = time >= _next
+      const isCreate = time > _next
+
+      while (time > _next) {
+        _next += _interval
+      }
+
+      consume({
+         ..._bar ,
+        date: _next,
+        DT: new Date(_next),
+      }, isCreate)
 
       if (isCreate) {
-        _next += _interval
         _bar.open = _bar.high = _bar.low = _bar.close
       }
 
-      consume({ ..._bar }, isCreate)
     }
   }
 
   function start (from: Bar, interval: number) {
-    const preInterval = interval - from.date % interval
-
+    _next = Math.ceil(from.date / interval) * interval
     _interval = interval
     _bar = { ...from }
-    _next = from.date + preInterval
+
+    const preInterval = _next - from.date
 
     _preTimer = window.setTimeout(() => {
       push(_next)
