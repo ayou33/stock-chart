@@ -17,7 +17,14 @@ declare type RecursivePartial<T> = {
   [P in keyof T]?:
   // T[P] extends (infer U)[] ? RecursivePartial<U>[] :
   T[P] extends Record<string, unknown> ? RecursivePartial<T[P]> :
-    T[P]
+    Partial<T[P]>
+}
+
+declare type RecursiveRequired<T> = {
+  [P in keyof T]-?:
+  // T[P] extends (infer U)[] ? RecursiveRequired<U>[] : // 忽略数组的情况 tuple
+  T[P] extends Record<string, unknown> ? RecursiveRequired<T[P]> :
+    Required<T[P]>
 }
 
 declare type Bar = {

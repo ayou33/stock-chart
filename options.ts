@@ -8,6 +8,7 @@ import IMainAxis from './interface/IMainAxis'
 import LayoutCell from './layout/LayoutCell'
 import { Color, themeOptions, ThemeOptions, BLACK, WHITE } from './theme'
 import { LayoutDescriber, ReservedRoles } from './layout/Layout'
+import { Periodicity } from './interface/IDataFeed'
 
 type BoxPaddingObject = {
   top: number;
@@ -25,7 +26,7 @@ type AxisOptions = {
   labelPadding: number; // padding-top or left
   border: null | number;
   borderColor: Color;
-  context?: CanvasRenderingContext2D;
+  context?: CanvasRenderingContext2D | null;
 }
 
 const axisOptions: AxisOptions = {
@@ -112,6 +113,7 @@ export type GridOptions = {
 
 export type DataSourceOptions = {
   autoFeed: boolean;
+  periodicity: Periodicity;
 }
 
 export type StockChartOptions = {
@@ -142,6 +144,11 @@ export const stockChartOptions: StockChartOptions = {
   layout: layoutOptions,
   dataSource: {
     autoFeed: true,
+    periodicity: {
+      interval: 1,
+      period: 1,
+      timeUnit: 'minute',
+    }
   },
 }
 

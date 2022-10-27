@@ -9,64 +9,77 @@ export function createDataGenerator (consume: (bar: Bar, isCreate: boolean) => v
   let _interval = durationMinute
   let _preTimer = 0
   let _timer = 0
-  let _next = 0
+  let _nextPeriod = 0
   let _bar: null | Bar = null
 
   function push (time: number) {
     if (_bar) {
-      _bar.date = time
+      const isCreate = time >= _nextPeriod
 
-      const isCreate = time > _next
-
-      while (time > _next) {
-        _next += _interval
+      while (time >= _nextPeriod) {
+        _nextPeriod += _interval
       }
+
+      const period = _nextPeriod - _interval
 
       consume({
          ..._bar ,
-        date: _next,
-        DT: new Date(_next),
+        date: period,
+        DT: new Date(period),
       }, isCreate)
 
       if (isCreate) {
         _bar.open = _bar.high = _bar.low = _bar.close
       }
-
     }
   }
 
-  function start (from: Bar, interval: number) {
-    _next = Math.ceil(from.date / interval) * interval
-    _interval = interval
-    _bar = { ...from }
-
-    const preInterval = _next - from.date
-
+  function startTimer (preInterval: number) {
     _preTimer = window.setTimeout(() => {
-      push(_next)
+      push(_nextPeriod)
 
       _timer = window.setInterval(() => {
-        push(_next)
+        push(_nextPeriod)
       }, _interval)
     }, preInterval)
   }
 
-  function restart () {
-    if (_bar) {
-      stopTimer()
-      start(_bar, _interval)
+  /**
+   * 启动一个数据生成器
+   * @param from
+   * @param interval
+   */
+  function start (from: Bar, interval: number) {
+    _interval = interval
+    _bar = { ...from }
+    _nextPeriod = from.date + _interval
+
+    let preInterval = _interval
+
+    if (from.date % _interval) {
+      _nextPeriod = Math.floor(from.date / _interval) * _interval + interval
+      preInterval = _nextPeriod - from.date
     }
+
+    startTimer(preInterval)
   }
 
+  /**
+   * 在生成周期内插入数据
+   * @param time
+   * @param price
+   */
   function insert (time: number, price: number) {
     if (_bar) {
       _bar.close = price
       _bar.high = Math.max(_bar.high, price)
       _bar.low = Math.min(_bar.low, price)
 
+      stopTimer()
+
       push(time)
 
-      restart()
+      startTimer(_nextPeriod - time)
     }
   }
 

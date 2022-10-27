@@ -24,6 +24,7 @@ class DataEngine extends Event<DataEvents> {
     super()
 
     this._options = options
+    this._periodicity = options.periodicity as Required<Periodicity>
   }
 
   attach (dataFeed: IDataFeed) {

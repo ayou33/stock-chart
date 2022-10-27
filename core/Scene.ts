@@ -123,7 +123,7 @@ class Scene {
         this._mainAxis.domain(update.domain)
       }
 
-      console.log(update.level, 'jojo', update.domain.slice(-1)[0], this._mainAxis.domain().slice(-1)[0])
+      console.log('[jojo]update level:', update.level, 'update last domain:', update.domain.slice(-1)[0], 'axis last domain:', this._mainAxis.domain().slice(-1)[0])
     }
 
     if (this._lastUpdate) {
