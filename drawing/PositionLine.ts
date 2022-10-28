@@ -46,14 +46,14 @@ class PositionLine extends AbstractDrawing<LineOptions> {
 
     this.draw([location])
 
-    this.emit('end', this.positions(), (ok: boolean) => {
+    this.emit('end', this, (ok: boolean) => {
       this.emit(ok ? 'done' :'fail')
     })
 
     return this
   }
 
-  render (position: Vector) {
+  render (position: any) {
     this.collectAll([position])
 
     // this.draw()

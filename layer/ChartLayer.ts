@@ -5,6 +5,7 @@
  *  @date         2022/10/11 19:03
  *  @description
  */
+import * as R from 'ramda'
 import Candle from '../chart/Candle'
 import { UpdateLevel, UpdatePayload } from '../core/DataSource'
 import PositionLine from '../drawing/PositionLine'
@@ -89,6 +90,10 @@ class ChartLayer extends AbstractLayer implements ILayer {
         })
         .on('fail', () => {
           this._drawings.pop()
+          this._chart?.restore()
+        })
+        .on('remove', (_, d) => {
+          this._drawings = R.reject(R.equals(d), this._drawings)
           this._chart?.restore()
         })
     }

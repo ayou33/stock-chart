@@ -14,6 +14,8 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
 
   private readonly _positions: Vector[] = []
 
+  private _data: unknown = null
+
   protected constructor (context: CanvasRenderingContext2D, options: O) {
     super()
 
@@ -34,6 +36,20 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
 
   positions () {
     return this._positions
+  }
+
+  bind <T = unknown>(data?: T) {
+    if (data !== undefined) {
+      this._data = data
+    }
+
+    return this._data as T
+  }
+
+  remove () {
+    this.emit('remove', this)
+
+    return this
   }
 
   abstract transform (location: Vector, radian?: number): this

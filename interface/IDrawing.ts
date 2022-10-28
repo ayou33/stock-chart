@@ -13,9 +13,9 @@ export type DrawingEvents =
   | 'done'
   | 'fail'
   | 'cancel'
-  | 'active'
   | 'focus'
   | 'blur'
+  | 'remove'
   | 'transform'
 
 interface IDrawing<T = unknown> extends Event<DrawingEvents> {
@@ -28,6 +28,10 @@ interface IDrawing<T = unknown> extends Event<DrawingEvents> {
   transform (location: Vector, radian?: number): this;
 
   positions (): Vector[];
+
+  bind <T = unknown>(data?: T): T | null;
+
+  remove (): this;
 }
 
 export default IDrawing
