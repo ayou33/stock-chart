@@ -9,7 +9,7 @@ import { API, nanie, Transform } from 'nanie'
 import { UpdatePayload } from '../core/DataSource'
 import Line from '../graphics/Line'
 import { createAAContext } from '../helper/aa'
-import { IndicatorInputs, IndicatorNames, indicators } from '../indicator/all'
+import { IndicatorInputs, IndicatorNames, indicators } from '../indicator/indicators'
 import IIndicator, { DisplayType } from '../interface/IIndicator'
 import ILayer from '../interface/ILayer'
 import LayoutCell from '../layout/LayoutCell'
@@ -129,7 +129,7 @@ class IndicatorLayer extends AbstractLayer implements ILayer {
       this._externalContainer.insert(canvas)
 
       this._cursor = new Line(this._externalBoard, {
-        angle: Math.PI / 2,
+        radian: Math.PI / 2,
         style: 'dashed',
       })
     }

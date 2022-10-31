@@ -1,4 +1,5 @@
 /**
+ *  在指定的context中绘制两点[或者一个点+角度]直线
  *  Line.ts of project stock-chart
  *  @date 2022/7/25 17:55
  *  @author 阿佑[ayooooo@petalmail.com]
@@ -8,10 +9,10 @@ import extend from '../helper/extend'
 import { BLACK, Color, themeOptions } from '../theme'
 
 export type LineRenderOptions = {
-  origin: Vector;
   type: 'segment' | 'line' | 'ray';
-  stop?: Vector;
-  angle?: number;
+  point1: Vector;
+  point2?: Vector;
+  radian?: number;
 }
 
 export type StyleOptions = {
@@ -23,9 +24,9 @@ export type StyleOptions = {
 export type LineOptions = LineRenderOptions & StyleOptions
 
 export const lineOptions: LineOptions = {
-  origin: [0, 0],
+  point1: [0, 0],
   type: 'line',
-  angle: 0,
+  radian: 0,
   style: 'solid',
   color: BLACK,
   dashArray: themeOptions.dashArray,
@@ -49,27 +50,34 @@ class Line {
 
     this._offsetArray = this.applyAngle(this.parseAngle())
 
-    this._start = this.deriveStart(this._options.origin)
+    this._start = this.deriveStart(this._options.point1)
+  }
+
+  private measureCanvas () {
+    this._width = parseFloat(this._context.canvas.style.width)
+    this._height = parseFloat(this._context.canvas.style.height)
+
+    return this
   }
 
   private parseAngle () {
-    if (this._options.angle !== undefined) return this._options.angle
+    if (this._options.radian !== undefined) return this._options.radian
 
-    if (!this._options.origin || !this._options.stop) {
+    if (!this._options.point1 || !this._options.point2) {
       throw new ReferenceError(
         'No Angle or enough points provide to determine line\'s direction!')
     }
 
     return Math.atan(
-      (this._options.stop[1] - this._options.origin[1]) / (this._options.stop[0] - this._options.origin[0]))
+      (this._options.point2[1] - this._options.point1[1]) / (this._options.point2[0] - this._options.point1[0]))
   }
 
-  render (options: LineRenderOptions & Partial<StyleOptions>) {
+  render (options: RecursivePartial<LineOptions>) {
     this._options = extend(this._options, options)
 
     this._offsetArray = this.applyAngle(this.parseAngle())
 
-    this._start = this.deriveStart(this._options.origin)
+    this._start = this.deriveStart(this._options.point1)
 
     this.draw()
 
@@ -96,13 +104,6 @@ class Line {
     }
 
     ctx.stroke()
-
-    return this
-  }
-
-  measureCanvas () {
-    this._width = parseFloat(this._context.canvas.style.width)
-    this._height = parseFloat(this._context.canvas.style.height)
 
     return this
   }

@@ -7,14 +7,9 @@
  *  @description:
  **/
 import {
-  BOLLInputs,
-  CCIInputs,
-  EMAInputs,
-  KDJInputs,
-  MACDInputs,
-  MAInputs,
-  RSIInputs,
-  SARInputs, TrendInputs,
+  BOLLInputs, CCIInputs, EMAInputs,
+  KDJInputs, MACDInputs, MAInputs,
+  RSIInputs, SARInputs, TrendInputs,
 } from '../options.indicator'
 import { IIndicatorCtor } from '../interface/IIndicator'
 import BOLL from './boll/BOLL'

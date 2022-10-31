@@ -46,7 +46,7 @@ class Board extends Gesture<CrosshairEvents> {
       })
 
       this._timeLine = new Line(this.context, {
-        angle: Math.PI / 2,
+        radian: Math.PI / 2,
         style: 'dashed',
         color: this.options.crosshair.background ?? this.options.crosshair.color,
         dashArray: this.options.crosshair.dashArray,

@@ -4,8 +4,9 @@
  *  @date 2022/7/27 17:52
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import { DrawingOptions, DrawingType } from '../drawing/drawings'
 import extend from '../helper/extend'
-import { IndicatorInputs, IndicatorNames } from '../indicator/all'
+import { IndicatorInputs, IndicatorNames } from '../indicator/indicators'
 import IAxis from '../interface/IAxis'
 import ChartLayer from '../layer/ChartLayer'
 import IndicatorLayer from '../layer/IndicatorLayer'
@@ -142,12 +143,8 @@ class Scene {
     return this._indicatorLayer.add(name, inputs, typeUnique)
   }
 
-  createDrawing (type: string) {
-    return this._chartLayer.createDrawing(type)
-  }
-
-  renderDrawing () {
-    return this._chartLayer.renderDrawing()
+  createDrawing <T extends DrawingType>(type: T, options?: DrawingOptions[T]) {
+    return this._chartLayer.createDrawing(type, options)
   }
 
   loading () {

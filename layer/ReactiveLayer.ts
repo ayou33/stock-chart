@@ -11,8 +11,6 @@ import { StockChartOptions } from '../options'
 import AbstractLayer, { LayerOptions } from '../super/AbstractLayer'
 import Board from '../ui/Board'
 
-export type DrawingTypes = 'position' | 'trendLine' | 'text' | 'dir' | string
-
 class ReactiveLayer extends AbstractLayer implements ILayer {
   readonly board: Board
 

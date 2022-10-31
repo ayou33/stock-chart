@@ -7,35 +7,36 @@
  */
 import Event from '../base/Event'
 import IDrawing, { DrawingEvents } from '../interface/IDrawing'
+import IGraph from '../interface/IGraph'
 
-abstract class AbstractDrawing<O = unknown, E extends string = never> extends Event<DrawingEvents | E> implements IDrawing<O> {
-  context: CanvasRenderingContext2D
+abstract class AbstractDrawing<O = unknown, E extends string = never> extends Event<DrawingEvents | E> implements IDrawing {
+  chart: IGraph
   options: O
 
-  private readonly _positions: Vector[] = []
+  private readonly _locations: Vector[] = []
 
   private _data: unknown = null
 
-  protected constructor (context: CanvasRenderingContext2D, options: O) {
+  protected constructor (chart: IGraph, options: O) {
     super()
 
-    this.context = context
+    this.chart = chart
     this.options = options
   }
 
-  protected collect (position: Vector) {
-    this._positions.push(position)
-  }
-
-  protected collectAll (positions: Vector[]) {
-    this._positions.length = 0
-    this._positions.push(...positions)
+  push (location: Vector) {
+    this._locations.push(location)
 
     return this
   }
 
-  positions () {
-    return this._positions
+  protected record (point: Vector) {
+    this.push([this.chart.invertX(point[0]), this.chart.invertY(point[1])])
+    return this
+  }
+
+  path () {
+    return this._locations
   }
 
   bind <T = unknown>(data?: T) {
@@ -52,13 +53,13 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     return this
   }
 
-  abstract transform (location: Vector, radian?: number): this
+  abstract transform (point: Vector, radian?: number): this
 
-  abstract use (location: Vector, position: Vector): this
+  abstract use (point: Vector): this
 
-  abstract render (options: O): this
+  abstract draw (path: Vector[]): this
 
-  abstract draw (points: Vector[]): this
+  abstract render (locations: Vector[]): this
 }
 
 

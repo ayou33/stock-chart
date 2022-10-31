@@ -8,17 +8,17 @@
 import * as R from 'ramda'
 import Candle from '../chart/Candle'
 import { UpdateLevel, UpdatePayload } from '../core/DataSource'
+import { DrawingOptions, DrawingType } from '../drawing/drawings'
 import PositionLine from '../drawing/PositionLine'
 import IDrawing from '../interface/IDrawing'
+import IGraph from '../interface/IGraph'
 import ILayer from '../interface/ILayer'
 import { StockChartOptions } from '../options'
-import AbstractChart from '../super/AbstractChart'
 import AbstractLayer, { LayerOptions } from '../super/AbstractLayer'
 import Board from '../ui/Board'
-import { DrawingTypes } from './ReactiveLayer'
 
 class ChartLayer extends AbstractLayer implements ILayer {
-  private _chart: AbstractChart | null = null
+  private _chart: IGraph | null = null
   private _drawing: IDrawing | null = null
   private _drawings: IDrawing[] = []
 
@@ -26,11 +26,8 @@ class ChartLayer extends AbstractLayer implements ILayer {
     super(layerOptions)
 
     layerOptions.board
-      .on('click', (_, point: Vector) => {
-        this._drawing?.use(
-          point,
-          [layerOptions.xAxis.invert(point[0]), layerOptions.yAxis.invert(point[1])],
-        )
+      .on('click', (_, location: Vector) => {
+        this._drawing?.use(location)
       })
   }
 
@@ -42,7 +39,7 @@ class ChartLayer extends AbstractLayer implements ILayer {
     if (update.level !== UpdateLevel.PATCH) {
       this._drawings.map(d => {
         d.draw(
-          d.positions().map(([x, y]) => [this.options.xAxis.value(x), this.options.yAxis.value(y)]))
+          d.path().map(([x, y]) => [this.options.xAxis.value(x), this.options.yAxis.value(y)]))
       })
     }
 
@@ -70,19 +67,18 @@ class ChartLayer extends AbstractLayer implements ILayer {
     return this
   }
 
-  createDrawing (type: DrawingTypes) {
+  createDrawing <T extends DrawingType>(type: T, options?: DrawingOptions[T]) {
     if (!this._chart) {
       throw new ReferenceError('No context provide to draw!')
     }
 
     switch (type) {
       case 'position':
-        this._drawings.push(this._drawing = new PositionLine(this._chart.context))
+        this._drawings.push(this._drawing = new PositionLine(this._chart, options))
     }
 
     if (this._drawing) {
-
-      this._chart.save()
+      this._chart?.save()
 
       return this._drawing
         .on('end', () => {
@@ -100,8 +96,6 @@ class ChartLayer extends AbstractLayer implements ILayer {
 
     throw new TypeError(`Drawing type "${type}" is not recognized!`)
   }
-
-  renderDrawing () {}
 }
 
 export default ChartLayer

@@ -18,20 +18,20 @@ export type DrawingEvents =
   | 'remove'
   | 'transform'
 
-interface IDrawing<T = unknown> extends Event<DrawingEvents> {
-  render (options: T): this;
+interface IDrawing extends Event<DrawingEvents> {
+  draw (path: Vector[]): this;
 
-  draw (points: Vector[]): this;
+  use (point: Vector): this;
 
-  use (location: Vector, position: Vector): this;
+  transform (point: Vector, radian?: number): this;
 
-  transform (location: Vector, radian?: number): this;
-
-  positions (): Vector[];
+  path (): Vector[];
 
   bind <T = unknown>(data?: T): T | null;
 
   remove (): this;
+
+  render (locations: Vector[]): this;
 }
 
 export default IDrawing

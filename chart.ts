@@ -5,11 +5,11 @@
  */
 import DataSource from './core/DataSource'
 import Scene from './core/Scene'
+import { DrawingOptions, DrawingType } from './drawing/drawings'
 import extend from './helper/extend'
-import { IndicatorInputs, IndicatorNames } from './indicator/all'
+import { IndicatorInputs, IndicatorNames } from './indicator/indicators'
 import IDataFeed, { Periodicity } from './interface/IDataFeed'
 import IIndicator from './interface/IIndicator'
-import { DrawingTypes } from './layer/ReactiveLayer'
 import stockChartOptions, { StockChartOptions } from './options'
 import './index.css'
 
@@ -59,12 +59,8 @@ export class StockChart {
     return this.addStudy(name, inputs, true)
   }
 
-  draw (type: DrawingTypes) {
-    return this._scene.createDrawing(type)
-  }
-
-  render () {
-    return this._scene.renderDrawing()
+  draw <T extends DrawingType>(type: T, options?: DrawingOptions[T]) {
+    return this._scene.createDrawing(type, options)
   }
 
   progress (state: boolean) {
