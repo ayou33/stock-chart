@@ -7,32 +7,32 @@ import { useEvent } from 'lunzi'
 
 type Emitter = ReturnType<typeof useEvent>
 
-class Event<T extends string = string> {
+class Event<T extends string = string, U extends string = T | `${T}${string} ${T}${string}`> {
   private readonly _emitter: Emitter
 
   constructor () {
     this._emitter = useEvent()
   }
 
-  on (type: T, ...rest: RestParams<Emitter['on']>) {
+  on (type: U, ...rest: RestParams<Emitter['on']>) {
     this._emitter.on(type, ...rest)
 
     return this
   }
 
-  once (type: T, ...rest: RestParams<Emitter['once']>) {
+  once (type: U, ...rest: RestParams<Emitter['once']>) {
     this._emitter.once(type, ...rest)
 
     return this
   }
 
-  off (type: T | '*', ...rest: RestParams<Emitter['off']>) {
+  off (type: U | '*', ...rest: RestParams<Emitter['off']>) {
     this._emitter.off(type, ...rest)
 
     return this
   }
 
-  emit (type: T, ...rest: RestParams<Emitter['emit']>) {
+  emit (type: U, ...rest: RestParams<Emitter['emit']>) {
     this._emitter.emit(type, ...rest)
 
     return this

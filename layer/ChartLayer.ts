@@ -29,6 +29,9 @@ class ChartLayer extends AbstractLayer implements ILayer {
       .on('click', (_, location: Vector) => {
         this._drawing?.use(location)
       })
+      .on('focus', (_, x: number, y: number) => {
+        R.find(R.invoker(2, 'isContain')(x, y), this._drawings)
+      })
   }
 
   apply (update: UpdatePayload): this {
@@ -39,7 +42,7 @@ class ChartLayer extends AbstractLayer implements ILayer {
     if (update.level !== UpdateLevel.PATCH) {
       this._drawings.map(d => {
         d.draw(
-          d.path().map(([x, y]) => [this.options.xAxis.value(x), this.options.yAxis.value(y)]))
+          d.trace().map(([x, y]) => [this.options.xAxis.value(x), this.options.yAxis.value(y)]))
       })
     }
 
@@ -74,14 +77,14 @@ class ChartLayer extends AbstractLayer implements ILayer {
 
     switch (type) {
       case 'position':
-        this._drawings.push(this._drawing = new PositionLine(this._chart, options))
+        this._drawings.unshift(this._drawing = new PositionLine(this._chart, options))
     }
 
     if (this._drawing) {
       this._chart?.save()
 
       return this._drawing
-        .on('end', () => {
+        .on('end done', () => {
           this._drawing = null
         })
         .on('fail', () => {

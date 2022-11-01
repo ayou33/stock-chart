@@ -17,14 +17,14 @@ declare type RecursivePartial<T> = {
   [P in keyof T]?:
   // T[P] extends (infer U)[] ? RecursivePartial<U>[] :
   T[P] extends Record<string, unknown> ? RecursivePartial<T[P]> :
-    Partial<T[P]>
+    T[P]
 }
 
 declare type RecursiveRequired<T> = {
   [P in keyof T]-?:
   // T[P] extends (infer U)[] ? RecursiveRequired<U>[] : // 忽略数组的情况 tuple
   T[P] extends Record<string, unknown> ? RecursiveRequired<T[P]> :
-    Required<T[P]>
+    T[P]
 }
 
 declare type Bar = {
@@ -40,3 +40,9 @@ declare type Bar = {
 type BarValueField = Exclude<keyof Bar, 'DT' | 'volume'>
 
 type Vector = [x: number, y: number]
+
+/**
+ * 如果union太复杂 非常吃性能
+ */
+type Permutations<T extends string, U extends string = T> =
+  T extends string ? (T | `${T} ${Permutations<Exclude<U, T>>}`) : never;

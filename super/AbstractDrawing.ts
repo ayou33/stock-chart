@@ -35,11 +35,11 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     return this
   }
 
-  path () {
+  trace () {
     return this._locations
   }
 
-  bind <T = unknown>(data?: T) {
+  bind<T = unknown> (data?: T) {
     if (data !== undefined) {
       this._data = data
     }
@@ -60,7 +60,10 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
   abstract draw (path: Vector[]): this
 
   abstract render (locations: Vector[]): this
+
+  abstract isContain (x: number, y: number): boolean
 }
+
 
 
 export default AbstractDrawing

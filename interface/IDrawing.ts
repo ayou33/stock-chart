@@ -25,13 +25,15 @@ interface IDrawing extends Event<DrawingEvents> {
 
   transform (point: Vector, radian?: number): this;
 
-  path (): Vector[];
+  trace (): Vector[];
 
   bind <T = unknown>(data?: T): T | null;
 
   remove (): this;
 
   render (locations: Vector[]): this;
+
+  isContain (x: number, y: number): boolean;
 }
 
 export default IDrawing

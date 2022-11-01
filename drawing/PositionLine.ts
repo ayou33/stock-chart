@@ -17,6 +17,7 @@ const _horizontalAngle = 0
 
 class PositionLine extends AbstractDrawing<LineOptions> {
   private _line: Line
+  private _centre: number = NaN
 
   constructor (chart: IGraph, options?: PositionLineOptions) {
     const _options = extend(lineOptions, extend(options ?? {}, { angle: _horizontalAngle }))
@@ -33,35 +34,49 @@ class PositionLine extends AbstractDrawing<LineOptions> {
   }
 
   draw (path: Vector[]) {
+    const point = path[0]
     const ctx = this.chart.context
-    this._line.transform(path[0])
+
+    this._line.transform(point)
     ctx.textBaseline = 'bottom'
     ctx.fillStyle = 'black'
-    const text = String(this.path()[0][1])
-    background(ctx, text, 0, path[0][1] - 2, 2)
+    const text = String(this.trace()[0][1])
+    background(ctx, text, 0, point[1] - 2, 2)
     ctx.fillStyle = 'white'
-    ctx.fillText(text, 0, path[0][1])
+    ctx.fillText(text, 0, point[1])
+
+    this._centre = point[1]
 
     return this
   }
 
-  use (location: Vector): this {
-    this.record(location)
+  use (point: Vector): this {
+    this.record(point)
 
-    this.draw([location])
+    this.draw([point])
 
     this.emit('end', this, (ok: boolean) => {
-      this.emit(ok ? 'done' :'fail')
+      this.emit(ok ? 'done' : 'fail')
     })
 
     return this
   }
 
   render (locations: Vector[]): this {
-    this.push(locations[0])
-    this.transform([0, this.chart.fy(locations[0][1])])
+    const location = locations[0]
+    this.push(location)
+    this.transform([0, this.chart.fy(location[1])])
+    this.emit('done')
 
     return this
+  }
+
+  isContain (_: number, y: number): boolean {
+    const hovered =  Math.abs(y - this._centre) <= 1
+
+    if (hovered) this.emit('focus', this)
+
+    return hovered
   }
 }
 

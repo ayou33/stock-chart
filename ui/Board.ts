@@ -31,12 +31,15 @@ class Board extends Gesture<CrosshairEvents> {
         this._focus = false
         this.emit('blur')
         this.clear()
-        this.drawPriceLine()
+        this.drawCurrentPrice()
       })
 
       this.canvas.addEventListener('mousemove', (e) => {
         const p = this.pointer(e.clientX, e.clientY)
-        if (this._focus) this.drawPrices(p[0], p[1])
+        if (this._focus) {
+          this.drawPrices(p[0], p[1])
+          this.emit('focus', this._lastX, this._lastY, this.xAxis.invert(this._lastX))
+        }
       })
 
       this._priceLine = new Line(this.context, {
@@ -68,10 +71,10 @@ class Board extends Gesture<CrosshairEvents> {
     })
   }
 
-  private drawCrossLine () {
+  private drawCrosshair () {
     this._timeLine?.transform([this._lastX, 0])
     this._priceLine?.transform([0, this._lastY])
-    this.emit('focus', this._lastX, this._lastY, this.xAxis.invert(this._lastX))
+    this.options.yAxis.focus(this._lastY, NaN)
   }
 
   private drawPrices (x: number, y: number) {
@@ -82,11 +85,11 @@ class Board extends Gesture<CrosshairEvents> {
     this._lastX = x
     this._lastY = y
 
-    this.drawCrossLine()
-    this.drawPriceLine()
+    this.drawCrosshair()
+    this.drawCurrentPrice()
   }
 
-  private drawPriceLine () {
+  private drawCurrentPrice () {
     this._currentPriceLine?.transform([0, this._priceY])
   }
 
@@ -99,10 +102,10 @@ class Board extends Gesture<CrosshairEvents> {
 
     if (update.latest) {
       this._priceY = this.fy(update.latest.close)
-      this.drawPriceLine()
+      this.drawCurrentPrice()
     }
 
-    if (this._focus) this.drawCrossLine()
+    if (this._focus) this.drawCrosshair()
 
     return this
   }
