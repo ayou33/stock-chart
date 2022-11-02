@@ -30,7 +30,7 @@ class ChartLayer extends AbstractLayer implements ILayer {
         this._drawing?.use(location)
       })
       .on('focus', (_, x: number, y: number) => {
-        R.find(R.invoker(2, 'isContain')(x, y), this._drawings)
+        R.find(R.invoker(2, 'isPointInPath')(x, y), this._drawings)
       })
   }
 

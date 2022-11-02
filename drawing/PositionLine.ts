@@ -18,6 +18,7 @@ const _horizontalAngle = 0
 class PositionLine extends AbstractDrawing<LineOptions> {
   private _line: Line
   private _centre: number = NaN
+  private _hovered = false
 
   constructor (chart: IGraph, options?: PositionLineOptions) {
     const _options = extend(lineOptions, extend(options ?? {}, { angle: _horizontalAngle }))
@@ -71,12 +72,24 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     return this
   }
 
-  isContain (_: number, y: number): boolean {
-    const hovered =  Math.abs(y - this._centre) <= 1
+  highlight () {
+    return super.highlight()
+  }
 
-    if (hovered) this.emit('focus', this)
+  blur () {
+    return super.blur()
+  }
 
-    return hovered
+  isPointInPath (_: number, y: number): boolean {
+    const hit =  Math.abs(y - this._centre) <= 1
+
+    if (hit && !this._hovered) {
+      this.highlight()
+    }
+
+    if (!hit && this._hovered) this.blur()
+
+    return hit
   }
 }
 

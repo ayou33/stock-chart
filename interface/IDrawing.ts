@@ -33,7 +33,11 @@ interface IDrawing extends Event<DrawingEvents> {
 
   render (locations: Vector[]): this;
 
-  isContain (x: number, y: number): boolean;
+  isPointInPath (x: number, y: number): boolean;
+
+  highlight (): this;
+
+  blur (): this;
 }
 
 export default IDrawing

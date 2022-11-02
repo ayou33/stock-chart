@@ -13,9 +13,12 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
   chart: IGraph
   options: O
 
-  private readonly _locations: Vector[] = []
+  private readonly _tracePoints: Vector[] = []
+  private readonly _controlPoints: Vector[] = []
 
   private _data: unknown = null
+
+  protected focused = false
 
   protected constructor (chart: IGraph, options: O) {
     super()
@@ -25,7 +28,7 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
   }
 
   push (location: Vector) {
-    this._locations.push(location)
+    this._tracePoints.push(location)
 
     return this
   }
@@ -36,7 +39,7 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
   }
 
   trace () {
-    return this._locations
+    return this._tracePoints
   }
 
   bind<T = unknown> (data?: T) {
@@ -53,6 +56,18 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     return this
   }
 
+  highlight () {
+    this.focused = true
+
+    return this
+  }
+
+  blur () {
+    this.focused = false
+
+    return this
+  }
+
   abstract transform (point: Vector, radian?: number): this
 
   abstract use (point: Vector): this
@@ -61,7 +76,7 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
 
   abstract render (locations: Vector[]): this
 
-  abstract isContain (x: number, y: number): boolean
+  abstract isPointInPath (x: number, y: number): boolean
 }
 
 
