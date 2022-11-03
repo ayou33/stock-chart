@@ -43,8 +43,10 @@ export class StockChart {
   load (symbol: string, force = false) {
     if (symbol !== this.symbol || force) {
       this.symbol = symbol
-      this._dataSource.load(symbol)
+      return this._dataSource.load(symbol)
     }
+
+    return Promise.reject('No suitable SYMBOL information!')
   }
 
   setPeriodicity (periodicity: Periodicity) {

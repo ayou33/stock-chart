@@ -58,9 +58,11 @@ class DataEngine extends Event<DataEvents> {
 
       this.emit('loading')
 
-      const result = await this._dataFeed.read(symbol, this._periodicity).finally(() => {
-        this.emit('loaded')
-      })
+      const result = await this._dataFeed
+        .read(symbol, this._periodicity)
+        .finally(() => {
+          this.emit('loaded')
+        })
 
       if (symbol !== this._symbol) {
         if (this._symbol) this._dataFeed.unSubscribe(this._symbol)

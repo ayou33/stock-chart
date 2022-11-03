@@ -123,7 +123,7 @@ class DataSource extends Event<DataSourceEventTypes> {
   }
 
   load (symbol: string) {
-    this._dataEngine.load(symbol)
+    return this._dataEngine.load(symbol)
   }
 
   stream (patch: Patch) {

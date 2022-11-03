@@ -18,26 +18,31 @@ export type DrawingEvents =
   | 'remove'
   | 'transform'
 
+export type ControlPoint = {
+  x: number;
+  y: number;
+  price: number;
+  date: number;
+}
+
+export type DrawingPoint = Omit<ControlPoint, 'x' | 'y'>
+
 interface IDrawing extends Event<DrawingEvents> {
   draw (path: Vector[]): this;
 
   use (point: Vector): this;
 
-  transform (point: Vector, radian?: number): this;
-
-  trace (): Vector[];
-
-  bind <T = unknown>(data?: T): T | null;
+  render (points: DrawingPoint[]): this;
 
   remove (): this;
 
-  render (locations: Vector[]): this;
+  bind <T = unknown>(data?: T): T | null;
 
-  isPointInPath (x: number, y: number): boolean;
+  trace (): ControlPoint[];
 
-  highlight (): this;
+  active (): this;
 
-  blur (): this;
+  check (x: number, y: number): this;
 }
 
 export default IDrawing

@@ -27,26 +27,40 @@ class ChartLayer extends AbstractLayer implements ILayer {
 
     layerOptions.board
       .on('click', (_, location: Vector) => {
-        this._drawing?.use(location)
+        if (this._drawing) {
+          this._drawing.use(location)
+        } else {
+          R.map(R.invoker(0, 'active'), this._drawings)
+        }
       })
       .on('focus', (_, x: number, y: number) => {
-        R.find(R.invoker(2, 'isPointInPath')(x, y), this._drawings)
+        R.find(R.invoker(2, 'check')(x, y), this._drawings)
       })
   }
 
+  draw () {
+    this._drawings.map(
+      d => d.draw(d.trace().map(({ price }) => [0, this._chart!.fy(price)])),
+    )
+  }
+
   apply (update: UpdatePayload): this {
-    this._chart?.apply(update)
+    if (this._chart) {
+      this._chart.apply(update)
 
-    if (this._drawing) this._chart?.save()
+      if (this._drawing) this._chart.save()
 
-    if (update.level !== UpdateLevel.PATCH) {
-      this._drawings.map(d => {
-        d.draw(
-          d.trace().map(([x, y]) => [this.options.xAxis.value(x), this.options.yAxis.value(y)]))
-      })
+      if (update.level !== UpdateLevel.PATCH) {
+        this.draw()
+      }
     }
 
     return this
+  }
+
+  replay () {
+    this._chart?.replay()
+    this.draw()
   }
 
   resize (): this {
@@ -70,7 +84,7 @@ class ChartLayer extends AbstractLayer implements ILayer {
     return this
   }
 
-  createDrawing <T extends DrawingType>(type: T, options?: DrawingOptions[T]) {
+  createDrawing<T extends DrawingType> (type: T, options?: DrawingOptions[T]) {
     if (!this._chart) {
       throw new ReferenceError('No context provide to draw!')
     }
@@ -93,7 +107,10 @@ class ChartLayer extends AbstractLayer implements ILayer {
         })
         .on('remove', (_, d) => {
           this._drawings = R.reject(R.equals(d), this._drawings)
-          this._chart?.restore()
+          this.replay()
+        })
+        .on('blur', () => {
+          this.replay()
         })
     }
 

@@ -5,11 +5,14 @@
  *  @date         2022/9/27 16:45
  *  @description
  */
+import * as R from 'ramda'
 import Line, { lineOptions, LineOptions } from '../graphics/Line'
 import extend from '../helper/extend'
 import { background } from '../helper/typo'
+import { DrawingPoint } from '../interface/IDrawing'
 import IGraph from '../interface/IGraph'
 import AbstractDrawing from '../super/AbstractDrawing'
+import { themeOptions } from '../theme'
 
 export type PositionLineOptions = RecursivePartial<LineOptions>
 
@@ -18,7 +21,6 @@ const _horizontalAngle = 0
 class PositionLine extends AbstractDrawing<LineOptions> {
   private _line: Line
   private _centre: number = NaN
-  private _hovered = false
 
   constructor (chart: IGraph, options?: PositionLineOptions) {
     const _options = extend(lineOptions, extend(options ?? {}, { angle: _horizontalAngle }))
@@ -28,12 +30,6 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     this._line = new Line(chart.context, _options)
   }
 
-  transform (point: Vector): this {
-    this._line.transform(point, this.options.radian)
-
-    return this
-  }
-
   draw (path: Vector[]) {
     const point = path[0]
     const ctx = this.chart.context
@@ -41,7 +37,7 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     this._line.transform(point)
     ctx.textBaseline = 'bottom'
     ctx.fillStyle = 'black'
-    const text = String(this.trace()[0][1])
+    const text = String(this.trace()[0].price)
     background(ctx, text, 0, point[1] - 2, 2)
     ctx.fillStyle = 'white'
     ctx.fillText(text, 0, point[1])
@@ -63,33 +59,46 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     return this
   }
 
-  render (locations: Vector[]): this {
-    const location = locations[0]
-    this.push(location)
-    this.transform([0, this.chart.fy(location[1])])
+  format ({ price, date }: DrawingPoint) {
+    return {
+      x: 0,
+      y: this.chart.fy(price),
+      price,
+      date,
+    }
+  }
+
+  render (points: DrawingPoint[]): this {
+    const point = this.format(points[0])
+    this.push(point)
+    this.draw([[point.x, point.y]])
     this.emit('done')
 
     return this
   }
 
+  test (_: number, y: number): boolean {
+    return Math.abs(y - this._centre) <= 4
+  }
+
   highlight () {
-    return super.highlight()
-  }
+    const ctx = this.chart.context
+    const x = this.chart.container.width() / 2
+    ctx.save()
+    ctx.beginPath()
+    ctx.strokeStyle = themeOptions.primaryColor
+    ctx.lineWidth = 2
 
-  blur () {
-    return super.blur()
-  }
+    R.map(
+      ({ price }) =>
+        ctx.arc(x, this.chart.fy(price), 6, 0, Math.PI * 2),
+      this.trace(),
+    )
 
-  isPointInPath (_: number, y: number): boolean {
-    const hit =  Math.abs(y - this._centre) <= 1
+    ctx.stroke()
+    ctx.restore()
 
-    if (hit && !this._hovered) {
-      this.highlight()
-    }
-
-    if (!hit && this._hovered) this.blur()
-
-    return hit
+    return this
   }
 }
 
