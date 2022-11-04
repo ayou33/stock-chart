@@ -4,6 +4,7 @@
  *  @date 2022/7/27 17:52
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import Transform from 'nanie/src/Transform'
 import { DrawingOptions, DrawingType } from '../drawing/drawings'
 import extend from '../helper/extend'
 import { IndicatorInputs, IndicatorNames } from '../indicator/indicators'
@@ -169,6 +170,12 @@ class Scene {
     if (this._$loading) {
       this.$container.removeChild(this._$loading)
     }
+  }
+
+  restore () {
+    this._reactiveLayer.board.applyTransform(new Transform())
+    this._reactiveLayer.board.emit('transformed', new Transform())
+    this.apply()
   }
 }
 

@@ -40,10 +40,12 @@ export class StockChart {
     this._dataSource.attach(dataFeed)
   }
 
-  load (symbol: string, force = false) {
+  async load (symbol: string, force = false) {
     if (symbol !== this.symbol || force) {
       this.symbol = symbol
-      return this._dataSource.load(symbol)
+      const result = await this._dataSource.load(symbol)
+      // this._scene.restore()
+      return result
     }
 
     return Promise.reject('No suitable SYMBOL information!')
