@@ -7,13 +7,19 @@
  */
 import * as R from 'ramda'
 import Event from '../base/Event'
-import IDrawing, { ControlPoint, DrawingEvents, DrawingPoint } from '../interface/IDrawing'
+import IDrawing, {
+  ControlPoint,
+  DrawingEvents,
+  DrawingPoint,
+  DrawingState,
+} from '../interface/IDrawing'
 import IGraph from '../interface/IGraph'
 import { themeOptions } from '../theme'
 
 abstract class AbstractDrawing<O = unknown, E extends string = never> extends Event<DrawingEvents | E> implements IDrawing {
   chart: IGraph
   options: O
+  state = DrawingState.BUSY
 
   /**
    * 以canvas坐标系为参考的点
@@ -22,13 +28,22 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
   private readonly _controlPoints: ControlPoint[] = []
 
   private _data: unknown = null
-  private _hit = false
+
+  protected hit = false
 
   protected constructor (chart: IGraph, options: O) {
     super()
 
     this.chart = chart
     this.options = options
+  }
+
+  busy () {
+    this.state = DrawingState.BUSY
+  }
+
+  ready () {
+    this.state = DrawingState.READY
   }
 
   push (point: ControlPoint) {
@@ -79,8 +94,14 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     return this
   }
 
-  active () {
-    if (this._hit) this.emit('focus', this)
+  click () {
+    if (this.state === DrawingState.ACTIVE) {
+      this.state = DrawingState.FOCUSED
+      this.emit('focus', this)
+    } else if (this.state === DrawingState.FOCUSED) {
+      this.state = DrawingState.BLUR
+      this.emit('blur')
+    }
 
     return this
   }
@@ -99,12 +120,6 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     return this
   }
 
-  blur () {
-    this.emit('blur')
-
-    return this
-  }
-
   render (points: DrawingPoint[]) {
     const ps: Vector[] = []
 
@@ -116,6 +131,7 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
 
     this.draw(ps)
     this.emit('done')
+    this.ready()
 
     return this
   }
@@ -124,15 +140,26 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     return false
   }
 
+  activated () {
+    this.emit('activate', (a, b) => {
+      console.log('ayo', a, b)
+    })
+  }
+
   check (x: number, y: number) {
+    if (this.state === DrawingState.BUSY) return this
+
     const hit = this.test(x, y)
 
-    if (hit && !this._hit) {
-      this._hit = true
+    if (hit && !this.hit) {
+      this.hit = true
+      this.state = DrawingState.ACTIVE
+      this.activated()
       this.highlight()
-    } else if (this._hit && !hit) {
-      this._hit = false
-      this.blur()
+    } else if (this.hit && !hit) {
+      this.emit('deactivate')
+      this.state = DrawingState.INACTIVE
+      this.hit = false
     }
 
     return this

@@ -21,16 +21,19 @@ class ChartLayer extends AbstractLayer implements ILayer {
   private _chart: IGraph | null = null
   private _drawing: IDrawing | null = null
   private _drawings: IDrawing[] = []
+  private _board: Board
 
   constructor (layerOptions: LayerOptions & { board: Board }) {
     super(layerOptions)
 
-    layerOptions.board
+    this._board = layerOptions.board
+
+    this._board
       .on('click', (_, location: Vector) => {
         if (this._drawing) {
           this._drawing.use(location)
         } else {
-          R.map(R.invoker(0, 'active'), this._drawings)
+          R.map(R.invoker(0, 'click'), this._drawings)
         }
       })
       .on('focus', (_, x: number, y: number) => {
@@ -102,14 +105,18 @@ class ChartLayer extends AbstractLayer implements ILayer {
           this._drawing = null
         })
         .on('fail', () => {
-          this._drawings.pop()
+          this._drawings.shift()
           this._chart?.restore()
         })
         .on('remove', (_, d) => {
           this._drawings = R.reject(R.equals(d), this._drawings)
           this.replay()
         })
-        .on('blur', () => {
+        .on('activate', (_, r) => {
+          this._board.zoom.interrupt(r)
+        })
+        .on('deactivate blur', () => {
+          this._board.zoom.continue()
           this.replay()
         })
     }

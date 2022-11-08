@@ -167,7 +167,7 @@ class Scene {
   }
 
   loaded () {
-    if (this._$loading) {
+    if (this._$loading?.parentElement === this.$container) {
       this.$container.removeChild(this._$loading)
     }
   }

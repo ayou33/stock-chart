@@ -40,15 +40,11 @@ export class StockChart {
     this._dataSource.attach(dataFeed)
   }
 
-  async load (symbol: string, force = false) {
-    if (symbol !== this.symbol || force) {
-      this.symbol = symbol
-      const result = await this._dataSource.load(symbol)
-      // this._scene.restore()
-      return result
-    }
-
-    return Promise.reject('No suitable SYMBOL information!')
+  async load (symbol: string) {
+    this.symbol = symbol
+    const result = await this._dataSource.load(symbol)
+    // this._scene.restore()
+    return result
   }
 
   setPeriodicity (periodicity: Periodicity) {

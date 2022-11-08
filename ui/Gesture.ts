@@ -42,6 +42,8 @@ class Gesture<T extends string = any> extends AbstractGraph<GestureEvents | T, S
         this.emit('click', p)
       }
     })
+
+    // this.zoom.pause()
   }
 
   drawAll (): this {

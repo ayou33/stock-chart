@@ -60,6 +60,12 @@ class LayoutCell {
     return this._layout.compute('height', [this._column, this._row])
   }
 
+  $ (): HTMLCollection
+
+  $ (index: number): Element | null
+
+  $ (selector: string): NodeListOf<Element>
+
   $ (mixed?: number | string) {
     if (mixed === undefined) {
       return this.node().children
