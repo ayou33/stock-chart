@@ -5,6 +5,8 @@
  *  @date         2022/9/27 18:43
  *  @description
  */
+import { TransformReceiver } from 'nanie'
+import Transform from 'nanie/src/Transform'
 import * as R from 'ramda'
 import Event from '../base/Event'
 import IDrawing, {
@@ -20,6 +22,7 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
   chart: IGraph
   options: O
   state = DrawingState.BUSY
+  private _stashedState: DrawingState[] = []
 
   /**
    * 以canvas坐标系为参考的点
@@ -27,9 +30,9 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
    */
   private readonly _controlPoints: ControlPoint[] = []
 
+  private _activePoint: ControlPoint | null = null
   private _data: unknown = null
-
-  protected hit = false
+  private _hit = false
 
   protected constructor (chart: IGraph, options: O) {
     super()
@@ -38,8 +41,27 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     this.options = options
   }
 
-  busy () {
+  private freeze () {
+    this._stashedState.push(this.state)
+
     this.state = DrawingState.BUSY
+  }
+
+  private release () {
+    const state = this._stashedState.pop()
+
+    if (state !== undefined) {
+      this.state = state
+    }
+  }
+
+  private toControlPoint ([x, y]: Vector): ControlPoint {
+    return {
+      x,
+      y,
+      price: this.chart.invertY(y),
+      date: this.chart.invertX(x),
+    }
   }
 
   ready () {
@@ -50,15 +72,6 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     this._controlPoints.push(point)
 
     return this
-  }
-
-  private toControlPoint ([x, y]: Vector): ControlPoint {
-    return {
-      x,
-      y,
-      price: this.chart.invertY(y),
-      date: this.chart.invertX(x),
-    }
   }
 
   format ({ price, date }: DrawingPoint): ControlPoint {
@@ -90,18 +103,6 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
 
   remove () {
     this.emit('remove', this)
-
-    return this
-  }
-
-  click () {
-    if (this.state === DrawingState.ACTIVE) {
-      this.state = DrawingState.FOCUSED
-      this.emit('focus', this)
-    } else if (this.state === DrawingState.FOCUSED) {
-      this.state = DrawingState.BLUR
-      this.emit('blur')
-    }
 
     return this
   }
@@ -140,10 +141,53 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     return false
   }
 
-  activated () {
-    this.emit('activate', (a, b) => {
-      console.log('ayo', a, b)
-    })
+  testControlPoint (_: number, __: number): ControlPoint {
+    return this.trace()[0]
+  }
+
+  private click () {
+    if (this.state === DrawingState.ACTIVE) {
+      this.state = DrawingState.FOCUSED
+      this.emit('focus', this)
+    } else if (this.state === DrawingState.FOCUSED) {
+      this.state = DrawingState.BLUR
+      this.emit('blur')
+    }
+  }
+
+  private transform (diff: Transform) {
+    if (this._activePoint) {
+      this._activePoint.price = this.chart.invertY(this.chart.fy(this._activePoint.price) + diff.y)
+      this._activePoint.date = this.chart.invertX(this.chart.fx(this._activePoint.date) + diff.x)
+    }
+  }
+
+  /**
+   * 激活drawing对象
+   * 接管用户在chart上手势响应，并以来来更新激活状态的drawing对象
+   */
+  activate () {
+    let from = new Transform()
+    let zoomed = false
+
+    this.emit('activate', ((type, transform) => {
+      if (type === 'start') {
+        this.freeze()
+        from = transform
+      } else if (type === 'zoom') {
+        zoomed = true
+        this.transform(from.diff(transform))
+        from = transform
+      } else if (type === 'end') {
+        this.release()
+        if (zoomed) {
+          this.highlight()
+          this.emit('transform', this.trace())
+        }
+      } else if (type === 'click') {
+        this.click()
+      }
+    }) as TransformReceiver)
   }
 
   check (x: number, y: number) {
@@ -151,15 +195,17 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
 
     const hit = this.test(x, y)
 
-    if (hit && !this.hit) {
-      this.hit = true
+    if (hit && !this._hit) {
+      this._hit = true
       this.state = DrawingState.ACTIVE
-      this.activated()
+      this._activePoint = this.testControlPoint(x, y)
       this.highlight()
-    } else if (this.hit && !hit) {
-      this.emit('deactivate')
+      this.activate()
+    } else if (this._hit && !hit) {
       this.state = DrawingState.INACTIVE
-      this.hit = false
+      this._hit = false
+      this._activePoint = null
+      this.emit('deactivate')
     }
 
     return this

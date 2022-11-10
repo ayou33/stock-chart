@@ -32,8 +32,6 @@ class ChartLayer extends AbstractLayer implements ILayer {
       .on('click', (_, location: Vector) => {
         if (this._drawing) {
           this._drawing.use(location)
-        } else {
-          R.map(R.invoker(0, 'click'), this._drawings)
         }
       })
       .on('focus', (_, x: number, y: number) => {
@@ -112,8 +110,11 @@ class ChartLayer extends AbstractLayer implements ILayer {
           this._drawings = R.reject(R.equals(d), this._drawings)
           this.replay()
         })
-        .on('activate', (_, r) => {
-          this._board.zoom.interrupt(r)
+        .on('activate', (_, receive) => {
+          this._board.zoom.interrupt((type, transform) => {
+            receive(type, transform)
+            if (type === 'zoom') this.replay()
+          })
         })
         .on('deactivate blur', () => {
           this._board.zoom.continue()

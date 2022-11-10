@@ -36,6 +36,11 @@ export enum DrawingState {
   BLUR // mouseout & click
 }
 
+export enum EditType {
+  MOVE, // 整体移动
+  TRANSFORM // 控制点移动：图形变换
+}
+
 export type DrawingPoint = Omit<ControlPoint, 'x' | 'y'>
 
 interface IDrawing extends Event<DrawingEvents> {
@@ -49,11 +54,9 @@ interface IDrawing extends Event<DrawingEvents> {
 
   remove (): this;
 
-  bind <T = unknown>(data?: T): T | null;
+  bind<T = unknown> (data?: T): T | null;
 
   trace (): ControlPoint[];
-
-  click (): this;
 
   check (x: number, y: number): this;
 }

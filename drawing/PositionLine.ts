@@ -80,12 +80,6 @@ class PositionLine extends AbstractDrawing<LineOptions> {
   }
 
   test (_: number, y: number): boolean {
-    if (this.hit) {
-      this.chart.context.beginPath()
-      this.chart.context.arc(this.chart.container.width() / 2, this.chart.fy(this.trace()[0].price), 6, 0, Math.PI * 2)
-      // console.log('ayo', this.chart.context.isPointInStroke(_, y))
-    }
-
     return Math.abs(y - this._centre) <= 4
   }
 
