@@ -102,6 +102,7 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
   }
 
   remove () {
+    this.deactivate()
     this.emit('remove', this)
 
     return this
@@ -168,19 +169,17 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
    */
   activate () {
     let from = new Transform()
-    let zoomed = false
 
-    this.emit('activate', ((type, transform) => {
+    this.emit('activate', (({ type, transform, dirty }) => {
       if (type === 'start') {
         this.freeze()
         from = transform
       } else if (type === 'zoom') {
-        zoomed = true
         this.transform(from.diff(transform))
         from = transform
       } else if (type === 'end') {
         this.release()
-        if (zoomed) {
+        if (dirty) {
           this.highlight()
           this.emit('transform', this.trace())
         }
@@ -188,6 +187,13 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
         this.click()
       }
     }) as TransformReceiver)
+  }
+
+  private deactivate () {
+    this.state = DrawingState.INACTIVE
+    this._hit = false
+    this._activePoint = null
+    this.emit('deactivate')
   }
 
   check (x: number, y: number) {
@@ -202,10 +208,7 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
       this.highlight()
       this.activate()
     } else if (this._hit && !hit) {
-      this.state = DrawingState.INACTIVE
-      this._hit = false
-      this._activePoint = null
-      this.emit('deactivate')
+      this.deactivate()
     }
 
     return this

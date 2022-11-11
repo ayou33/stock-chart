@@ -38,9 +38,9 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     ctx.textBaseline = 'bottom'
     ctx.fillStyle = 'black'
     const text = String(this.trace()[0].price)
-    background(ctx, text, 0, point[1] - 2, 2)
+    background(ctx, text, 0, point[1] - 4, 4)
     ctx.fillStyle = 'white'
-    ctx.fillText(text, 0, point[1])
+    ctx.fillText(text, 2, point[1] - 2)
 
     this._centre = point[1]
 

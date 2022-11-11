@@ -111,9 +111,9 @@ class ChartLayer extends AbstractLayer implements ILayer {
           this.replay()
         })
         .on('activate', (_, receive) => {
-          this._board.zoom.interrupt((type, transform) => {
-            receive(type, transform)
-            if (type === 'zoom') this.replay()
+          this._board.zoom.interrupt(e => {
+            receive(e)
+            if (e.type === 'zoom') this.replay()
           })
         })
         .on('deactivate blur', () => {
