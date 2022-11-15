@@ -3,6 +3,8 @@
  *  @date 2022/8/15 17:14
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+import { BoxPadding, BoxPaddingObject } from '../options'
+
 export function expandPadding (padding: BoxPadding): BoxPaddingObject {
   if (typeof padding === 'number') {
     return {

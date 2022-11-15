@@ -35,8 +35,8 @@ class IndicatorLayer extends AbstractLayer implements ILayer {
     this.syncTransform = applyTransform
 
     this._board = layerOptions.board
-      .on('focus', (_, x: number, __, date: number) => {
-        this.focus(x, date)
+      .on('focus', (_, x: number) => {
+        this.focus(x)
       })
       .on('blur', () => this.blur())
       .on('transformed', (_, t) => {
@@ -141,7 +141,7 @@ class IndicatorLayer extends AbstractLayer implements ILayer {
     const Ctor = indicators[name]
 
     const [container, context] = Ctor.displayType === DisplayType.INNER ? this.useInnerContext()
-                                                                        : this.useExternalContainer()
+      : this.useExternalContainer()
 
     const indicator = new Ctor({
       container,
@@ -165,7 +165,7 @@ class IndicatorLayer extends AbstractLayer implements ILayer {
     return indicator.replay(this.lastUpdate)
   }
 
-  focus (x: number, _: number) {
+  focus (x: number) {
     const ctx = this._externalBoard
     if (ctx && this._externalContainer) {
       ctx.clearRect(0, 0, this._externalContainer.width(), this._externalContainer.height())

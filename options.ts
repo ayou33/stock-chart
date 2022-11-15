@@ -10,7 +10,7 @@ import { Color, themeOptions, ThemeOptions, BLACK, WHITE } from './theme'
 import { LayoutDescriber, ReservedRoles } from './layout/Layout'
 import { Periodicity } from './interface/IDataFeed'
 
-type BoxPaddingObject = {
+export type BoxPaddingObject = {
   top: number;
   right: number;
   bottom: number;
@@ -148,7 +148,7 @@ export const stockChartOptions: StockChartOptions = {
       interval: 1,
       period: 1,
       timeUnit: 'minute',
-    }
+    },
   },
 }
 

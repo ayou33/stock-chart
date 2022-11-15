@@ -20,8 +20,10 @@ const _horizontalAngle = 0
 
 class PositionLine extends AbstractDrawing<LineOptions> {
   private _line: Line
-  private _centre: number = NaN
+  private _centre = NaN
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   constructor (chart: IGraph, options?: PositionLineOptions) {
     const _options = extend(lineOptions, extend(options ?? {}, { angle: _horizontalAngle }))
 
