@@ -104,7 +104,7 @@ class ChartLayer extends AbstractLayer implements ILayer {
         })
         .on('fail', () => {
           this._drawings.shift()
-          this._chart?.restore()
+          this.replay()
         })
         .on('remove', (_, d) => {
           this._drawings = R.reject(R.equals(d), this._drawings)
@@ -120,9 +120,17 @@ class ChartLayer extends AbstractLayer implements ILayer {
           this._board.zoom.continue()
           this.replay()
         })
+        .on('refresh', () => {
+          this.replay()
+        })
     }
 
     throw new TypeError(`Drawing type "${type}" is not recognized!`)
+  }
+
+  clear () {
+    this._drawing = null
+    this._drawings = []
   }
 }
 

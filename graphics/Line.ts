@@ -108,6 +108,10 @@ class Line {
     return this
   }
 
+  update (options: Partial<LineOptions>) {
+    this._options = extend(this._options, options)
+  }
+
   resize () {
     this.measureCanvas()
 

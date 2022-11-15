@@ -148,6 +148,10 @@ class Scene {
     return this._chartLayer.createDrawing(type, options)
   }
 
+  clearDrawing () {
+    this._chartLayer.clear()
+  }
+
   loading () {
     if (!this._$loading) {
       const div = document.createElement('div')

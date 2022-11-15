@@ -18,7 +18,7 @@ import IDrawing, {
 import IGraph from '../interface/IGraph'
 import { themeOptions } from '../theme'
 
-abstract class AbstractDrawing<O = unknown, E extends string = never> extends Event<DrawingEvents | E> implements IDrawing {
+abstract class AbstractDrawing<O = unknown, E extends string = never> extends Event<DrawingEvents | E> implements IDrawing<O> {
   chart: IGraph
   options: O
   state = DrawingState.BUSY
@@ -213,6 +213,8 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
 
     return this
   }
+
+  abstract update (options: O): this
 
   abstract use (point: Vector): this
 

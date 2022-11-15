@@ -37,13 +37,17 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     this._line.transform(point)
     ctx.textBaseline = 'bottom'
     ctx.fillStyle = 'black'
-    const text = String(this.trace()[0].price)
+    const text = '🔔' + String(this.trace()[0].price)
     background(ctx, text, 0, point[1] - 4, 4)
     ctx.fillStyle = 'white'
     ctx.fillText(text, 2, point[1] - 2)
 
     this._centre = point[1]
 
+    return this
+  }
+
+  toggleAlert () {
     return this
   }
 
@@ -100,6 +104,13 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     ctx.stroke()
     ctx.restore()
 
+    return this
+  }
+
+  update (options: Partial<LineOptions>): this {
+    this._line.update(options)
+
+    this.emit('refresh')
     return this
   }
 }

@@ -38,6 +38,8 @@ export class StockChart {
 
   attach (dataFeed: IDataFeed) {
     this._dataSource.attach(dataFeed)
+
+    return this
   }
 
   async load (symbol: string) {
@@ -47,8 +49,16 @@ export class StockChart {
     return result
   }
 
+  clearDrawings () {
+    this._scene.clearDrawing()
+
+    return this
+  }
+
   setPeriodicity (periodicity: Periodicity) {
     this._dataSource.setPeriodicity(periodicity)
+
+    return this
   }
 
   addStudy<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T], typeUnique = false): IIndicator<IndicatorInputs[T]> {
@@ -69,6 +79,8 @@ export class StockChart {
     } else {
       this._scene.loaded()
     }
+
+    return this
   }
 }
 
