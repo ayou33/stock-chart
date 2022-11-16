@@ -12,7 +12,7 @@ import IIndicator, { DisplayType, Inputs } from '../interface/IIndicator'
 import { GraphOptions } from '../options'
 import AbstractGraph from './AbstractGraph'
 
-abstract class AbstractIndicator<I extends object, O> extends AbstractGraph implements IIndicator<I, O> {
+abstract class AbstractIndicator<I extends Record<string, unknown>, O> extends AbstractGraph implements IIndicator<I, O> {
   static displayType: DisplayType = DisplayType.INNER
 
   displayType = DisplayType.INNER

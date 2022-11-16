@@ -109,10 +109,6 @@ class Board extends Gesture<CrosshairEvents> {
 
     return this
   }
-
-  freeze () {}
-
-  unfreeze () {}
 }
 
 export default Board

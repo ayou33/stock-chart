@@ -67,7 +67,6 @@ class MA extends AbstractIndicator<MAInputs, MAValue> implements IIndicator<MAIn
   }
 
   paint (result: MAValue[]): this {
-
     for (let i = 0, l = this._periods.length; i < l; i++) {
       this.context.beginPath()
       this.paintMA(result, this._periods[i])

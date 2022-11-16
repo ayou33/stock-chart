@@ -5,6 +5,6 @@
  */
 import { mergeDeepRight } from 'ramda'
 
-const extend = <T extends object, U extends object> (dft: T, o: U) => mergeDeepRight(dft, o) as T & U
+const extend = <T extends Record<string, unknown>, U extends Record<string, unknown>> (dft: T, o: U) => mergeDeepRight(dft, o) as T & U
 
 export default extend

@@ -45,7 +45,6 @@ class BOLL extends AbstractIndicator<BOLLInputs, BOLLValue> implements IIndicato
 
     let start = false
     for (let i = 0, l = values.length; i < l; i++) {
-
       if (start) {
         this.context.lineTo(this.fx(values[i].date), this.fy(values[i].index))
       } else {

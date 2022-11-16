@@ -17,7 +17,6 @@ class KDJ extends AbstractIndicator<KDJInputs, KDJValue> implements IIndicator<K
 
   displayType = DisplayType.EXTERNAL
 
-
   private state: ReturnType<typeof calcStochastic>['state'] | null = null
 
   applyConfig (): this {
@@ -51,7 +50,7 @@ class KDJ extends AbstractIndicator<KDJInputs, KDJValue> implements IIndicator<K
   }
 
   compute (update: UpdatePayload): KDJValue[] {
-    const result =  calcStochastic(update.bars.slice(0, -1), this.inputs)
+    const result = calcStochastic(update.bars.slice(0, -1), this.inputs)
 
     this.state = result.state
 
