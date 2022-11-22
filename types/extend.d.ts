@@ -46,3 +46,9 @@ type Vector = [x: number, y: number]
  */
 type Permutations<T extends string, U extends string = T> =
   T extends string ? (T | `${T} ${Permutations<Exclude<U, T>>}`) : never;
+
+declare module '*.png' {
+  const value: string
+
+  export default value
+}

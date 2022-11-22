@@ -7,7 +7,12 @@ import { LabelStyle } from '../options'
 import { WHITE } from '../theme'
 import { background } from './typo'
 
-export function drawSeriesLabel (ctx: CanvasRenderingContext2D, y: number, text: string, style: LabelStyle) {
+export function drawSeriesLabel (
+  ctx: CanvasRenderingContext2D,
+  y: number,
+  text: string,
+  style: LabelStyle,
+) {
   ctx.fillStyle = style.background ?? style.color
   background(ctx, text, 0, y, style.padding)
 

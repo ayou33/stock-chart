@@ -14,16 +14,47 @@ export function defaultFontSize () {
   return fontSize(10)
 }
 
+export function measureText (ctx: CanvasRenderingContext2D, text: string) {
+  const measure = ctx.measureText(text)
+  const width = measure.width
+  const height = ctx.measureText('W').width * (1 + 1 / 6)
+  const baseline = ctx.textBaseline
+  const align = ctx.textAlign
+
+  const topOffset = baseline === 'middle'
+                    ? (-height / 2 - 0.5)
+                    : (
+                      baseline === 'top'
+                      ? 0
+                      : -height
+                    ) - 0.5
+
+  const leftOffset = align === 'center'
+                     ? (-width / 2)
+                     : ((
+                          align === 'start' ||
+                          align === 'left'
+                        )
+                        ? 0
+                        : -width
+                     )
+
+  return {
+    topOffset,
+    leftOffset,
+    width,
+    height,
+  }
+}
+
 export function background (
   ctx: CanvasRenderingContext2D, text: string, x: number, y: number, padding: BoxPadding = 0) {
-  const measure = ctx.measureText(text)
-  const p = expandPadding(padding)
-  const height = ctx.measureText('M').width * (1 + 1 / 8)
+  const { topOffset, leftOffset, width, height } = measureText(ctx, text)
+  const { top, right, bottom, left } = expandPadding(padding)
+  const X = x + leftOffset
+  const Y = y + topOffset
+  const w = left + right + width
+  const h = top + bottom + height
 
-  ctx.fillRect(
-    x - measure.actualBoundingBoxLeft - p.left,
-    y - p.top - (ctx.textBaseline === 'middle' ? height / 2 : (ctx.textBaseline === 'top' ? 0 : height)),
-    measure.width + p.left + p.right,
-    height + p.top + p.bottom,
-  )
+  ctx.fillRect(X - left, Y - top, w, h)
 }

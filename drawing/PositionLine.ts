@@ -8,11 +8,13 @@
 import * as R from 'ramda'
 import Line, { lineOptions, LineOptions } from '../graphics/Line'
 import extend from '../helper/extend'
-import { background } from '../helper/typo'
+import { expandPadding } from '../helper/format'
+import { measureText } from '../helper/typo'
 import { DrawingPoint } from '../interface/IDrawing'
 import IGraph from '../interface/IGraph'
 import AbstractDrawing from '../super/AbstractDrawing'
 import { themeOptions } from '../theme'
+import imgSrc from './reminder@2x.png'
 
 export type PositionLineOptions = RecursivePartial<LineOptions>
 
@@ -21,6 +23,8 @@ const _horizontalAngle = 0
 class PositionLine extends AbstractDrawing<LineOptions> {
   private _line: Line
   private _centre = NaN
+  private _options: LineOptions
+  img
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -30,21 +34,35 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     super(chart, _options)
 
     this._line = new Line(chart.context, _options)
+
+    this._options = _options
+
+    const img = new Image()
+    img.src = imgSrc
+    this.img = img
   }
 
   draw (path: Vector[]) {
-    const point = path[0]
+    const [x, y] = path[0]
     const ctx = this.chart.context
+    const text = String(this.trace()[0].price)
 
-    this._line.transform(point)
     ctx.textBaseline = 'bottom'
-    ctx.fillStyle = 'black'
-    const text = '🔔' + String(this.trace()[0].price)
-    background(ctx, text, 0, point[1] - 4, 4)
-    ctx.fillStyle = 'white'
-    ctx.fillText(text, 2, point[1] - 2)
+    ctx.textAlign = 'start'
 
-    this._centre = point[1]
+    this._line.transform([x, y])
+    const { topOffset, width, height } = measureText(ctx, text)
+    const Y = y + topOffset
+    const p = expandPadding({ top: 4, left: 20 })
+
+    ctx.fillStyle = this._options.color
+    ctx.fillRect(0, Y - p.top - p.bottom, width + p.left + p.right, height + p.top + p.bottom)
+    ctx.fillStyle = 'white'
+    ctx.fillText(text, p.left, y - p.top)
+    ctx.fillStyle = 'red'
+    ctx.drawImage(this.img, 4, Y - p.top - 2, 16, 16)
+
+    this._centre = y
 
     return this
   }
@@ -112,7 +130,12 @@ class PositionLine extends AbstractDrawing<LineOptions> {
   update (options: Partial<LineOptions>): this {
     this._line.update(options)
 
+    this._options = extend(this._options, options)
+
+    console.log('ayo', options)
+
     this.emit('refresh')
+
     return this
   }
 }

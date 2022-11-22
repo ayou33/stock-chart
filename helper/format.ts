@@ -15,10 +15,15 @@ export function expandPadding (padding: BoxPadding): BoxPaddingObject {
     }
   }
 
+  const top = padding.top ?? 0
+  const right = padding.right ?? top
+  const bottom = padding.bottom ?? right
+  const left = padding.left ?? bottom
+
   return {
-    top: padding.top ?? 0,
-    right: padding.right ?? 0,
-    bottom: padding.bottom ?? 0,
-    left: padding.left ?? 0,
+    top,
+    right,
+    bottom,
+    left,
   }
 }
