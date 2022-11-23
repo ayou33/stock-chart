@@ -129,6 +129,7 @@ class IndicatorLayer extends AbstractLayer implements ILayer {
       this._externalContainer.insert(canvas)
 
       this._cursor = new Line(this._externalBoard, {
+        width: 0.5,
         radian: Math.PI / 2,
         style: 'dashed',
       })

@@ -5,6 +5,7 @@
  *  @date         2022/10/31 14:07
  *  @description
  */
+import { ArrowOptions } from './Arrow'
 import { PositionLineOptions } from './PositionLine'
 
 // export type DrawingType = 'position' | 'segment' | 'arrow' | 'text'
@@ -12,7 +13,7 @@ import { PositionLineOptions } from './PositionLine'
 export type DrawingOptions = {
   position: PositionLineOptions,
   segment: PositionLineOptions,
-  arrow: PositionLineOptions,
+  arrow: ArrowOptions,
   text: PositionLineOptions,
 }
 

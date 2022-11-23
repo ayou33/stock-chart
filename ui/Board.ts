@@ -43,12 +43,14 @@ class Board extends Gesture<CrosshairEvents> {
       })
 
       this._priceLine = new Line(this.context, {
+        width: 0.5,
         style: 'dashed',
         color: this.options.crosshair.background ?? this.options.crosshair.color,
         dashArray: this.options.crosshair.dashArray,
       })
 
       this._timeLine = new Line(this.context, {
+        width: 0.5,
         radian: Math.PI / 2,
         style: 'dashed',
         color: this.options.crosshair.background ?? this.options.crosshair.color,

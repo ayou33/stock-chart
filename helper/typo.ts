@@ -22,7 +22,7 @@ export function measureText (ctx: CanvasRenderingContext2D, text: string) {
   const align = ctx.textAlign
 
   const topOffset = baseline === 'middle'
-                    ? (-height / 2 - 0.5)
+                    ? (-height / 2 - 1)
                     : (
                       baseline === 'top'
                       ? 0

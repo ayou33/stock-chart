@@ -57,8 +57,9 @@ interface IDrawing<O = unknown> extends Event<DrawingEvents> {
   /**
    * 利用价值坐标渲染
    * @param points
+   * @param extra
    */
-  render (points: DrawingPoint[]): this;
+  render (points: DrawingPoint[], extra?: unknown): this;
 
   remove (): this;
 

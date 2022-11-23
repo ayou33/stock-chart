@@ -8,19 +8,20 @@
 import * as R from 'ramda'
 import Candle from '../chart/Candle'
 import { UpdateLevel, UpdatePayload } from '../core/DataSource'
+import Arrow from '../drawing/Arrow'
 import { DrawingOptions, DrawingType } from '../drawing/drawings'
 import PositionLine from '../drawing/PositionLine'
-import IDrawing from '../interface/IDrawing'
 import IGraph from '../interface/IGraph'
 import ILayer from '../interface/ILayer'
 import { StockChartOptions } from '../options'
+import AbstractDrawing from '../super/AbstractDrawing'
 import AbstractLayer, { LayerOptions } from '../super/AbstractLayer'
 import Board from '../ui/Board'
 
 class ChartLayer extends AbstractLayer implements ILayer {
   private _chart: IGraph | null = null
-  private _drawing: IDrawing | null = null
-  private _drawings: IDrawing[] = []
+  private _drawing: AbstractDrawing | null = null
+  private _drawings: AbstractDrawing[] = []
   private _board: Board
 
   constructor (layerOptions: LayerOptions & { board: Board }) {
@@ -40,9 +41,7 @@ class ChartLayer extends AbstractLayer implements ILayer {
   }
 
   draw () {
-    this._drawings.map(
-      d => d.draw(d.trace().map(({ price }) => [0, this._chart!.fy(price)])),
-    )
+    this._drawings.map(d => d.draw(d.trace().map(p => d.locate(p))))
   }
 
   apply (update: UpdatePayload): this {
@@ -92,7 +91,13 @@ class ChartLayer extends AbstractLayer implements ILayer {
 
     switch (type) {
       case 'position':
-        this._drawings.unshift(this._drawing = new PositionLine(this._chart, options))
+        this._drawings.unshift(
+          this._drawing = new PositionLine(this._chart, options as DrawingOptions['position']))
+        break
+      case 'arrow':
+        this._drawings.unshift(
+          this._drawing = new Arrow(this._chart, options as DrawingOptions['arrow']))
+        break
     }
 
     if (this._drawing) {

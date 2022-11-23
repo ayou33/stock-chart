@@ -21,13 +21,13 @@ export type PositionLineOptions = RecursivePartial<LineOptions>
 const _horizontalAngle = 0
 
 class PositionLine extends AbstractDrawing<LineOptions> {
-  private _line: Line
+  private readonly $img = new Image()
+  private readonly _line: Line
+
   private _centre = NaN
   private _options: LineOptions
-  img
+  private _alertOn = false
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   constructor (chart: IGraph, options?: PositionLineOptions) {
     const _options = extend(lineOptions, extend(options ?? {}, { angle: _horizontalAngle }))
 
@@ -37,9 +37,7 @@ class PositionLine extends AbstractDrawing<LineOptions> {
 
     this._options = _options
 
-    const img = new Image()
-    img.src = imgSrc
-    this.img = img
+    this.$img.src = imgSrc
   }
 
   draw (path: Vector[]) {
@@ -47,56 +45,46 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     const ctx = this.chart.context
     const text = String(this.trace()[0].price)
 
+    ctx.strokeStyle = this._options.color
     ctx.textBaseline = 'bottom'
     ctx.textAlign = 'start'
 
     this._line.transform([x, y])
     const { topOffset, width, height } = measureText(ctx, text)
     const Y = y + topOffset
-    const p = expandPadding({ top: 4, left: 20 })
+    const p = expandPadding({ top: 4, left: this._alertOn ? 20 : 4 })
 
     ctx.fillStyle = this._options.color
     ctx.fillRect(0, Y - p.top - p.bottom, width + p.left + p.right, height + p.top + p.bottom)
     ctx.fillStyle = 'white'
     ctx.fillText(text, p.left, y - p.top)
-    ctx.fillStyle = 'red'
-    ctx.drawImage(this.img, 4, Y - p.top - 2, 16, 16)
+
+    if (this._alertOn) {
+      ctx.fillStyle = 'red'
+      ctx.drawImage(this.$img, 4, Y - p.top - 2, 16, 16)
+    }
 
     this._centre = y
 
     return this
   }
 
-  toggleAlert () {
-    return this
-  }
-
-  use (point: Vector): this {
-    this.record(point)
-
-    this.draw([point])
-
-    this.emit('end', this, (ok: boolean) => {
-      this.emit(ok ? 'done' : 'fail')
-      if (ok) this.ready()
-    })
+  toggleAlert (state: boolean) {
+    this._alertOn = state
+    this.emit('refresh')
 
     return this
   }
 
-  format ({ price, date }: DrawingPoint) {
-    return {
-      x: 0,
-      y: this.chart.fy(price),
-      price,
-      date,
-    }
+  locate ({ price }: DrawingPoint): Vector {
+    return [0, this.chart.fy(price)]
   }
 
-  render (points: DrawingPoint[]): this {
-    const point = this.format(points[0])
-    this.push(point)
-    this.draw([[point.x, point.y]])
+  render (points: DrawingPoint[], alertState: boolean): this {
+    this._alertOn = alertState
+    const [x, y] = this.locate(points[0])
+    this.push({ ...points[0], x, y })
+    this.draw([[x, y]])
     this.emit('done')
     this.ready()
 

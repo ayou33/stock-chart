@@ -16,6 +16,7 @@ export type LineRenderOptions = {
 }
 
 export type StyleOptions = {
+  width: number;
   style: 'dashed' | 'solid';
   color: Color;
   dashArray: number[];
@@ -29,6 +30,7 @@ export const lineOptions: LineOptions = {
   radian: 0,
   style: 'solid',
   color: BLACK,
+  width: 1,
   dashArray: themeOptions.dashArray,
 }
 
@@ -88,6 +90,7 @@ class Line {
     const ctx = this._context
     let [x, y] = this._start
 
+    ctx.lineWidth = this._options.width
     ctx.beginPath()
     ctx.strokeStyle = this._options.color
     ctx.moveTo(x, y)

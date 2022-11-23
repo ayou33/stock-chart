@@ -55,7 +55,7 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     }
   }
 
-  private toControlPoint ([x, y]: Vector): ControlPoint {
+  private evaluate ([x, y]: Vector): ControlPoint {
     return {
       x,
       y,
@@ -74,17 +74,12 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     return this
   }
 
-  format ({ price, date }: DrawingPoint): ControlPoint {
-    return {
-      x: this.chart.fx(date),
-      y: this.chart.fy(price),
-      price,
-      date,
-    }
+  locate ({ price, date }: DrawingPoint): Vector {
+    return [this.chart.fx(date), this.chart.fy(price)]
   }
 
   record (point: Vector) {
-    this.push(this.toControlPoint(point))
+    this.push(this.evaluate(point))
 
     return this
   }
@@ -122,13 +117,13 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     return this
   }
 
-  render (points: DrawingPoint[]) {
+  render (points: DrawingPoint[], _extra?: unknown) {
     const ps: Vector[] = []
 
     R.map(p => {
-      const point = this.format(p)
-      this.push(point)
-      ps.push([point.x, point.y])
+      const [x, y] = this.locate(p)
+      this.push({ ...p, x, y })
+      ps.push([x, y])
     }, points)
 
     this.draw(ps)
@@ -214,9 +209,22 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     return this
   }
 
-  abstract update (options: O): this
+  use (point: Vector): this {
+    this.record(point)
 
-  abstract use (point: Vector): this
+    this.draw([point])
+
+    this.emit('end', this, (ok: boolean) => {
+      this.emit(ok ? 'done' : 'fail')
+      if (ok) this.ready()
+    })
+
+    return this
+  }
+
+  update (_options: Partial<O>) {
+    return this
+  }
 
   abstract draw (points: Vector[]): this
 }
