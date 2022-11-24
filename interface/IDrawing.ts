@@ -21,7 +21,7 @@ export type DrawingEvents =
   | 'transform'
   | 'refresh'
 
-export type ControlPoint = {
+export type ValuePoint = {
   x: number;
   y: number;
   price: number;
@@ -37,16 +37,12 @@ export enum DrawingState {
   BLUR // mouseout & click
 }
 
-export type DrawingPoint = Omit<ControlPoint, 'x' | 'y'>
+export type PointValue = Omit<ValuePoint, 'x' | 'y'>
 
 interface IDrawing<O = unknown> extends Event<DrawingEvents> {
   state: DrawingState
 
-  /**
-   * 利用点坐标信息绘制
-   * @param path
-   */
-  draw (path: Vector[]): this;
+  draw (): this;
 
   /**
    * 拾取点
@@ -59,7 +55,7 @@ interface IDrawing<O = unknown> extends Event<DrawingEvents> {
    * @param points
    * @param extra
    */
-  render (points: DrawingPoint[], extra?: unknown): this;
+  render (points: PointValue[], extra?: unknown): this;
 
   remove (): this;
 
@@ -72,14 +68,14 @@ interface IDrawing<O = unknown> extends Event<DrawingEvents> {
   /**
    * 读取控制点
    */
-  trace (): ControlPoint[];
+  trace (): ValuePoint | ValuePoint[];
 
   /**
-   * 检查鼠标信息是否在图形路径内
+   * 响应鼠标移动
    * @param x
    * @param y
    */
-  check (x: number, y: number): this;
+  isContain (x: number, y: number): boolean;
 
   update (options: Partial<O>): this;
 }

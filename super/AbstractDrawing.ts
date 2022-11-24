@@ -10,9 +10,9 @@ import Transform from 'nanie/src/Transform'
 import * as R from 'ramda'
 import Event from '../base/Event'
 import IDrawing, {
-  ControlPoint,
+  ValuePoint,
   DrawingEvents,
-  DrawingPoint,
+  PointValue,
   DrawingState,
 } from '../interface/IDrawing'
 import IGraph from '../interface/IGraph'
@@ -22,16 +22,16 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
   chart: IGraph
   options: O
   state = DrawingState.BUSY
-  private _stashedState: DrawingState[] = []
 
   /**
    * 以canvas坐标系为参考的点
    * @private
    */
-  private readonly _controlPoints: ControlPoint[] = []
+  private readonly _points: ValuePoint[] = []
 
-  private _activePoint: ControlPoint | null = null
-  private _data: unknown = null
+  private _stashedState: DrawingState[] = []
+  private _hitIndex: number | null = null
+  private _binding: unknown = null
   private _hit = false
 
   protected constructor (chart: IGraph, options: O) {
@@ -55,7 +55,12 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     }
   }
 
-  private evaluate ([x, y]: Vector): ControlPoint {
+  /**
+   * 通过坐标计算[date, price]
+   * @private
+   * @param point {PointLocation}
+   */
+  private evaluate ({ x, y }: PointLocation): ValuePoint {
     return {
       x,
       y,
@@ -68,32 +73,42 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     this.state = DrawingState.READY
   }
 
-  push (point: ControlPoint) {
-    this._controlPoints.push(point)
+  push (point: ValuePoint) {
+    this._points.push(point)
 
     return this
   }
 
-  locate ({ price, date }: DrawingPoint): Vector {
-    return [this.chart.fx(date), this.chart.fy(price)]
+  /**
+   * 计算[date, price]对应的坐标
+   */
+  locate ({ price, date }: PointValue): ValuePoint {
+    return {
+      price,
+      date,
+      x: this.chart.fx(date),
+      y: this.chart.fy(price),
+    }
   }
 
-  record (point: Vector) {
-    this.push(this.evaluate(point))
+  /**
+   * 获取所有/指定的控制点
+   */
+  trace<T extends (number | undefined) = undefined,
+    R = T extends number
+        ? (ValuePoint | undefined)
+        : Array<ValuePoint>> (index?: T): R
 
-    return this
-  }
-
-  trace () {
-    return this._controlPoints
+  trace (index?: number) {
+    return index === undefined ? this._points : this._points[index]
   }
 
   bind<T = unknown> (data?: T) {
     if (data !== undefined) {
-      this._data = data
+      this._binding = data
     }
 
-    return this._data as T
+    return this._binding as T
   }
 
   remove () {
@@ -103,6 +118,9 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     return this
   }
 
+  /**
+   * 高亮显示
+   */
   highlight () {
     const ctx = this.chart.context
     ctx.beginPath()
@@ -110,37 +128,41 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     R.map(
       ({ date, price }) =>
         ctx.arc(this.chart.fx(date), this.chart.fy(price), 5, 0, Math.PI * 2),
-      this._controlPoints,
+      this._points,
     )
     ctx.stroke()
 
     return this
   }
 
-  render (points: DrawingPoint[], _extra?: unknown) {
-    const ps: Vector[] = []
+  render (points: PointValue[], _extra?: unknown) {
+    R.map(p => this.push(this.locate(p)), points)
 
-    R.map(p => {
-      const [x, y] = this.locate(p)
-      this.push({ ...p, x, y })
-      ps.push([x, y])
-    }, points)
-
-    this.draw(ps)
+    this.draw()
     this.emit('done')
     this.ready()
 
     return this
   }
 
-  test (_: number, __: number) {
+  /**
+   * 测试鼠标点是否与图形交叉
+   */
+  test (_x: number, _y: number) {
     return false
   }
 
-  testControlPoint (_: number, __: number): ControlPoint {
-    return this.trace()[0]
+  /**
+   * 测试鼠标点是否与控制点交叉
+   */
+  testPoint (_: number, __: number): number | null {
+    return 0
   }
 
+  /**
+   * 响应鼠标点击
+   * @private
+   */
   private click () {
     if (this.state === DrawingState.ACTIVE) {
       this.state = DrawingState.FOCUSED
@@ -151,10 +173,21 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     }
   }
 
+  /**
+   * 更新控制点
+   */
   private transform (diff: Transform) {
-    if (this._activePoint) {
-      this._activePoint.price = this.chart.invertY(this.chart.fy(this._activePoint.price) + diff.y)
-      this._activePoint.date = this.chart.invertX(this.chart.fx(this._activePoint.date) + diff.x)
+    if (this._hitIndex === null) {
+      this._points.map(
+        (p, i) =>
+          this._points[i] = this.evaluate({ x: p.x + diff.x, y: p.y + diff.y }),
+      )
+    } else {
+      const p = this._points[this._hitIndex]
+      this._points[this._hitIndex] = this.evaluate({
+        x: p.x + diff.x,
+        y: p.y + diff.y,
+      })
     }
   }
 
@@ -187,32 +220,38 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
   private deactivate () {
     this.state = DrawingState.INACTIVE
     this._hit = false
-    this._activePoint = null
+    this._hitIndex = null
     this.emit('deactivate')
   }
 
-  check (x: number, y: number) {
-    if (this.state === DrawingState.BUSY) return this
+  /**
+   * 响应鼠标移动
+   */
+  isContain (x: number, y: number) {
+    if (this.state === DrawingState.BUSY) return false
 
     const hit = this.test(x, y)
 
     if (hit && !this._hit) {
       this._hit = true
       this.state = DrawingState.ACTIVE
-      this._activePoint = this.testControlPoint(x, y)
+      this._hitIndex = this.testPoint(x, y)
       this.highlight()
       this.activate()
     } else if (this._hit && !hit) {
       this.deactivate()
     }
 
-    return this
+    return hit
   }
 
-  use (point: Vector): this {
-    this.record(point)
+  /**
+   * 拾取鼠标点
+   */
+  use ([x, y]: Vector): this {
+    this.push(this.evaluate({ x, y }))
 
-    this.draw([point])
+    this.draw()
 
     this.emit('end', this, (ok: boolean) => {
       this.emit(ok ? 'done' : 'fail')
@@ -226,7 +265,7 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
     return this
   }
 
-  abstract draw (points: Vector[]): this
+  abstract draw (): this
 }
 
 export default AbstractDrawing

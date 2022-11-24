@@ -7,10 +7,11 @@
  */
 import * as R from 'ramda'
 import Line, { lineOptions, LineOptions } from '../graphics/Line'
+import { assertIsDefined } from '../helper/assert'
 import extend from '../helper/extend'
 import { expandPadding } from '../helper/format'
 import { measureText } from '../helper/typo'
-import { DrawingPoint } from '../interface/IDrawing'
+import { PointValue } from '../interface/IDrawing'
 import IGraph from '../interface/IGraph'
 import AbstractDrawing from '../super/AbstractDrawing'
 import { themeOptions } from '../theme'
@@ -40,10 +41,14 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     this.$img.src = imgSrc
   }
 
-  draw (path: Vector[]) {
-    const [x, y] = path[0]
+  draw () {
+    const p = this.trace(0)
+
+    assertIsDefined(p)
+
+    const { x, y } = p
     const ctx = this.chart.context
-    const text = String(this.trace()[0].price)
+    const text = String(this.trace(0)?.price)
 
     ctx.strokeStyle = this._options.color
     ctx.textBaseline = 'bottom'
@@ -52,16 +57,16 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     this._line.transform([x, y])
     const { topOffset, width, height } = measureText(ctx, text)
     const Y = y + topOffset
-    const p = expandPadding({ top: 4, left: this._alertOn ? 20 : 4 })
+    const pad = expandPadding({ top: 4, left: this._alertOn ? 20 : 4 })
 
     ctx.fillStyle = this._options.color
-    ctx.fillRect(0, Y - p.top - p.bottom, width + p.left + p.right, height + p.top + p.bottom)
+    ctx.fillRect(0, Y - pad.top - pad.bottom, width + pad.left + pad.right, height + pad.top + pad.bottom)
     ctx.fillStyle = 'white'
-    ctx.fillText(text, p.left, y - p.top)
+    ctx.fillText(text, pad.left, y - pad.top)
 
     if (this._alertOn) {
       ctx.fillStyle = 'red'
-      ctx.drawImage(this.$img, 4, Y - p.top - 2, 16, 16)
+      ctx.drawImage(this.$img, 4, Y - pad.top - 2, 16, 16)
     }
 
     this._centre = y
@@ -76,15 +81,20 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     return this
   }
 
-  locate ({ price }: DrawingPoint): Vector {
-    return [0, this.chart.fy(price)]
+  locate ({ date, price }: PointValue) {
+    return {
+      date,
+      price,
+      x: 0,
+      y: this.chart.fy(price),
+    }
   }
 
-  render (points: DrawingPoint[], alertState: boolean): this {
+  render (points: PointValue[], alertState: boolean): this {
     this._alertOn = alertState
-    const [x, y] = this.locate(points[0])
-    this.push({ ...points[0], x, y })
-    this.draw([[x, y]])
+    const p = this.locate(points[0])
+    this.push(p)
+    this.draw()
     this.emit('done')
     this.ready()
 
@@ -119,8 +129,6 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     this._line.update(options)
 
     this._options = extend(this._options, options)
-
-    console.log('ayo', options)
 
     this.emit('refresh')
 

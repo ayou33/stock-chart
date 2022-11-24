@@ -41,6 +41,8 @@ type BarValueField = Exclude<keyof Bar, 'DT' | 'volume'>
 
 type Vector = [x: number, y: number]
 
+type PointLocation = { x: number, y: number }
+
 /**
  * 如果union太复杂 非常吃性能
  */

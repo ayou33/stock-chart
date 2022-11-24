@@ -5,58 +5,79 @@
  *  @date         2022/11/23 15:43
  *  @description
  */
+import { assertIsDefined } from '../helper/assert'
 import extend from '../helper/extend'
-import { DrawingPoint } from '../interface/IDrawing'
+import { PointValue } from '../interface/IDrawing'
 import IGraph from '../interface/IGraph'
 import AbstractDrawing from '../super/AbstractDrawing'
 import arrowUpSrc from './arrow_up@2x.png'
 import arrowDownSrc from './arrow_down@2x.png'
 
-export enum ArrowDir {
-  UP,
-  DOWN
-}
-
 export type ArrowOptions = Partial<{
-  dir: ArrowDir;
+  toBottom: boolean;
 }>
+
+const WIDTH = 24
+const HALF_WIDTH = WIDTH / 2
+const HEIGHT = 24
+const PADDING = 4
+
+function transfer (x: number, y: number, down = false) {
+  return {
+    x: x - HALF_WIDTH,
+    y: y - (down ? HEIGHT - PADDING : PADDING),
+  }
+}
 
 export class Arrow extends AbstractDrawing<Required<ArrowOptions>> {
   private readonly $img = new Image()
-  private _dir: ArrowDir
+  private _toBottom = false
 
   constructor (chart: IGraph, options?: ArrowOptions) {
-    super(chart, extend({ dir: ArrowDir.UP }, options ?? {}))
+    super(chart, extend({ toBottom: false }, options ?? {}))
 
     this.$img.onload = () => this.emit('refresh')
 
-    this.$img.src = this.options.dir === ArrowDir.DOWN ? arrowDownSrc : arrowUpSrc
+    this.$img.src = this.options.toBottom ? arrowDownSrc : arrowUpSrc
 
-    this._dir = this.options.dir
+    this._toBottom = this.options.toBottom
   }
 
-  get _isDown () {
-    return this._dir === ArrowDir.DOWN
-  }
+  draw (): this {
+    const p = this.trace(0)
 
-  draw (points: Vector[]): this {
-    const [x, y] = points[0]
+    assertIsDefined(p)
+
+    const { x, y } = transfer(p.x, p.y, this._toBottom)
     const ctx = this.chart.context
 
-    ctx.drawImage(this.$img, x - 12, y - (this._isDown ? 24 : 0), 24, 24)
+    ctx.drawImage(this.$img, x, y, WIDTH, HEIGHT)
 
     return this
   }
 
-  render (points: DrawingPoint[], dir: ArrowDir) {
-    this._dir = dir
-    const [x, y] = this.locate(points[0])
-    this.push({ ...points[0], x, y })
-    this.draw([[x, y]])
+  render (points: PointValue[], toBottom = false) {
+    this._toBottom = toBottom
+    this.push(this.locate(points[0]))
+    this.draw()
     this.emit('done')
     this.ready()
 
     return this
+  }
+
+  test (mx: number, my: number): boolean {
+    const p = this.trace(0)
+
+    assertIsDefined(p)
+
+    const { x, y } = transfer(p.x, p.y, this._toBottom)
+
+    return mx >= x &&
+      mx <= (x + WIDTH) &&
+      my > y &&
+      my < (y + HEIGHT)
+
   }
 }
 

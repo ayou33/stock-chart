@@ -36,12 +36,12 @@ class ChartLayer extends AbstractLayer implements ILayer {
         }
       })
       .on('focus', (_, x: number, y: number) => {
-        R.find(R.invoker(2, 'check')(x, y), this._drawings)
+        R.find(R.invoker(2, 'isContain')(x, y), this._drawings)
       })
   }
 
   draw () {
-    this._drawings.map(d => d.draw(d.trace().map(p => d.locate(p))))
+    this._drawings.map(d => d.draw())
   }
 
   apply (update: UpdatePayload): this {
