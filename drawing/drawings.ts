@@ -7,6 +7,7 @@
  */
 import { ArrowOptions } from './Arrow'
 import { PositionLineOptions } from './PositionLine'
+import { TextOptions } from './Text'
 
 // export type DrawingType = 'position' | 'segment' | 'arrow' | 'text'
 
@@ -14,7 +15,9 @@ export type DrawingOptions = {
   position: PositionLineOptions,
   segment: PositionLineOptions,
   arrow: ArrowOptions,
-  text: PositionLineOptions,
+  text: TextOptions,
 }
 
 export type DrawingType = keyof DrawingOptions
+
+export type DrawingOption = DrawingOptions[DrawingType]

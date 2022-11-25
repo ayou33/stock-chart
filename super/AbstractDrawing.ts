@@ -9,6 +9,7 @@ import { TransformReceiver } from 'nanie'
 import Transform from 'nanie/src/Transform'
 import * as R from 'ramda'
 import Event from '../base/Event'
+import extend from '../helper/extend'
 import IDrawing, {
   ValuePoint,
   DrawingEvents,
@@ -18,7 +19,7 @@ import IDrawing, {
 import IGraph from '../interface/IGraph'
 import { themeOptions } from '../theme'
 
-abstract class AbstractDrawing<O = unknown, E extends string = never> extends Event<DrawingEvents | E> implements IDrawing<O> {
+abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string, unknown>, E extends string = never> extends Event<DrawingEvents | E> implements IDrawing<O> {
   chart: IGraph
   options: O
   state = DrawingState.BUSY
@@ -262,7 +263,15 @@ abstract class AbstractDrawing<O = unknown, E extends string = never> extends Ev
   }
 
   update (_options: Partial<O>) {
+    this.options = extend(this.options, _options)
+    this.emit('refresh')
+
     return this
+  }
+
+  redraw () {
+    this.trace().map((p, i) => this._points[i] = this.locate(p))
+    this.draw()
   }
 
   abstract draw (): this

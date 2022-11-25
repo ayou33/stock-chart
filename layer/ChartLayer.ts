@@ -9,6 +9,7 @@ import * as R from 'ramda'
 import Candle from '../chart/Candle'
 import { UpdateLevel, UpdatePayload } from '../core/DataSource'
 import Arrow from '../drawing/Arrow'
+import Text from '../drawing/Text'
 import { DrawingOptions, DrawingType } from '../drawing/drawings'
 import PositionLine from '../drawing/PositionLine'
 import IGraph from '../interface/IGraph'
@@ -40,8 +41,8 @@ class ChartLayer extends AbstractLayer implements ILayer {
       })
   }
 
-  draw () {
-    this._drawings.map(d => d.draw())
+  draw (redraw = false) {
+    this._drawings.map(d => redraw ? d.redraw() : d.draw())
   }
 
   apply (update: UpdatePayload): this {
@@ -51,7 +52,7 @@ class ChartLayer extends AbstractLayer implements ILayer {
       if (this._drawing) this._chart.save()
 
       if (update.level !== UpdateLevel.PATCH) {
-        this.draw()
+        this.draw(true)
       }
     }
 
@@ -97,6 +98,10 @@ class ChartLayer extends AbstractLayer implements ILayer {
       case 'arrow':
         this._drawings.unshift(
           this._drawing = new Arrow(this._chart, options as DrawingOptions['arrow']))
+        break
+      case 'text':
+        this._drawings.unshift(
+          this._drawing = new Text(this._chart, options as DrawingOptions['text']))
         break
     }
 

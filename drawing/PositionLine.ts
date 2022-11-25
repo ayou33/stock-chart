@@ -15,7 +15,7 @@ import { PointValue } from '../interface/IDrawing'
 import IGraph from '../interface/IGraph'
 import AbstractDrawing from '../super/AbstractDrawing'
 import { themeOptions } from '../theme'
-import imgSrc from './reminder@2x.png'
+import imgSrc from './asset/reminder@2x.png'
 
 export type PositionLineOptions = RecursivePartial<LineOptions>
 

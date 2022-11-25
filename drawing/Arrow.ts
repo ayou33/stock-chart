@@ -10,8 +10,8 @@ import extend from '../helper/extend'
 import { PointValue } from '../interface/IDrawing'
 import IGraph from '../interface/IGraph'
 import AbstractDrawing from '../super/AbstractDrawing'
-import arrowUpSrc from './arrow_up@2x.png'
-import arrowDownSrc from './arrow_down@2x.png'
+import arrowUpSrc from './asset/arrow_up@2x.png'
+import arrowDownSrc from './asset/arrow_down@2x.png'
 
 export type ArrowOptions = Partial<{
   toBottom: boolean;
