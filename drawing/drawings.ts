@@ -7,13 +7,14 @@
  */
 import { ArrowOptions } from './Arrow'
 import { PositionLineOptions } from './PositionLine'
+import { SegmentOptions } from './Segment'
 import { TextOptions } from './Text'
 
 // export type DrawingType = 'position' | 'segment' | 'arrow' | 'text'
 
 export type DrawingOptions = {
   position: PositionLineOptions,
-  segment: PositionLineOptions,
+  segment: SegmentOptions,
   arrow: ArrowOptions,
   text: TextOptions,
 }

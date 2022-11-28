@@ -93,7 +93,7 @@ class PositionLine extends AbstractDrawing<LineOptions> {
   render (points: PointValue[], alertState: boolean): this {
     this._alertOn = alertState
     const p = this.locate(points[0])
-    this.push(p)
+    this.record(p)
     this.draw()
     this.emit('done')
     this.ready()

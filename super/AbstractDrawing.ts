@@ -10,27 +10,23 @@ import Transform from 'nanie/src/Transform'
 import * as R from 'ramda'
 import Event from '../base/Event'
 import extend from '../helper/extend'
-import IDrawing, {
-  ValuePoint,
-  DrawingEvents,
-  PointValue,
-  DrawingState,
-} from '../interface/IDrawing'
+import IDrawing, { DrawingEvents, PointValue, ValuePoint } from '../interface/IDrawing'
 import IGraph from '../interface/IGraph'
 import { themeOptions } from '../theme'
+import createState from './DrawingStateManager'
 
 abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string, unknown>, E extends string = never> extends Event<DrawingEvents | E> implements IDrawing<O> {
   chart: IGraph
   options: O
-  state = DrawingState.BUSY
+  state = createState()
 
   /**
    * 以canvas坐标系为参考的点
    * @private
    */
   private readonly _points: ValuePoint[] = []
+  // private _candidatePoint: ValuePoint | null = null
 
-  private _stashedState: DrawingState[] = []
   private _hitIndex: number | null = null
   private _binding: unknown = null
   private _hit = false
@@ -42,26 +38,12 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
     this.options = options
   }
 
-  private freeze () {
-    this._stashedState.push(this.state)
-
-    this.state = DrawingState.BUSY
-  }
-
-  private release () {
-    const state = this._stashedState.pop()
-
-    if (state !== undefined) {
-      this.state = state
-    }
-  }
-
   /**
    * 通过坐标计算[date, price]
    * @private
    * @param point {PointLocation}
    */
-  private evaluate ({ x, y }: PointLocation): ValuePoint {
+  evaluate ({ x, y }: PointLocation): ValuePoint {
     return {
       x,
       y,
@@ -71,13 +53,21 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
   }
 
   ready () {
-    this.state = DrawingState.READY
+    this.state.ready()
   }
 
-  push (point: ValuePoint) {
-    this._points.push(point)
+  record (point: ValuePoint, forCandidate = false) {
+    if (forCandidate) {
+      // this._candidatePoint = point
+    } else {
+      this._points.push(point)
+    }
 
     return this
+  }
+
+  replace (point: ValuePoint) {
+    this._points.splice(-1, 1, point)
   }
 
   /**
@@ -102,6 +92,10 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
 
   trace (index?: number) {
     return index === undefined ? this._points : this._points[index]
+  }
+
+  count () {
+    return this._points.length
   }
 
   bind<T = unknown> (data?: T) {
@@ -137,7 +131,7 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
   }
 
   render (points: PointValue[], _extra?: unknown) {
-    R.map(p => this.push(this.locate(p)), points)
+    R.map(p => this.record(this.locate(p)), points)
 
     this.draw()
     this.emit('done')
@@ -165,11 +159,13 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
    * @private
    */
   private click () {
-    if (this.state === DrawingState.ACTIVE) {
-      this.state = DrawingState.FOCUSED
+    if (this.state.isActive()) {
+      this.state.focus()
+      // this.state = DrawingState.FOCUSED
       this.emit('focus', this)
-    } else if (this.state === DrawingState.FOCUSED) {
-      this.state = DrawingState.BLUR
+    } else if (this.state.isFocused()) {
+      // this.state = DrawingState.BLUR
+      this.state.ready()
       this.emit('blur')
     }
   }
@@ -201,13 +197,14 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
 
     this.emit('activate', (({ type, transform, dirty }) => {
       if (type === 'start') {
-        this.freeze()
+        this.state.save()
+        this.state.busy()
         from = transform
       } else if (type === 'zoom') {
         this.transform(from.diff(transform))
         from = transform
       } else if (type === 'end') {
-        this.release()
+        this.state.restore()
         if (dirty) {
           this.highlight()
           this.emit('transform', this.trace())
@@ -219,23 +216,22 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
   }
 
   private deactivate () {
-    this.state = DrawingState.INACTIVE
+    this.state.ready()
+    // this.state = DrawingState.INACTIVE
     this._hit = false
     this._hitIndex = null
     this.emit('deactivate')
   }
 
-  /**
-   * 响应鼠标移动
-   */
-  isContain (x: number, y: number) {
-    if (this.state === DrawingState.BUSY) return false
+  onPointerMove (x: number, y: number) {
+    if (this.state.isBusy()) return false
 
     const hit = this.test(x, y)
 
     if (hit && !this._hit) {
       this._hit = true
-      this.state = DrawingState.ACTIVE
+      // this.state = DrawingState.ACTIVE
+      this.state.active()
       this._hitIndex = this.testPoint(x, y)
       this.highlight()
       this.activate()
@@ -250,7 +246,7 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
    * 拾取鼠标点
    */
   use ([x, y]: Vector): this {
-    this.push(this.evaluate({ x, y }))
+    this.record(this.evaluate({ x, y }))
 
     this.draw()
 

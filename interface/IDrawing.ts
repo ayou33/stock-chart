@@ -6,6 +6,7 @@
  *  @description
  */
 import Event from '../base/Event'
+import { StateManager } from '../super/DrawingStateManager'
 
 export type DrawingEvents =
   'click'
@@ -28,19 +29,10 @@ export type ValuePoint = {
   date: number;
 }
 
-export enum DrawingState {
-  BUSY, // 忙，包括正在绘制，正在删除等不可操作状态
-  READY, // 一般状态
-  ACTIVE, // hovered
-  FOCUSED, // hover & click
-  INACTIVE, // mouseout
-  BLUR // mouseout & click
-}
-
 export type PointValue = Omit<ValuePoint, 'x' | 'y'>
 
 interface IDrawing<O = unknown> extends Event<DrawingEvents> {
-  state: DrawingState
+  state: StateManager
 
   draw (): this;
 
@@ -71,11 +63,11 @@ interface IDrawing<O = unknown> extends Event<DrawingEvents> {
   trace (): ValuePoint | ValuePoint[];
 
   /**
-   * 响应鼠标移动
+   * 响应指针移动
    * @param x
    * @param y
    */
-  isContain (x: number, y: number): boolean;
+  onPointerMove (x: number, y: number): boolean;
 
   update (options: Partial<O>): this;
 }

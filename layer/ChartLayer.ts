@@ -37,7 +37,9 @@ class ChartLayer extends AbstractLayer implements ILayer {
         }
       })
       .on('focus', (_, x: number, y: number) => {
-        R.find(R.invoker(2, 'isContain')(x, y), this._drawings)
+        if (!this._drawing?.state.isReady()) {
+          R.find(R.invoker(2, 'onPointerMove')(x, y), this._drawings)
+        }
       })
   }
 

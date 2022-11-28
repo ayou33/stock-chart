@@ -58,7 +58,7 @@ export class Arrow extends AbstractDrawing<Required<ArrowOptions>> {
 
   render (points: PointValue[], toBottom = false) {
     this._toBottom = toBottom
-    this.push(this.locate(points[0]))
+    this.record(this.locate(points[0]))
     this.draw()
     this.emit('done')
     this.ready()
