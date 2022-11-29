@@ -9,6 +9,7 @@ import * as R from 'ramda'
 import Candle from '../chart/Candle'
 import { UpdateLevel, UpdatePayload } from '../core/DataSource'
 import Arrow from '../drawing/Arrow'
+import Segment from '../drawing/Segment'
 import Text from '../drawing/Text'
 import { DrawingOptions, DrawingType } from '../drawing/drawings'
 import PositionLine from '../drawing/PositionLine'
@@ -37,14 +38,12 @@ class ChartLayer extends AbstractLayer implements ILayer {
         }
       })
       .on('focus', (_, x: number, y: number) => {
-        if (!this._drawing?.state.isReady()) {
-          R.find(R.invoker(2, 'onPointerMove')(x, y), this._drawings)
-        }
+        R.find(d => d.onPointerMove(x, y), this._drawings)
       })
   }
 
   draw (redraw = false) {
-    this._drawings.map(d => redraw ? d.redraw() : d.draw())
+    this._drawings.map(d => (redraw ? d.redraw() : d.draw()))
   }
 
   apply (update: UpdatePayload): this {
@@ -96,6 +95,10 @@ class ChartLayer extends AbstractLayer implements ILayer {
       case 'position':
         this._drawings.unshift(
           this._drawing = new PositionLine(this._chart, options as DrawingOptions['position']))
+        break
+      case 'segment':
+        this._drawings.unshift(
+          this._drawing = new Segment(this._chart, options as DrawingOptions['segment']))
         break
       case 'arrow':
         this._drawings.unshift(

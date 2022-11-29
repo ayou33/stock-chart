@@ -3,8 +3,10 @@
  *  @date 2022/8/2 19:01
  *  @author 阿佑[ayooooo@petalmail.com]
  */
+
+const devicePixelRatio = window.devicePixelRatio || 2
+
 export const aa = (context: CanvasRenderingContext2D, width: number, height: number) => {
-  const devicePixelRatio = window.devicePixelRatio || 2
   const canvas = context.canvas
   const w = width ?? canvas.width
   const h = height ?? canvas.height
@@ -19,6 +21,8 @@ export const aa = (context: CanvasRenderingContext2D, width: number, height: num
 
   context.scale(devicePixelRatio, devicePixelRatio)
 }
+
+export const toAntiAAPointer = ([x, y]: Vector): Vector => [x * devicePixelRatio, y * devicePixelRatio]
 
 export const createAAContext = (width: number, height: number) => {
   const canvas = document.createElement('canvas')

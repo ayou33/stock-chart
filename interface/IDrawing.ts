@@ -6,7 +6,7 @@
  *  @description
  */
 import Event from '../base/Event'
-import { StateManager } from '../super/DrawingStateManager'
+import { StateMachine } from '../super/DrawingStateManager'
 
 export type DrawingEvents =
   'click'
@@ -32,7 +32,7 @@ export type ValuePoint = {
 export type PointValue = Omit<ValuePoint, 'x' | 'y'>
 
 interface IDrawing<O = unknown> extends Event<DrawingEvents> {
-  state: StateManager
+  state: StateMachine
 
   draw (): this;
 

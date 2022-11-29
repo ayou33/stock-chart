@@ -6,22 +6,21 @@
  *  @description
  */
 export enum State {
-  READY, // 一般状态
   PENDING,
+  READY, // 一般状态
   CANCELED,
   ACTIVE, // hovered
   FOCUSED, // hover & click
   BUSY, // 忙，包括正在绘制，正在删除等不可操作状态
 }
 
-export function createState () {
+export function createStateChine () {
   let state = State.PENDING
   let savedState: State | null = null
 
   const transform = (to: State, from?: Array<State>) => {
     return (force = false) => {
       if (force || (from?.indexOf(state) ?? 0) !== -1) {
-        console.log('ayo', 'state is:', state, 'next state:', to)
         state = to
         return true
       }
@@ -32,6 +31,8 @@ export function createState () {
 
   class Manager {
     ready = transform(State.READY, [State.PENDING, State.FOCUSED, State.ACTIVE])
+
+    reset = this.ready
 
     cancel = transform(State.CANCELED, [State.PENDING])
 
@@ -76,6 +77,6 @@ export function createState () {
   return new Manager()
 }
 
-export type StateManager = ReturnType<typeof createState>
+export type StateMachine = ReturnType<typeof createStateChine>
 
-export default createState
+export default createStateChine

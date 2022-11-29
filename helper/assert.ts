@@ -7,11 +7,11 @@
  */
 import { AssertionError } from 'assert'
 
-export function assertIsDefined<T> (val: T): asserts val is NonNullable<T> {
-  if (val === undefined || val === null) {
+export function assertIsDefined<T> (value: T): asserts value is NonNullable<T> {
+  if (value === undefined || value === null) {
     throw new AssertionError(
       {
-        message: `Expected 'val' to be defined, but received ${val}`,
+        message: `Expected 'value' to be defined, but received ${value}`,
       },
     )
   }

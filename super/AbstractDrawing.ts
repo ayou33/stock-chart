@@ -13,23 +13,23 @@ import extend from '../helper/extend'
 import IDrawing, { DrawingEvents, PointValue, ValuePoint } from '../interface/IDrawing'
 import IGraph from '../interface/IGraph'
 import { themeOptions } from '../theme'
-import createState from './DrawingStateManager'
+import createStateMachine from './DrawingStateManager'
 
 abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string, unknown>, E extends string = never> extends Event<DrawingEvents | E> implements IDrawing<O> {
   chart: IGraph
   options: O
-  state = createState()
+  state = createStateMachine()
 
   /**
    * 以canvas坐标系为参考的点
    * @private
    */
-  private readonly _points: ValuePoint[] = []
-  // private _candidatePoint: ValuePoint | null = null
+  private _points: ValuePoint[] = []
+  private _index = 0
 
   private _hitIndex: number | null = null
+  private _hitFlag = false
   private _binding: unknown = null
-  private _hit = false
 
   protected constructor (chart: IGraph, options: O) {
     super()
@@ -56,18 +56,14 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
     this.state.ready()
   }
 
-  record (point: ValuePoint, forCandidate = false) {
-    if (forCandidate) {
-      // this._candidatePoint = point
-    } else {
-      this._points.push(point)
+  record (point: ValuePoint, replace = false) {
+    this._points[this._index] = point
+
+    if (this.state.isPending() && !replace) {
+      this._index = this._points.length
     }
 
     return this
-  }
-
-  replace (point: ValuePoint) {
-    this._points.splice(-1, 1, point)
   }
 
   /**
@@ -95,7 +91,7 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
   }
 
   count () {
-    return this._points.length
+    return this._index
   }
 
   bind<T = unknown> (data?: T) {
@@ -161,11 +157,9 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
   private click () {
     if (this.state.isActive()) {
       this.state.focus()
-      // this.state = DrawingState.FOCUSED
       this.emit('focus', this)
     } else if (this.state.isFocused()) {
-      // this.state = DrawingState.BLUR
-      this.state.ready()
+      this.state.reset()
       this.emit('blur')
     }
   }
@@ -216,9 +210,8 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
   }
 
   private deactivate () {
-    this.state.ready()
-    // this.state = DrawingState.INACTIVE
-    this._hit = false
+    this.state.reset()
+    this._hitFlag = false
     this._hitIndex = null
     this.emit('deactivate')
   }
@@ -226,20 +219,23 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
   onPointerMove (x: number, y: number) {
     if (this.state.isBusy()) return false
 
-    const hit = this.test(x, y)
+    const isHit = this.test(x, y)
 
-    if (hit && !this._hit) {
-      this._hit = true
-      // this.state = DrawingState.ACTIVE
+    /**
+     * 本次校验结果与当前保存的结果
+     * 实现命中激活状态的切换并过滤多余的操作
+     */
+    if (isHit && !this._hitFlag) {
+      this._hitFlag = true
       this.state.active()
       this._hitIndex = this.testPoint(x, y)
       this.highlight()
       this.activate()
-    } else if (this._hit && !hit) {
+    } else if (this._hitFlag && !isHit) {
       this.deactivate()
     }
 
-    return hit
+    return isHit
   }
 
   /**
