@@ -31,6 +31,8 @@ export class Text extends AbstractDrawing<Required<TextOptions>> {
 
     const ctx = this.chart.context
 
+    ctx.font = '14px Roboto'
+    ctx.textBaseline = 'bottom'
     ctx.fillStyle = this.options.color
     ctx.fillText(this.options.text || 'text', x, y)
 
@@ -60,10 +62,12 @@ export class Text extends AbstractDrawing<Required<TextOptions>> {
     assertIsDefined(this._measure)
     const { x: left, y: top } = p
 
-    return x >= left &&
-      x <= left + this._measure.width &&
-      y >= top &&
-      y <= top + this._measure.height
+    const status = x >= left - 8 &&
+    x <= left + this._measure.width + 8 &&
+    y <= top + 8 &&
+    y >= top - this._measure.height - 8
+
+    return status
   }
 }
 

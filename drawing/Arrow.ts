@@ -71,12 +71,12 @@ export class Arrow extends AbstractDrawing<Required<ArrowOptions>> {
 
     assertIsDefined(p)
 
-    const { x, y } = transfer(p.x, p.y, this._toBottom)
+    // const { x, y } = transfer(p.x, p.y, this._toBottom)
 
-    return mx >= x &&
-      mx <= (x + WIDTH) &&
-      my > y &&
-      my < (y + HEIGHT)
+    return mx >= p.x &&
+      mx <= (p.x + WIDTH) &&
+      my > p.y &&
+      my < (p.y + HEIGHT)
 
   }
 }
