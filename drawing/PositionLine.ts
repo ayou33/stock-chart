@@ -16,6 +16,8 @@ import IGraph from '../interface/IGraph'
 import AbstractDrawing from '../super/AbstractDrawing'
 import { themeOptions } from '../theme'
 import imgSrc from './asset/reminder@2x.png'
+import { createTextOutline, toAntiAAPointer } from '../helper/aa'
+
 
 export type PositionLineOptions = RecursivePartial<LineOptions>
 
@@ -102,7 +104,10 @@ class PositionLine extends AbstractDrawing<LineOptions> {
   }
 
   test (_: number, y: number): boolean {
-    return Math.abs(y - this._centre) <= 4
+    const p = this.trace(0)
+    const ctx = this.chart.context
+    createTextOutline(ctx, String(this.trace(0)?.price), p, 4)
+    return Math.abs(y - this._centre) <= 4 || ctx.isPointInPath(...toAntiAAPointer([_, y]))
   }
 
   highlight () {
