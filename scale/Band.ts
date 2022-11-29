@@ -315,7 +315,7 @@ class Band implements IScale<number[]>{
    * @param x
    */
   invert (x: number): number {
-    const index = Math.floor((x - this._rangeStart) / this._step)
+    const index = Math.round((x - this._rangeStart) / this._step)
 
     if (index < 0) {
       return this._domain[0] - this._domainStep * Math.abs(index)

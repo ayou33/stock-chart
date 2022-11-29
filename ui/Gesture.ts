@@ -7,7 +7,7 @@ import { nanie, API, Transform } from 'nanie'
 import { GraphOptions, StockChartOptions } from '../options'
 import AbstractGraph from '../super/AbstractGraph'
 
-export type GestureEvents = 'transform' | 'transformed' | 'click'
+export type GestureEvents = 'transform' | 'transformed' | 'click' | 'contextmenu'
 
 class Gesture<T extends string = any> extends AbstractGraph<GestureEvents | T, StockChartOptions> implements AbstractGraph<GestureEvents | T> {
   zoom: API
@@ -26,6 +26,8 @@ class Gesture<T extends string = any> extends AbstractGraph<GestureEvents | T, S
       cursor: crosshair;
     `
 
+    this.canvas.oncontextmenu = e => this.emit('contextmenu', e)
+
     this.zoom = nanie(this.canvas, (e) => {
       const event = e.sourceEvent as MouseEvent
       const p = this.pointer(event.clientX, event.clientY)
@@ -39,7 +41,9 @@ class Gesture<T extends string = any> extends AbstractGraph<GestureEvents | T, S
       } else if (e.type === 'end') {
         this.emit('transformed', e.transform)
       } else if (e.type === 'click') {
-        this.emit('click', p)
+        if ((e.sourceEvent as MouseEvent).button === 0) {
+          this.emit('click', p)
+        }
       }
     })
 

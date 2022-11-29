@@ -33,12 +33,16 @@ class ChartLayer extends AbstractLayer implements ILayer {
 
     this._board
       .on('click', (_, location: Vector) => {
-        if (this._drawing) {
-          this._drawing.use(location)
-        }
+        this._drawing?.use(location)
       })
       .on('focus', (_, x: number, y: number) => {
         R.find(d => d.onPointerMove(x, y), this._drawings)
+      })
+      .on('contextmenu', (_, e: MouseEvent) => {
+        if (this._drawing?.state.isPending()) {
+          e.preventDefault()
+          this.remove(this._drawing)
+        }
       })
   }
 
@@ -122,8 +126,7 @@ class ChartLayer extends AbstractLayer implements ILayer {
           this.replay()
         })
         .on('remove', (_, d) => {
-          this._drawings = R.reject(R.equals(d), this._drawings)
-          this.replay()
+          this.remove(d)
         })
         .on('activate', (_, receive) => {
           this._board.zoom.interrupt(e => {
@@ -143,9 +146,14 @@ class ChartLayer extends AbstractLayer implements ILayer {
     throw new TypeError(`Drawing type "${type}" is not recognized!`)
   }
 
-  clear () {
+  remove (d?: AbstractDrawing) {
     this._drawing = null
-    this._drawings = []
+    this._drawings = d ? R.reject(R.equals(d), this._drawings) : []
+    this.replay()
+  }
+
+  clearDrawing () {
+    this.remove()
   }
 }
 

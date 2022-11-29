@@ -21,7 +21,7 @@ export class Text extends AbstractDrawing<Required<TextOptions>> {
   private _measure: ReturnType<typeof measureText> | null = null
 
   constructor (chart: IGraph, options: TextOptions) {
-    super(chart, extend({ color: '#000', text: 'Type text' }, options))
+    super(chart, extend({ color: '#000', text: 'Text' }, options))
   }
 
   draw () {
@@ -34,7 +34,7 @@ export class Text extends AbstractDrawing<Required<TextOptions>> {
     ctx.font = '14px Roboto'
     ctx.textBaseline = 'bottom'
     ctx.fillStyle = this.options.color
-    ctx.fillText(this.options.text || 'text', x, y)
+    ctx.fillText(this.options.text, x, y)
 
     this.updateTextBounding()
 
@@ -62,12 +62,10 @@ export class Text extends AbstractDrawing<Required<TextOptions>> {
     assertIsDefined(this._measure)
     const { x: left, y: top } = p
 
-    const status = x >= left - 8 &&
-    x <= left + this._measure.width + 8 &&
-    y <= top + 8 &&
-    y >= top - this._measure.height - 8
-
-    return status
+    return x >= left - 8 &&
+      x <= left + this._measure.width + 8 &&
+      y <= top + 8 &&
+      y >= top - this._measure.height - 8
   }
 }
 

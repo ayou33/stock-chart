@@ -149,7 +149,7 @@ class Scene {
   }
 
   clearDrawing () {
-    this._chartLayer.clear()
+    this._chartLayer.clearDrawing()
   }
 
   loading () {

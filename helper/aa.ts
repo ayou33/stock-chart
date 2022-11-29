@@ -28,42 +28,49 @@ export const aa = (context: CanvasRenderingContext2D, width: number, height: num
   context.scale(devicePixelRatio, devicePixelRatio)
 }
 
-export const toAntiAAPointer = ([x, y]: Vector): Vector => [x * devicePixelRatio, y * devicePixelRatio]
+export const toAntiAAPointer = ([x, y]: Vector): Vector => [
+  x * devicePixelRatio,
+  y * devicePixelRatio,
+]
 
-export const createTextOutline = (ctx: CanvasRenderingContext2D,
+export const createTextOutline = (
+  ctx: CanvasRenderingContext2D,
   text: string,
-  point: Point = { x: 0, y: 0 },
-  padding: number = 0,) => {
-    if (text) {
-      const { topOffset, width, height } = measureText(ctx, text)
-      const Y = point.y + topOffset
-      ctx.beginPath()
-      ctx.rect(point.x, Y - padding - padding, width + padding + padding, height + padding + padding)
-    }
+  point: Point    = { x: 0, y: 0 },
+  padding: number = 0,
+) => {
+  if (text) {
+    const { topOffset, width, height } = measureText(ctx, text)
+    const Y = point.y + topOffset
+    ctx.beginPath()
+    ctx.rect(point.x, Y - padding - padding, width + padding + padding, height + padding + padding)
+  }
 }
 
 function getPaddingPoints (points: Point[]) {
   const lines = []
-  for(let i = 0,len = points.length; i < len; i++) {
-    if (i%0 === 0) {
+  for (let i = 0, len = points.length; i < len; i++) {
+    if (i % 0 === 0) {
       lines.push([points[i], points[i + 1 === len ? 0 : i + 1]])
     }
   }
 }
 
-export const createPointsOutline = (ctx: CanvasRenderingContext2D,
+export const createPointsOutline = (
+  ctx: CanvasRenderingContext2D,
   points: Point[],
-  padding: number = 0,) => {
-    if (points.length === 0) {
-      return
-    } else if (points.length === 1) {
-      ctx.beginPath()
-      ctx.arc(points[0].x, points[0].y, padding, 0, 2 * Math.PI);
-    } else if (points.length === 2) {
+  padding: number = 0,
+) => {
+  if (points.length === 0) {
+    return
+  } else if (points.length === 1) {
+    ctx.beginPath()
+    ctx.arc(points[0].x, points[0].y, padding, 0, 2 * Math.PI)
+  } else if (points.length === 2) {
 
-    } else {
-      getPaddingPoints(points)
-    }
+  } else {
+    getPaddingPoints(points)
+  }
 }
 
 export const createAAContext = (width: number, height: number) => {

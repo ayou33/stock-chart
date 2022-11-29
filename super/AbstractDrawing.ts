@@ -103,7 +103,6 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
   }
 
   remove () {
-    this.deactivate()
     this.emit('remove', this)
 
     return this
@@ -213,13 +212,6 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
     }) as TransformReceiver)
   }
 
-  private deactivate () {
-    this.state.reset()
-    this._hitFlag = false
-    this._hitIndex = null
-    this.emit('deactivate')
-  }
-
   onPointerMove (x: number, y: number) {
     if (this.state.isBusy()) return false
 
@@ -236,7 +228,10 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
       this.highlight()
       this.activate()
     } else if (this._hitFlag && !isHit) {
-      this.deactivate()
+      this.state.reset()
+      this._hitFlag = false
+      this._hitIndex = null
+      this.emit('deactivate')
     }
 
     return isHit
