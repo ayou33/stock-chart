@@ -28,7 +28,6 @@ class PositionLine extends AbstractDrawing<LineOptions> {
   private readonly _line: Line
 
   private _centre = NaN
-  private _options: LineOptions
   private _alertOn = false
 
   constructor (chart: IGraph, options?: PositionLineOptions) {
@@ -37,8 +36,6 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     super(chart, _options)
 
     this._line = new Line(chart.context, _options)
-
-    this._options = _options
 
     this.$img.src = imgSrc
   }
@@ -52,7 +49,7 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     const ctx = this.chart.context
     const text = String(this.trace(0)?.price)
 
-    ctx.strokeStyle = this._options.color
+    ctx.strokeStyle = this.options.color
     ctx.textBaseline = 'bottom'
     ctx.textAlign = 'start'
 
@@ -61,7 +58,7 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     const Y = y + topOffset
     const pad = expandPadding({ top: 4, left: this._alertOn ? 20 : 4 })
 
-    ctx.fillStyle = this._options.color
+    ctx.fillStyle = this.options.color
     ctx.fillRect(0, Y - pad.top - pad.bottom, width + pad.left + pad.right, height + pad.top + pad.bottom)
     ctx.fillStyle = 'white'
     ctx.fillText(text, pad.left, y - pad.top)
@@ -133,7 +130,7 @@ class PositionLine extends AbstractDrawing<LineOptions> {
   update (options: Partial<LineOptions>): this {
     this._line.update(options)
 
-    this._options = extend(this._options, options)
+    this.options = extend(this.options, options)
 
     this.emit('refresh')
 

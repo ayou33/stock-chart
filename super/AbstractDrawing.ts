@@ -114,14 +114,16 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
    */
   highlight () {
     const ctx = this.chart.context
-    ctx.beginPath()
     ctx.strokeStyle = themeOptions.primaryColor
     R.map(
       ({ date, price }) =>
-        ctx.arc(this.chart.fx(date), this.chart.fy(price), 5, 0, Math.PI * 2),
+      {
+        ctx.beginPath()
+        ctx.arc(this.chart.fx(date), this.chart.fy(price), 5, 0, Math.PI * 2)
+        ctx.stroke()
+      },
       this._points,
     )
-    ctx.stroke()
 
     return this
   }
@@ -167,7 +169,7 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
   /**
    * 更新控制点
    */
-  private transform (diff: Transform) {
+  transform (diff: Transform) {
     if (this._hitIndex === null) {
       this._points.map(
         (p, i) =>
@@ -180,6 +182,8 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
         y: p.y + diff.y,
       })
     }
+
+    return this
   }
 
   /**

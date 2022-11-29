@@ -42,9 +42,9 @@ export class Segment extends AbstractDrawing<LineOptions> {
 
       const ctx = this.chart.context
       ctx.beginPath()
+      ctx.strokeStyle = this.options.color
       ctx.moveTo(start.x, start.y)
       ctx.lineTo(end.x, end.y)
-      ctx.strokeStyle = 'black'
       ctx.stroke()
 
     }
@@ -70,6 +70,19 @@ export class Segment extends AbstractDrawing<LineOptions> {
     }
 
     return false
+  }
+
+  testPoint (x: number, y: number): number | null {
+    const ctx = this.chart.context
+
+    let hitPointIndex: number | null = null
+    this.trace().find((p, i) => {
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, 5, 0, Math.PI * 2)
+      return ctx.isPointInPath(...toAntiAAPointer([x, y])) && (hitPointIndex = i)
+    })
+
+    return hitPointIndex
   }
 
   onPointerMove (x: number, y: number): boolean {
