@@ -70,7 +70,7 @@ export type Computer = {
 export class Layout extends Event<'resize'> {
   private readonly $container: Element
 
-  private readonly $table: HTMLTableElement
+  private $table!: HTMLTableElement
 
   private readonly _keyPositions: Record<ReservedRoles, Vector>
 
@@ -133,35 +133,45 @@ export class Layout extends Event<'resize'> {
 
     const $table = this.$container.querySelector('table.layout')
 
-    if ($table !== null) {
-      this.$table = $table as HTMLTableElement
-      this._describer = this.parseLayout(this.$table)
-    } else {
-      this.$table = document.createElement('table')
-      this._describer = useDescriber(this._options, describer)
-    }
+    this._describer = $table instanceof HTMLTableElement
+                      ? this.parseLayout(this.$table = $table)
+                      : useDescriber(this._options, describer)
 
     this.calcSpacing()
-
-    this.styleTable(this.$table, this._space.width, this._space.height)
 
     this._layout = this.buildLayoutAndDescription()
 
     this._computer = this.buildComputer()
 
-    this.mount()
+    this.render()
 
     this.monitorResize()
   }
 
   static parseSize (size: string) {
     return !size ? undefined
-      : size.endsWith('%') ? -(parseFloat(size) / 100)
-        : parseFloat(size)
+                 : size.endsWith('%') ? -(parseFloat(size) / 100)
+                                      : parseFloat(size)
   }
 
-  private mount () {
-    this.$container.appendChild(this.render())
+  private render () {
+    const tbody = document.createElement('tbody')
+
+    this._layout.map(r => tbody.appendChild(r.render()))
+
+    if (this.$table?.parentElement === this.$container) {
+      this.$container.removeChild(this.$table)
+    }
+
+    this.$table = document.createElement('table')
+
+    this.styleTable(this.$table)
+
+    this.$table.appendChild(tbody)
+
+    this.$container.appendChild(this.$table)
+
+    return this
   }
 
   /**
@@ -182,12 +192,12 @@ export class Layout extends Event<'resize'> {
     }
   }
 
-  private styleTable (table: HTMLTableElement, width: number, height: number) {
+  private styleTable (table: HTMLTableElement) {
     table.classList.add('layout')
 
     table.style.cssText += `
-      width: ${width}px;
-      height: ${height}px;
+      width: ${this._space.width}px;
+      height: ${this._space.height}px;
       border: none;
       border-collapse: collapse;
       border-spacing: 0;
@@ -241,10 +251,12 @@ export class Layout extends Event<'resize'> {
   private createWidthFn (row: number, col: number) {
     const cell = this.read([col, row])
 
-    if (cell.isLink) return memoizeWith(
-      this.keyGen(row, col),
-      () => this.compute('width', cell.source),
-    )
+    if (cell.isLink) {
+      return memoizeWith(
+        this.keyGen(row, col),
+        () => this.compute('width', cell.source),
+      )
+    }
 
     if (!cell.flexedWidth) {
       return () => cell.width
@@ -272,10 +284,12 @@ export class Layout extends Event<'resize'> {
   private createHeightFn (row: number, col: number) {
     const cell = this.read([col, row])
 
-    if (cell.isLink) return memoizeWith(
-      this.keyGen(row, col),
-      () => this.compute('height', cell.source),
-    )
+    if (cell.isLink) {
+      return memoizeWith(
+        this.keyGen(row, col),
+        () => this.compute('height', cell.source),
+      )
+    }
 
     if (!cell.flexedHeight) {
       return () => cell.height
@@ -330,16 +344,6 @@ export class Layout extends Event<'resize'> {
     return width
   }
 
-  private render () {
-    const fragment = document.createDocumentFragment()
-
-    this._layout.map(r => fragment.appendChild(r.render()))
-
-    this.$table.appendChild(fragment)
-
-    return this.$table
-  }
-
   private assertLocation ([col, row]: Vector) {
     if (
       isOut(0, this._space.row)(row) ||
@@ -390,7 +394,7 @@ export class Layout extends Event<'resize'> {
 
     this._layout = layout
 
-    this.mount()
+    this.render()
 
     this.resize()
 
@@ -490,7 +494,10 @@ export class Layout extends Event<'resize'> {
   }
 
   resize () {
+    const display = this.$table.style.display
+    this.$table.style.display = 'none'
     const rect = this.$container.getBoundingClientRect()
+    this.$table.style.display = display
 
     this._space.width = rect.width
     this._space.height = rect.height

@@ -8,7 +8,7 @@
 import { API, nanie, Transform } from 'nanie'
 import { UpdatePayload } from '../core/DataSource'
 import Line from '../graphics/Line'
-import { createAAContext } from '../helper/aa'
+import { aa, createAAContext } from '../helper/aa'
 import { IndicatorInputs, IndicatorNames, indicators } from '../indicator/indicators'
 import IIndicator, { DisplayType } from '../interface/IIndicator'
 import ILayer from '../interface/ILayer'
@@ -58,6 +58,26 @@ class IndicatorLayer extends AbstractLayer implements ILayer {
   }
 
   resize (): this {
+    // resize 主图指标图层
+    if (this._innerContext && this._innerContainer) {
+      aa(this._innerContext, this._innerContainer.width(), this._innerContainer.height())
+    }
+
+    // resize 副图指标图层与十字线层
+    if (this._externalContext && this._externalContainer) {
+      aa(this._externalContext, this._externalContainer.width(), this._externalContainer.height())
+      if (this._externalBoard) {
+        aa(
+          this._externalBoard,
+          this._externalContainer.width(),
+          this._externalContainer.height(),
+        )
+      }
+    }
+
+    // 数据重绘
+    if (this.lastUpdate) this.apply(this.lastUpdate)
+
     return this
   }
 
@@ -107,6 +127,7 @@ class IndicatorLayer extends AbstractLayer implements ILayer {
       }).at(0)
     }
 
+    // indicator 绘图面板
     if (!this._externalContext) {
       const context = createAAContext(
         this._externalContainer.width(), this._externalContainer.height())
@@ -115,6 +136,7 @@ class IndicatorLayer extends AbstractLayer implements ILayer {
       this._externalContainer.insert(canvas)
     }
 
+    // indicator 交互面板
     if (!this._externalBoard) {
       this._externalBoard = createAAContext(
         this._externalContainer.width(), this._externalContainer.height())
@@ -142,7 +164,7 @@ class IndicatorLayer extends AbstractLayer implements ILayer {
     const Ctor = indicators[name]
 
     const [container, context] = Ctor.displayType === DisplayType.INNER ? this.useInnerContext()
-      : this.useExternalContainer()
+                                                                        : this.useExternalContainer()
 
     const indicator = new Ctor({
       container,
