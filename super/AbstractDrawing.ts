@@ -24,7 +24,7 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
    * 以canvas坐标系为参考的点
    * @private
    */
-  private _points: ValuePoint[] = []
+  private readonly _points: ValuePoint[] = []
   private _index = 0
 
   private _hitIndex: number | null = null
@@ -115,8 +115,7 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
     const ctx = this.chart.context
     ctx.strokeStyle = themeOptions.primaryColor
     R.map(
-      ({ date, price }) =>
-      {
+      ({ date, price }) => {
         ctx.beginPath()
         ctx.arc(this.chart.fx(date), this.chart.fy(price), 5, 0, Math.PI * 2)
         ctx.stroke()
@@ -214,6 +213,13 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
 
   onPointerMove (x: number, y: number) {
     if (this.state.isBusy()) return false
+
+    if (this.state.isPending()) {
+      this.record(this.evaluate({ x, y }), true)
+      this.emit('refresh')
+
+      return true
+    }
 
     const isHit = this.test(x, y)
 

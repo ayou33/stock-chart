@@ -18,18 +18,19 @@ import { themeOptions } from '../theme'
 import imgSrc from './asset/reminder@2x.png'
 import { createTextOutline, toAntiAAPointer } from '../helper/aa'
 
-
 export type PositionLineOptions = RecursivePartial<LineOptions>
 
 const _horizontalAngle = 0
 
 class PositionLine extends AbstractDrawing<LineOptions> {
-  private readonly $img = new Image()
+  private readonly _$img = new Image()
   private readonly _line: Line
 
   private _centre = NaN
   private _alertOn = false
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   constructor (chart: IGraph, options?: PositionLineOptions) {
     const _options = extend(lineOptions, extend(options ?? {}, { angle: _horizontalAngle }))
 
@@ -37,7 +38,7 @@ class PositionLine extends AbstractDrawing<LineOptions> {
 
     this._line = new Line(chart.context, _options)
 
-    this.$img.src = imgSrc
+    this._$img.src = imgSrc
   }
 
   draw () {
@@ -65,7 +66,7 @@ class PositionLine extends AbstractDrawing<LineOptions> {
 
     if (this._alertOn) {
       ctx.fillStyle = 'red'
-      ctx.drawImage(this.$img, 4, Y - pad.top - 2, 16, 16)
+      ctx.drawImage(this._$img, 4, Y - pad.top - 2, 16, 16)
     }
 
     this._centre = y

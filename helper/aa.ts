@@ -3,7 +3,7 @@
  *  @date 2022/8/2 19:01
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { measureText } from '../helper/typo'
+import { measureText } from './typo'
 
 const devicePixelRatio = window.devicePixelRatio || 2
 

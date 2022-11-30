@@ -84,16 +84,6 @@ export class Segment extends AbstractDrawing<LineOptions> {
 
     return hitPointIndex
   }
-
-  onPointerMove (x: number, y: number): boolean {
-    if (this.state.isPending()) {
-      this.record(this.evaluate({ x, y }), true)
-      this.emit('refresh')
-      return true
-    } else {
-      return super.onPointerMove(x, y)
-    }
-  }
 }
 
 export default Segment
