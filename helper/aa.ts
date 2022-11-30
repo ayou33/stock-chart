@@ -42,8 +42,9 @@ export const createTextOutline = (
   if (text) {
     const { topOffset, width, height } = measureText(ctx, text)
     const Y = point.y + topOffset
+    const doublePadding = padding * 2
     ctx.beginPath()
-    ctx.rect(point.x, Y - padding - padding, width + padding + padding, height + padding + padding)
+    ctx.rect(point.x, Y - doublePadding, width + doublePadding, height + doublePadding)
   }
 }
 
@@ -59,7 +60,7 @@ function getPaddingPoints (points: Point[]) {
 export const createPointsOutline = (
   ctx: CanvasRenderingContext2D,
   points: Point[],
-  padding: number = 0,
+  padding: number = 1,
 ) => {
   if (points.length === 0) {
     return
@@ -67,7 +68,10 @@ export const createPointsOutline = (
     ctx.beginPath()
     ctx.arc(points[0].x, points[0].y, padding, 0, 2 * Math.PI)
   } else if (points.length === 2) {
-
+    ctx.lineWidth = padding * 2
+    ctx.beginPath()
+    ctx.moveTo(points[0].x, points[0].y)
+    ctx.lineTo(points[1].x, points[1].y)
   } else {
     getPaddingPoints(points)
   }
