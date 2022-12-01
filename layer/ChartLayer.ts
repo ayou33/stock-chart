@@ -25,6 +25,8 @@ class ChartLayer extends AbstractLayer implements ILayer {
   private _drawing: AbstractDrawing | null = null
   private _drawings: AbstractDrawing[] = []
   private _board: Board
+  private _busy: boolean = false
+
 
   constructor (layerOptions: LayerOptions & { board: Board }) {
     super(layerOptions)
@@ -36,7 +38,9 @@ class ChartLayer extends AbstractLayer implements ILayer {
         this._drawing?.use(location)
       })
       .on('focus', (_, x: number, y: number) => {
-        R.find(d => d.onPointerMove(x, y), this._drawings)
+        if (!this._busy){
+          R.find(d => d.onPointerMove(x, y), this._drawings)
+        }
       })
       .on('contextmenu', (_, e: MouseEvent) => {
         if (this._drawing?.state.isPending()) {
@@ -140,6 +144,12 @@ class ChartLayer extends AbstractLayer implements ILayer {
         })
         .on('refresh', () => {
           this.replay()
+        })
+        .on('busy', () => {
+          this._busy = true
+        })
+        .on('free', () => {
+          this._busy = false
         })
     }
 

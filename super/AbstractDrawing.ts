@@ -195,12 +195,14 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
       if (type === 'start') {
         this.state.save()
         this.state.busy()
+        this.emit('busy')
         from = transform
       } else if (type === 'zoom') {
         this.transform(from.diff(transform))
         from = transform
       } else if (type === 'end') {
         this.state.restore()
+        this.emit('free')
         if (dirty) {
           this.highlight()
           this.emit('transform', this.trace())

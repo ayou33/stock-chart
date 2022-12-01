@@ -38,9 +38,9 @@ export class Arrow extends AbstractDrawing<Required<ArrowOptions>> {
 
     this.$img.onload = () => this.emit('refresh')
 
-    this.$img.src = this.options.toBottom ? arrowDownSrc : arrowUpSrc
-
     this._toBottom = this.options.toBottom
+
+    this.$img.src = this._toBottom ? arrowDownSrc : arrowUpSrc
   }
 
   draw (): this {
@@ -56,8 +56,7 @@ export class Arrow extends AbstractDrawing<Required<ArrowOptions>> {
     return this
   }
 
-  render (points: PointValue[], toBottom = false) {
-    this._toBottom = toBottom
+  render (points: PointValue[]) {
     this.record(this.locate(points[0]))
     this.draw()
     this.emit('done')
@@ -71,12 +70,12 @@ export class Arrow extends AbstractDrawing<Required<ArrowOptions>> {
 
     assertIsDefined(p)
 
-    // const { x, y } = transfer(p.x, p.y, this._toBottom)
+    const { x, y } = transfer(p.x, p.y, this._toBottom)
 
-    return mx >= p.x &&
-      mx <= (p.x + WIDTH) &&
-      my > p.y &&
-      my < (p.y + HEIGHT)
+    return mx >= x &&
+      mx <= (x + WIDTH) &&
+      my > y &&
+      my < (y + HEIGHT)
 
   }
 }

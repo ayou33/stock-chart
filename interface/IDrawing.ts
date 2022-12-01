@@ -21,6 +21,8 @@ export type DrawingEvents =
   | 'remove'
   | 'transform'
   | 'refresh'
+  | 'busy'
+  | 'free'
 
 export type ValuePoint = {
   x: number;
