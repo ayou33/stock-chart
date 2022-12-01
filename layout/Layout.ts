@@ -174,12 +174,28 @@ export class Layout extends Event<'resize'> {
     return this
   }
 
+  private getContainerRect () {
+    if (this.$table) {
+      const display = this.$table.style.display
+
+      this.$table.style.display = 'none'
+
+      const rect = this.$container.getBoundingClientRect()
+
+      this.$table.style.display = display
+
+      return rect
+    }
+
+    return this.$container.getBoundingClientRect()
+  }
+
   /**
    * 计算总的size，行和列
    * @private
    */
   private calcSpacing () {
-    const rect = this.$container.getBoundingClientRect()
+    const rect = this.getContainerRect()
 
     this._space.width = rect.width
 
@@ -242,6 +258,13 @@ export class Layout extends Event<'resize'> {
     }, 1000 / 6))
   }
 
+  /**
+   * 缓存函数key生成器
+   * 带入space的参数 防止resize之后的值被缓存
+   * @param row
+   * @param col
+   * @private
+   */
   private keyGen (row: number, col: number) {
     return () => {
       return `${this._space.width}-${this._space.height}-${row}-${col}`
@@ -494,10 +517,7 @@ export class Layout extends Event<'resize'> {
   }
 
   resize () {
-    const display = this.$table.style.display
-    this.$table.style.display = 'none'
-    const rect = this.$container.getBoundingClientRect()
-    this.$table.style.display = display
+    const rect = this.getContainerRect()
 
     this._space.width = rect.width
     this._space.height = rect.height
