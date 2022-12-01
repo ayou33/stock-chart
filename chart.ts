@@ -45,7 +45,7 @@ export class StockChart {
   async load (symbol: string) {
     this.symbol = symbol
     const result = await this._dataSource.load(symbol)
-    // this._scene.restore()
+    this.home()
     return result
   }
 
@@ -81,6 +81,10 @@ export class StockChart {
     }
 
     return this
+  }
+
+  home () {
+    this._scene.home()
   }
 }
 

@@ -239,7 +239,7 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
       this.state.reset()
       this._hitFlag = false
       this._hitIndex = null
-      this.emit('deactivate')
+      this.emit('blur')
     }
 
     return isHit

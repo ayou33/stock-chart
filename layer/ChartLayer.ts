@@ -130,6 +130,7 @@ class ChartLayer extends AbstractLayer implements ILayer {
           this.replay()
         })
         .on('remove', (_, d) => {
+          this._board.zoom.continue()
           this.remove(d)
         })
         .on('activate', (_, receive) => {
@@ -138,7 +139,7 @@ class ChartLayer extends AbstractLayer implements ILayer {
             if (e.type === 'zoom') this.replay()
           })
         })
-        .on('deactivate blur', () => {
+        .on('blur', () => {
           this._board.zoom.continue()
           this.replay()
         })
@@ -157,8 +158,8 @@ class ChartLayer extends AbstractLayer implements ILayer {
   }
 
   remove (d?: AbstractDrawing) {
-    this._drawing = null
     this._drawings = d ? R.reject(R.equals(d), this._drawings) : []
+    this._drawing = null
     this.replay()
   }
 
