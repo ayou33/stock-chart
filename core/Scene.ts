@@ -176,10 +176,8 @@ class Scene {
     }
   }
 
-  home () {
-    this._reactiveLayer.board.applyTransform(new Transform())
-    this._reactiveLayer.board.emit('transformed', new Transform())
-    this.apply()
+  home (duration = 0) {
+    this._reactiveLayer.board.applyTransform(new Transform(), duration)
   }
 }
 

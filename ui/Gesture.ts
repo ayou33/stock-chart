@@ -58,8 +58,8 @@ class Gesture<T extends string = any> extends AbstractGraph<GestureEvents | T, S
     return this
   }
 
-  applyTransform (transform: Transform) {
-    this.zoom.apply(transform, 300)
+  applyTransform (transform: Transform, duration = 0) {
+    this.zoom.apply(transform, duration)
   }
 }
 

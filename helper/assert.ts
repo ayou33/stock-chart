@@ -30,7 +30,15 @@ export default assert
 export function assertIsString (val: unknown): asserts val is string {
   if (typeof val !== 'string') {
     throw new AssertionError({
-      message: 'Not a string!',
+      message: `Expected 'value' is a number, but got ${val}`,
+    })
+  }
+}
+
+export function assertIsNumber (val: unknown): asserts val is number {
+  if (typeof val !== 'number' || Number.isNaN(val)) {
+    throw new AssertionError({
+      message: `Expected 'value' is a number, but got ${val}`,
     })
   }
 }

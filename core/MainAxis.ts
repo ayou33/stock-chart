@@ -91,12 +91,12 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     return this
   }
 
-  transform (transform: Transform, ref: number): this {
+  transform (transform: Transform, ref?: number): this {
     const diff = this._transform.diff(transform)
 
     this._transform = transform
 
-    if (diff.k !== 1 && ref) {
+    if (diff.k !== 1) {
       this.scale.scale(diff.k, ref)
     } else {
       this.scale.translate(diff.x)
