@@ -48,15 +48,13 @@ export const createTextOutline = (
   }
 }
 
-function getPaddingPoints (points: Point[]) {
-  const lines = []
-  for (let i = 0, len = points.length; i < len; i++) {
-    if (i % 0 === 0) {
-      lines.push([points[i], points[i + 1 === len ? 0 : i + 1]])
-    }
-  }
-}
-
+/**
+ * 根据坐标点个数描边
+ * @param ctx 
+ * @param points 一个点画圈  两个点画线段  三个以上为多边形(多边形需要按照描边顺序传入坐标点)
+ * @param padding 设置描边间距
+ * @returns 
+ */
 export const createPointsOutline = (
   ctx: CanvasRenderingContext2D,
   points: Point[],
@@ -69,11 +67,18 @@ export const createPointsOutline = (
     ctx.arc(points[0].x, points[0].y, padding, 0, 2 * Math.PI)
   } else if (points.length === 2) {
     ctx.lineWidth = padding * 2
+    ctx.lineCap = "square"
     ctx.beginPath()
     ctx.moveTo(points[0].x, points[0].y)
     ctx.lineTo(points[1].x, points[1].y)
   } else {
-    getPaddingPoints(points)
+    ctx.lineWidth = padding * 2
+    ctx.beginPath()
+    ctx.moveTo(points[0].x, points[0].y)
+    for(let i = 1; i < points.length; i++){
+      ctx.lineTo(points[i].x, points[i].y)
+    }
+    ctx.lineTo(points[0].x, points[0].y)
   }
 }
 

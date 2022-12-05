@@ -10,7 +10,7 @@ import extend from '../helper/extend'
 import { measureText } from '../helper/typo'
 import IGraph from '../interface/IGraph'
 import AbstractDrawing from '../super/AbstractDrawing'
-import { Color } from '../theme'
+import { Color, themeOptions } from '../theme'
 
 export type TextOptions = {
   text: string;
@@ -27,16 +27,33 @@ export class Text extends AbstractDrawing<Required<TextOptions>> {
   draw () {
     const p = this.trace(0)
     assertIsDefined(p)
-    const { x, y } = p
-
+    const { date, price } = p
     const ctx = this.chart.context
 
     ctx.font = '14px Roboto'
     ctx.textBaseline = 'bottom'
     ctx.fillStyle = this.options.color
-    ctx.fillText(this.options.text, x, y)
+    ctx.fillText(this.options.text, this.chart.fx(date), this.chart.fy(price))
 
     this.updateTextBounding()
+
+    return this
+  }
+
+  highlight () {
+    const ctx = this.chart.context
+    ctx.save()
+    ctx.beginPath()
+    ctx.strokeStyle = themeOptions.primaryColor
+    ctx.lineWidth = 1
+
+    const date = this.trace(0)?.date || 0
+    const price = this.trace(0)?.price || 0
+
+    ctx.arc(this.chart.fx(date), this.chart.fy(price), 5, 0, Math.PI * 2),
+
+    ctx.stroke()
+    ctx.restore()
 
     return this
   }

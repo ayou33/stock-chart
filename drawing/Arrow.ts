@@ -12,6 +12,7 @@ import IGraph from '../interface/IGraph'
 import AbstractDrawing from '../super/AbstractDrawing'
 import arrowUpSrc from './asset/arrow_up@2x.png'
 import arrowDownSrc from './asset/arrow_down@2x.png'
+import { themeOptions } from '../theme'
 
 export type ArrowOptions = Partial<{
   toBottom: boolean;
@@ -48,7 +49,9 @@ export class Arrow extends AbstractDrawing<Required<ArrowOptions>> {
 
     assertIsDefined(p)
 
-    const { x, y } = transfer(p.x, p.y, this._toBottom)
+    const { date, price } = p
+
+    const { x, y } = transfer(this.chart.fx(date), this.chart.fy(price), this._toBottom)
     const ctx = this.chart.context
 
     ctx.drawImage(this.$img, x, y, WIDTH, HEIGHT)
@@ -61,6 +64,28 @@ export class Arrow extends AbstractDrawing<Required<ArrowOptions>> {
     this.draw()
     this.emit('done')
     this.ready()
+
+    return this
+  }
+
+  highlight () {
+    const p = this.trace(0)
+    const ctx = this.chart.context
+
+    assertIsDefined(p)
+
+    ctx.save()
+    ctx.beginPath()
+    ctx.strokeStyle = themeOptions.primaryColor
+    ctx.lineWidth = 1
+
+    const date = p?.date || 0
+    const price = p?.price || 0
+
+    ctx.arc(this.chart.fx(date), this.chart.fy(price), 5, 0, Math.PI * 2),
+
+    ctx.stroke()
+    ctx.restore()
 
     return this
   }
