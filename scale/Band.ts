@@ -29,14 +29,16 @@ class Band implements IScale<number[]>{
    */
   private _range: Extent = [0, 1]
 
+  private _fixedRef = 0.5
+
   /**
-   * range有效区域起始位置即（range[0] + 左侧的paddingOuter）
+   * range渲染区域起始位置即（range[0] + 左侧的paddingOuter）
    * @private
    */
   private _rangeStart = 0
 
   /**
-   * range有效区域结束位置即（range[-1] - 右侧的paddingOuter）
+   * range渲染区域结束位置即（range[-1] - 右侧的paddingOuter）
    * @private
    */
   private _rangeStop = 1
@@ -47,6 +49,10 @@ class Band implements IScale<number[]>{
    */
   private _domain: number[] = [0, 1]
 
+  /**
+   * 一个domain代表的值的大小
+   * @private
+   */
   private _domainStep = 1
 
   /**
@@ -106,6 +112,12 @@ class Band implements IScale<number[]>{
    */
   private _extendMode = ExtendMode.SHRINK
 
+  /**
+   * 参考点的偏移量
+   * @private
+   */
+  private _offset = 0
+
   constructor () {
     this._domainIndex = this.generateDomainIndex()
   }
@@ -122,7 +134,7 @@ class Band implements IScale<number[]>{
 
   private updateRange () {
     /**
-     * 边界内缩放
+     * 自适应模式
      */
     if (ExtendMode.SHRINK === this._extendMode) {
       this._rangeStart = this._range[START] + this._step * this._align * this._paddingOuter
@@ -235,16 +247,24 @@ class Band implements IScale<number[]>{
   range (range?: Extent): Extent {
     if (undefined !== range) {
       if (Math.abs(range[START]) === Infinity && Math.abs(range[STOP]) === Infinity) {
-        this._extendMode = ExtendMode.LEFT
+        throw new RangeError('Range should be limit on at least one side!')
       } else if (Math.abs(range[START]) === Infinity) {
+        // 向左侧扩展
         this._extendMode = ExtendMode.LEFT
+        this._fixedRef = range[STOP]
       } else if (Math.abs(range[STOP]) === Infinity) {
+        // 向右侧扩展
         this._extendMode = ExtendMode.RIGHT
+        this._fixedRef = range[START]
       } else {
+        // 自适应大小
         this._extendMode = ExtendMode.SHRINK
+        this._fixedRef = (range[STOP] / range[START]) / 2
       }
 
       this._range = range
+
+      this._offset = 0
 
       /**
        * 缩放模式 自动计算step与bandWidth
@@ -263,8 +283,27 @@ class Band implements IScale<number[]>{
     return this._domainIndex[domain]
   }
 
+  transformRange (x: number, k: number, ref?: number) {
+    if (this._extendMode === ExtendMode.SHRINK) return
+
+    if (x !== 0) {
+      this._range = [this._range[START] + x, this._range[STOP] + x]
+      this._offset += x
+    }
+
+    if (k !== 1) {
+      const [start, stop] = this._range
+      const r = ref && !Number.isNaN(ref) ? ref : this._fixedRef
+      this._range = [start + (k - 1) * (start - r), stop + (k - 1) * (stop - r)]
+      const dif = this._extendMode === ExtendMode.LEFT ? (this._range[STOP] - stop) : (this._range[START] - start)
+      console.log('ayo', k, dif, r)
+      this._offset += dif
+    }
+  }
+
   translate (x: number) {
-    this._range = [this._range[START] + x, this._range[STOP] + x]
+    // this._range = [this._range[START] + x, this._range[STOP] + x]
+    this.transformRange(x, 1)
 
     this.updateRange()
 
@@ -272,9 +311,10 @@ class Band implements IScale<number[]>{
   }
 
   scale (k: number, ref?: number) {
-    const [start, stop] = this._range
-    const r = ref ?? (stop - start) / 2
-    this._range = [start + (k - 1) * (start - r), stop + (k - 1) * (stop - r)]
+    this.transformRange(0, k, ref)
+    // const [start, stop] = this._range
+    // const r = ref && !Number.isNaN(ref) ? ref : this._fixedRef
+    // this._range = [start + (k - 1) * (start - r), stop + (k - 1) * (stop - r)]
     this.step(this._step * k)
     return this._range
   }
