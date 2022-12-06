@@ -28,7 +28,7 @@ class Gesture<T extends string = any> extends AbstractGraph<GestureEvents | T, S
 
     this.canvas.oncontextmenu = e => this.emit('contextmenu', e)
 
-    this.zoom = nanie(this.canvas, (e) => {
+    this.zoom = nanie(this.canvas, e => {
       const event = e.sourceEvent as MouseEvent
       const p = this.pointer(event.clientX, event.clientY)
 

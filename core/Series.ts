@@ -21,6 +21,8 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
 
   private _transform = new Transform()
 
+  private _appliedTransform = new Transform()
+
   private _format: (value: number, pos: number) => string = (v: number) => v.toString()
 
   private _tickInterval: number
@@ -79,7 +81,10 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
 
     if (this._options.currentPrice && update.latest) {
       drawSeriesLabel(
-        this.context, this.value(update.latest.close), update.latest.close.toString(), this._options.currentPrice,
+        this.context,
+        this.value(update.latest.close),
+        update.latest.close.toString(),
+        this._options.currentPrice,
       )
     }
 
@@ -88,15 +93,19 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
     return this
   }
 
-  transform (transform: Transform, ref: number): this {
+  transform (transform: Transform): this {
     const diff = this._transform.diff(transform)
-
     this._transform = transform
 
-    if (diff.k !== 1 && !ref) return this
+    let y = diff.y
+
+    if (diff.k !== 1) {
+      return this
+    }
 
     const range = this.range()
-    this.range([range[0] + diff.y, range[1] + diff.y])
+    this.range([range[0] + y, range[1] + y])
+
     return this
   }
 
