@@ -49,7 +49,8 @@ export const createTextOutline = (
 }
 
 /**
- * 根据坐标点个数描边
+ * ctx.isPointInStroke(x, y)
+ * 根据坐标点个数描边 需要用 isPointInStroke 判断在不在描边内
  * @param ctx 
  * @param points 一个点画圈  两个点画线段  三个以上为多边形(多边形需要按照描边顺序传入坐标点)
  * @param padding 设置描边间距
@@ -61,7 +62,7 @@ export const createPointsOutline = (
   padding: number = 1,
 ) => {
   if (points.length === 0) {
-    return
+    throw new ReferenceError('At least one point is required!')
   } else if (points.length === 1) {
     ctx.beginPath()
     ctx.arc(points[0].x, points[0].y, padding, 0, 2 * Math.PI)
@@ -71,6 +72,7 @@ export const createPointsOutline = (
     ctx.beginPath()
     ctx.moveTo(points[0].x, points[0].y)
     ctx.lineTo(points[1].x, points[1].y)
+    ctx.closePath()
   } else {
     ctx.lineWidth = padding * 2
     ctx.beginPath()

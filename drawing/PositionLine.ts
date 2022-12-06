@@ -50,9 +50,12 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     const ctx = this.chart.context
     const text = String(this.trace(0)?.price)
 
+    ctx.beginPath()
+
     ctx.strokeStyle = this.options.color
     ctx.textBaseline = 'bottom'
     ctx.textAlign = 'start'
+    ctx.font = '11px Roboto'
 
     this._line.transform([x, y])
     const { topOffset, width, height } = measureText(ctx, text)
@@ -70,6 +73,8 @@ class PositionLine extends AbstractDrawing<LineOptions> {
     }
 
     this._centre = y
+
+    ctx.closePath()
 
     return this
   }
