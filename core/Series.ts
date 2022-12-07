@@ -96,11 +96,19 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
   transform (transform: Transform): this {
     const diff = this._transform.diff(transform)
     this._transform = transform
-
     let y = diff.y
 
-    if (diff.k !== 1) {
-      return this
+    if (diff.k === 1) {
+      this._appliedTransform = this._appliedTransform.translate(0, diff.y)
+    } else {
+      // reset
+      if (transform.k === 1) {
+        y = this._appliedTransform.diff(transform).y
+        this._appliedTransform = transform
+      } else {
+        // 禁止 因为缩放而产生的y轴平移
+        y = 0
+      }
     }
 
     const range = this.range()
