@@ -203,6 +203,7 @@ abstract class AbstractDrawing<O extends Record<string, unknown> = Record<string
       } else if (type === 'end') {
         this.state.restore()
         this.emit('free')
+        this._hitIndex = null
         if (dirty) {
           this.highlight()
           this.emit('transform', this.trace())

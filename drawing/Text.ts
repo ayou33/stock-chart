@@ -30,10 +30,12 @@ export class Text extends AbstractDrawing<Required<TextOptions>> {
     const { date, price } = p
     const ctx = this.chart.context
 
+    ctx.save()
     ctx.font = '14px Roboto'
     ctx.textBaseline = 'bottom'
     ctx.fillStyle = this.options.color
     ctx.fillText(this.options.text, this.chart.fx(date), this.chart.fy(price))
+    ctx.restore()
 
     this.updateTextBounding()
 

@@ -47,7 +47,7 @@ export class Segment extends AbstractDrawing<LineOptions> {
       ctx.moveTo(this.chart.fx(start.date), this.chart.fy(start.price))
       ctx.lineTo(this.chart.fx(end.date), this.chart.fy(end.price))
       ctx.stroke()
-
+      ctx.closePath()
     }
     return this
   }
@@ -62,7 +62,7 @@ export class Segment extends AbstractDrawing<LineOptions> {
       const date = ps[i].date
       const price = ps[i].price
       ctx.beginPath()
-      ctx.arc(this.chart.fx(date), this.chart.fy(price), 5, 0, Math.PI * 2)
+      ctx.arc(this.chart.fx(date), this.chart.fy(price), 6, 0, Math.PI * 2)
       ctx.stroke()
     }
     return this
@@ -71,25 +71,16 @@ export class Segment extends AbstractDrawing<LineOptions> {
   test (_x: number, _y: number): boolean {
     const ps = this.trace()
     if (ps.length >= 2) {
-      const one = ps[0]
-      const another = ps[1]
       const ctx = this.chart.context
-
       const pad = 4
-      ctx.beginPath()
-      ctx.moveTo(one.x, one.y - pad)
-      ctx.lineTo(another.x, another.y - pad)
-      ctx.lineTo(another.x, another.y + pad)
-      ctx.lineTo(one.x, one.y + pad)
-      ctx.closePath()
+      const points = ps.map(item => {
+        return {
+          x: this.chart.fx(item.date),
+          y: this.chart.fy(item.price)
+        }
+      })
 
-      // const points = ps.map(item => {
-      //   return {
-      //     x: this.chart.fx(item.date),
-      //     y: this.chart.fy(item.price)
-      //   }
-      // })
-      // createPointsOutline(ctx, points, pad)
+      createPointsOutline(ctx, points, pad)
 
       return ctx.isPointInPath(...toAntiAAPointer([_x, _y]))
     }
@@ -101,10 +92,10 @@ export class Segment extends AbstractDrawing<LineOptions> {
     const ctx = this.chart.context
 
     let hitPointIndex: number | null = null
-    console.log(this.trace())
+
     this.trace().find((p, i) => {
       ctx.beginPath()
-      ctx.arc(this.chart.fx(p.date), this.chart.fy(p.price), 5, 0, Math.PI * 2)
+      ctx.arc(this.chart.fx(p.date), this.chart.fy(p.price), 10, 0, Math.PI * 2)
       return ctx.isPointInPath(...toAntiAAPointer([x, y])) && (hitPointIndex = i)
     })
 

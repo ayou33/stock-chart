@@ -49,8 +49,7 @@ export const createTextOutline = (
 }
 
 /**
- * ctx.isPointInStroke(x, y)
- * 根据坐标点个数描边 需要用 isPointInStroke 判断在不在描边内
+ * 根据坐标点个数描边
  * @param ctx 
  * @param points 一个点画圈  两个点画线段  三个以上为多边形(多边形需要按照描边顺序传入坐标点)
  * @param padding 设置描边间距
@@ -67,13 +66,28 @@ export const createPointsOutline = (
     ctx.beginPath()
     ctx.arc(points[0].x, points[0].y, padding, 0, 2 * Math.PI)
   } else if (points.length === 2) {
-    ctx.lineWidth = padding * 2
-    ctx.lineCap = "square"
+    const p1 = points[0]
+    const p2 = points[1]
+    const a = Math.abs(p1.x - p2.x)
+    const b = Math.abs(p1.y - p2.y)
+    const len = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2)) + (2 * padding) // 线段长度
+    const c1 = Math.atan2(p1.y - p2.y, p1.x - p2.x) * 180 / Math.PI
+    // const c2 = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI
+    
+    const renge = c1
+
+    // const { x, y } = Math.abs(c1) > Math.abs(c2) ? p1 : p2
+    const { x, y } = p2
+
+    ctx.save()
     ctx.beginPath()
-    ctx.moveTo(points[0].x, points[0].y)
-    ctx.lineTo(points[1].x, points[1].y)
-    ctx.closePath()
+    ctx.translate(x, y)
+    ctx.rotate(renge * Math.PI / 180)
+    ctx.rect(-padding, -padding, len, 2 * padding)
+    ctx.restore()
   } else {
+    // 多边形描边 需要使用 ctx.isPointInStroke 判断
+    ctx.save()
     ctx.lineWidth = padding * 2
     ctx.beginPath()
     ctx.moveTo(points[0].x, points[0].y)
@@ -81,6 +95,7 @@ export const createPointsOutline = (
       ctx.lineTo(points[i].x, points[i].y)
     }
     ctx.lineTo(points[0].x, points[0].y)
+    ctx.restore()
   }
 }
 
