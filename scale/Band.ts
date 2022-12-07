@@ -338,16 +338,16 @@ class Band implements IScale<number[]> {
        * 参考指定的缩放点，需要根据缩放更新缺省缩放点的偏移量
        */
       if (ref && !Number.isNaN(ref)) {
-        const dftReg = this._dftRef + this._dftRefOffset
+        const dftRef = this._dftRef + this._dftRefOffset
 
         if (this._extendMode === ExtendMode.LEFT) {
           this.right = stop + (k - 1) * (stop - ref)
-          this._dftRefOffset += this.right - dftReg
+          this._dftRefOffset += this.right - dftRef
         }
 
         if (this._extendMode === ExtendMode.RIGHT) {
           this.left = start + (k - 1) * (start - ref)
-          this._dftRefOffset += this.left - dftReg
+          this._dftRefOffset += this.left - dftRef
         }
       }
       /**
