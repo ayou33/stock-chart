@@ -5,7 +5,16 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 
-export type ResolutionLiteral = 'tick' | 'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+export type ResolutionLiteral =
+  'tick'
+  | 'millisecond'
+  | 'second'
+  | 'minute'
+  | 'hour'
+  | 'day'
+  | 'week'
+  | 'month'
+  | 'year'
 
 export type Periodicity = {
   interval: number;

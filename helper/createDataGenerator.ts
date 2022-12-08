@@ -14,10 +14,16 @@ export function createDataGenerator (consume: (bar: Bar, isCreate: boolean) => v
 
   function push (time: number) {
     if (_bar) {
+      // 新增还是刷新
       const isCreate = time >= _nextPeriod
 
-      while (time >= _nextPeriod) {
-        _nextPeriod += _interval
+      if (isCreate) {
+        _bar.open = _bar.high = _bar.low = _bar.close
+
+        do {
+          // 更新周期
+          _nextPeriod += _interval
+        } while (time >= _nextPeriod)
       }
 
       const period = _nextPeriod - _interval
@@ -27,10 +33,6 @@ export function createDataGenerator (consume: (bar: Bar, isCreate: boolean) => v
         date: period,
         DT: new Date(period),
       }, isCreate)
-
-      if (isCreate) {
-        _bar.open = _bar.high = _bar.low = _bar.close
-      }
     }
   }
 
