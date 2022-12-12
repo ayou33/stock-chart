@@ -119,7 +119,8 @@ export type DataSourceOptions = {
 export type StockChartOptions = {
   root: string;
   symbol: string;
-  theme: 'light' | 'dark' | ThemeOptions;
+  type: ChartType;
+  theme: ThemeOptions | 'light' | 'dark';
   crosshair: null | LabelStyle;
   currentPrice: null | LabelStyle;
   grid: null | GridOptions;
@@ -132,6 +133,7 @@ export type StockChartOptions = {
 export const stockChartOptions: StockChartOptions = {
   root: '',
   symbol: '',
+  type: 'candle',
   theme: themeOptions,
   crosshair: labelStyle,
   currentPrice: currentPriceLabel,

@@ -75,7 +75,7 @@ class Scene {
     this._chartLayer = new ChartLayer({
       ...layerOptions,
       board: this._reactiveLayer.board,
-    }).addChart('candle', options)
+    }).addChart(options)
 
     this._indicatorLayer = new IndicatorLayer({
       ...layerOptions,

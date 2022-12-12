@@ -7,6 +7,7 @@
  */
 import * as R from 'ramda'
 import Candle from '../chart/Candle'
+import Mountain from '../chart/Mountain'
 import { UpdateLevel, UpdatePayload } from '../core/DataSource'
 import Arrow from '../drawing/Arrow'
 import Segment from '../drawing/Segment'
@@ -79,10 +80,16 @@ class ChartLayer extends AbstractLayer implements ILayer {
     return this
   }
 
-  addChart (type: 'candle' | 'mountain', options: StockChartOptions) {
-    switch (type) {
+  addChart (options: StockChartOptions) {
+    switch (options.type) {
       case 'candle':
         this._chart = new Candle({
+          ...this.options,
+          ...options,
+        })
+        break
+      case 'mountain':
+        this._chart = new Mountain({
           ...this.options,
           ...options,
         })

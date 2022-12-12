@@ -9,6 +9,9 @@ import { GraphOptions } from '../options'
 import AbstractChart from '../super/AbstractChart'
 
 class Candle extends AbstractChart implements AbstractChart {
+  /**
+   * @override {@see AbstractGraph#valueAlign}
+   */
   valueAlign = 0
 
   constructor (options: GraphOptions) {
@@ -38,6 +41,10 @@ class Candle extends AbstractChart implements AbstractChart {
     ctx.stroke()
   }
 
+  /**
+   * @implements {AbstractChart#drawAll}
+   * @param update {UpdatePayload}
+   */
   drawAll (update: UpdatePayload): this {
     const ctx = this.context
     const width = this.xAxis.bandWidth()
@@ -49,6 +56,10 @@ class Candle extends AbstractChart implements AbstractChart {
     return this
   }
 
+  /**
+   * @implements {AbstractChart#drawLatest}
+   * @param update
+   */
   drawLatest (update: UpdatePayload): this {
     if (update.latest) {
       this.drawBar(this.context, update.latest, this.xAxis.bandWidth())

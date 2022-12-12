@@ -5,13 +5,19 @@
  *  @date         2022/9/2 16:12
  *  @description
  */
+declare namespace StockChart {
+  declare type A = {
+    a: number;
+  }
+}
+
 type Rest<T> = T extends [infer P, ...infer Rest] ? Rest : never
 
 type RestParams<T> = Rest<Parameters<T>>
 
 type Extent = [from: number, to: number]
 
-type Fn = () => void
+declare type Fn = () => void
 
 declare type RecursivePartial<T> = {
   [P in keyof T]?:
@@ -54,3 +60,5 @@ declare module '*.png' {
 
   export default value
 }
+
+declare type ChartType = 'candle' | 'mountain'

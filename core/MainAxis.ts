@@ -16,7 +16,7 @@ import AbstractAxis from '../super/AbstractAxis'
 import { BLACK, WHITE } from '../theme'
 import { UpdateLevel, UpdatePayload } from './DataSource'
 
-const defaultFormat: (date: number, p: number) => string = v => v.toString(0)
+const defaultFormat: (date: number, p: number) => string = v => v.toString()
 
 class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMainAxis {
   private readonly _options: MainAxisOptions
