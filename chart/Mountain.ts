@@ -43,7 +43,7 @@ export class Mountain extends AbstractChart {
     ctx.beginPath()
     ctx.moveTo(this.fx(bars[0].date), this.fy(bars[0].close))
 
-    for (let i = 1, l = bars.length; i < l - 1; i++) {
+    for (let i = 1, l = bars.length; i < l; i++) {
       const bar = bars[i]
       ctx.lineTo(this.fx(bar.date), this.fy(bar.close))
     }
@@ -51,9 +51,8 @@ export class Mountain extends AbstractChart {
     ctx.stroke()
 
     // fill
-    const last = R.nth(-2, bars)
-    if (last) {
-      ctx.lineTo(this.fx(last.date), this.container.height())
+    if (update.latest) {
+      ctx.lineTo(this.fx(update.latest.date), this.container.height())
       ctx.lineTo(this.fx(bars[0].date), this.container.height())
       ctx.closePath()
       ctx.fillStyle = this.gradient

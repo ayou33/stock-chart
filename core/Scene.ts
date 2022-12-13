@@ -83,25 +83,6 @@ class Scene {
     }, applyTransform)
   }
 
-  private setUpdateSpan (update: UpdatePayload) {
-    const rightMostRange = this._layout.mainAxis()?.width() ?? 0
-    const [left, right] = update.span
-    const leftMostRender = this._mainAxis.invert(0)
-    const rightMostRender = this._mainAxis.invert(rightMostRange)
-
-    if (update.domain[right] < leftMostRender || update.domain[left] > rightMostRender) {
-      return {
-        ...update,
-        span: [0, 0],
-      } as UpdatePayload
-    }
-
-    return {
-      ...update,
-      span: [this._mainAxis.index(0) ?? 0, (this._mainAxis.index(rightMostRange) ?? right) + 1],
-    } as UpdatePayload
-  }
-
   private onResize () {
     this._mainAxis.resize()
     this._series.default.resize()
@@ -117,26 +98,32 @@ class Scene {
     }
   }
 
-  apply (update?: UpdatePayload) {
-    if (update) {
-      this._lastUpdate = update
+  applyUpdate (update: UpdatePayload) {
+    this._mainAxis.apply(update)
+    this._series.default.apply(update)
+    this._chartLayer.apply(update)
+    this._indicatorLayer.apply(update)
+    this._reactiveLayer.apply(update)
+  }
 
-      if (update.level === UpdateLevel.APPEND || update.level === UpdateLevel.FULL) {
-        this._mainAxis.domain(update.domain)
+  apply (update?: UpdatePayload) {
+    const d = update ?? this._lastUpdate
+
+    if (d) {
+      if (d.level === UpdateLevel.APPEND || d.level === UpdateLevel.FULL) {
+        this._mainAxis.domain(d.domain)
+        d.span = this._mainAxis.span(d)
       }
 
-      // console.log('[jojo]update level:', update.level, 'update last domain:', update.domain.slice(-1)[0], 'axis last domain:', this._mainAxis.domain().slice(-1)[0])
-    }
+      if (d.level !== UpdateLevel.REPLAY) {
+        const extent = this._series.default.extent(d)
+        if (d.extent.toString() !== extent.toString()) {
+          d.level = UpdateLevel.EXTENT
+        }
+        d.extent = extent
+      }
 
-    if (this._lastUpdate) {
-      this._mainAxis.apply(this._lastUpdate)
-
-      const focusedUpdate = this.setUpdateSpan(this._lastUpdate)
-
-      this._series.default.apply(focusedUpdate)
-      this._chartLayer.apply(focusedUpdate)
-      this._indicatorLayer.apply(focusedUpdate)
-      this._reactiveLayer.apply(focusedUpdate)
+      this.applyUpdate(this._lastUpdate = d)
     }
   }
 
@@ -144,7 +131,7 @@ class Scene {
     return this._indicatorLayer.add(name, inputs, typeUnique)
   }
 
-  createDrawing <T extends DrawingType>(type: T, options?: DrawingOptions[T]) {
+  createDrawing<T extends DrawingType> (type: T, options?: DrawingOptions[T]) {
     return this._chartLayer.createDrawing(type, options)
   }
 

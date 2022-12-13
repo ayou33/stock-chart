@@ -5,6 +5,7 @@
  *  @author 阿佑[ayooooo@petalmail.com]
  */
 import Transform from 'nanie/src/Transform'
+import { UpdatePayload } from '../core/DataSource'
 import ICanvas from './ICanvas'
 
 interface IAxis<T = Extent> extends ICanvas {
@@ -19,6 +20,8 @@ interface IAxis<T = Extent> extends ICanvas {
    * @param domain
    */
   domain (domain?: T): T;
+
+  extent (update: UpdatePayload): Extent;
 
   /**
    * 获取输出

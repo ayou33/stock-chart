@@ -8,23 +8,24 @@ interface ValueOf<T> {
 }
 
 export const extent = <T extends (number | Record<string, unknown>)> (
-  values: T[],
+  values: Array<T>,
   valueOfMin: ValueOf<T> = x => x as number,
   valueOfMax: ValueOf<T> = valueOfMin,
-) => {
+): Extent => {
   let min = Infinity
   let max = -Infinity
-  let index = -1
 
-  for (const value of values) {
-    index++
-    const _min = valueOfMin(value, index, values)
-    const _max = valueOfMax(value, index, values)
+  for (let i = 0, l = values.length; i < l; i++) {
+    const value = values[i]
+
+    const _min = valueOfMin(value, i, values)
+    const _max = valueOfMax(value, i, values)
+
     if (_min < min) min = _min
     if (_max > max) max = _max
   }
 
-  return [min, max] as Extent
+  return [min, max]
 }
 
 // 这里包含边界重叠的情况

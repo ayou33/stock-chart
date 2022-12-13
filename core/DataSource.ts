@@ -15,11 +15,11 @@ import DataEngine from './DataEngine'
 export type DataSourceEventTypes = 'beforeUpdate' | 'update' | 'loading' | 'loaded'
 
 export enum UpdateLevel {
+  FULL, // 完全更新
   REPLAY, // 重绘
   PATCH, // 补丁更新
-  FULL, // 完全更新
-  EXTENT, // y轴范围更新
   APPEND, // x轴数据新增
+  EXTENT,
 }
 
 export type UpdatePayload = {
@@ -28,6 +28,9 @@ export type UpdatePayload = {
   readonly latest?: Bar;
   readonly domain: number[];
   level: UpdateLevel,
+  /**
+   * [from, to) 左闭右开 翻遍传入 slice
+   */
   span: Extent;
   extent: Extent;
   lastChange: UpdatePayload | null;
@@ -72,21 +75,20 @@ class DataSource extends Event<DataSourceEventTypes> {
 
     const ex = extent(bars, d => d.low, d => d.high)
 
-    this._lastChange = {
+    const payload = {
       level,
       bars,
       latest: this._latest ?? last(bars),
-      span: [0, bars.length - 1],
+      span: [0, bars.length] as Extent,
       extent: ex.reverse() as Extent,
       domain: pluck('date', bars),
       symbol: this._symbol,
       lastChange: this._lastChange,
     }
 
-    /**
-     * 隔离输出
-     */
-    return { ...this._lastChange }
+    this._lastChange = payload
+
+    return payload
   }
 
   private set (data: Bar[], symbol?: SymbolDescriber) {

@@ -14,7 +14,7 @@ import { SeriesOptions, seriesOptions } from '../options'
 import Linear from '../scale/Linear'
 import AbstractAxis from '../super/AbstractAxis'
 import { BLACK } from '../theme'
-import { UpdatePayload } from './DataSource'
+import { UpdateLevel, UpdatePayload } from './DataSource'
 
 class Series extends AbstractAxis<'transform'> implements IAxis {
   private readonly _options: SeriesOptions
@@ -48,7 +48,9 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
   draw (update: UpdatePayload): this {
     this.clear()
 
-    this.domain(update.extent)
+    if (update.level === UpdateLevel.EXTENT) {
+      this.domain(update.extent)
+    }
     // this.domain(extent(update.bars.slice(update.span[0], update.span[1]), d => d.low, d => d.high).reverse())
 
     const options = this._options
@@ -65,9 +67,9 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
     ctx.fillStyle = BLACK
 
     for (let y = this._tickInterval; y < height; y += this._tickInterval) {
-      if (this._options.tick) {
+      if (options.tick) {
         ctx.moveTo(0, y)
-        ctx.lineTo(this._options.tick, y)
+        ctx.lineTo(options.tick, y)
       }
 
       ctx.fillText(this._format(this.invert(y), y), x + options.labelPadding, y)
@@ -79,12 +81,12 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
       ctx.lineTo(0, this.container.height())
     }
 
-    if (this._options.currentPrice && update.latest) {
+    if (options.currentPrice && update.latest) {
       drawSeriesLabel(
         this.context,
         this.value(update.latest.close),
         update.latest.close.toString(),
-        this._options.currentPrice,
+        options.currentPrice,
       )
     }
 

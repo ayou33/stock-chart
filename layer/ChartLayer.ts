@@ -137,17 +137,17 @@ class ChartLayer extends AbstractLayer implements ILayer {
           this.replay()
         })
         .on('remove', (_, d) => {
-          this._board.zoom.continue()
+          this._board.zoom?.continue()
           this.remove(d)
         })
         .on('activate', (_, receive) => {
-          this._board.zoom.interrupt(e => {
+          this._board.zoom?.interrupt(e => {
             receive(e)
             if (e.type === 'zoom') this.replay()
           })
         })
         .on('blur', () => {
-          this._board.zoom.continue()
+          this._board.zoom?.continue()
           this.replay()
         })
         .on('refresh', () => {

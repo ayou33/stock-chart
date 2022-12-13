@@ -121,6 +121,7 @@ export type StockChartOptions = {
   symbol: string;
   type: ChartType;
   theme: ThemeOptions | 'light' | 'dark';
+  zoom: boolean;
   crosshair: null | LabelStyle;
   currentPrice: null | LabelStyle;
   grid: null | GridOptions;
@@ -135,6 +136,7 @@ export const stockChartOptions: StockChartOptions = {
   symbol: '',
   type: 'candle',
   theme: themeOptions,
+  zoom: true,
   crosshair: labelStyle,
   currentPrice: currentPriceLabel,
   grid: {

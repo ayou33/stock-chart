@@ -47,7 +47,7 @@ class IndicatorLayer extends AbstractLayer implements ILayer {
 
   apply (update: UpdatePayload): this {
     if (update) {
-      this.lastUpdate = update
+      this.lastUpdate = { ...update }
 
       for (const name in this._indicators) {
         this._indicators[name].apply(this.lastUpdate)

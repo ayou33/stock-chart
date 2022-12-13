@@ -17,7 +17,7 @@ abstract class AbstractChart extends AbstractGraph {
       this.clear()
       this.drawAll({
         ...update,
-        bars: update.bars.slice(update.span[0], update.span[1]),
+        bars: update.bars.slice(...update.span),
       })
     }
 
