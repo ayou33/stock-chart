@@ -23,6 +23,9 @@ class Board extends Gesture<CrosshairEvents> {
     super(options)
 
     if (this.options.crosshair) {
+      this.canvas.style.cssText += `
+        cursor: crosshair;
+      `
       this.canvas.addEventListener('mouseenter', () => {
         this._focus = true
       })

@@ -47,6 +47,12 @@ class ReactiveLayer extends AbstractLayer implements ILayer {
 
     return this
   }
+
+  destroy () {
+    this.board
+      .off('*')
+      .remove()
+  }
 }
 
 export default ReactiveLayer

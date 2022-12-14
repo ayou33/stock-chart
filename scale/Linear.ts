@@ -36,7 +36,7 @@ class Linear implements IScale<Extent>{
       this.update()
     }
 
-    return this._domain
+    return [...this._domain]
   }
 
   range (range?: Extent): Extent {

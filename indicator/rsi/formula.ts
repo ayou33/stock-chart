@@ -79,7 +79,7 @@ const makeRSICalculator = (period: number, gain = 0, loss = 0) => {
 export function calcRSI (
   quotes: Bar[],
   inputs: RSIInputs,
-  defaults = defaultRSIState,
+  defaults             = defaultRSIState,
   field: BarValueField = 'close',
 ) {
   const periods = inputs.periods

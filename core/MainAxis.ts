@@ -51,19 +51,6 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     return this.scale.step(step)
   }
 
-  span (update: UpdatePayload): Extent {
-    const rightMostRange = this.container.width()
-    const [left, right] = update.span
-    const leftMostRender = this.invert(0)
-    const rightMostRender = this.invert(rightMostRange)
-
-    if (update.domain[right] < leftMostRender || update.domain[left] > rightMostRender) {
-      return [0, 0]
-    }
-
-    return [this.index(0) ?? 0, (this.index(rightMostRange) ?? right) + 1]
-  }
-
   draw (update: UpdatePayload): this {
     if (update.level === UpdateLevel.PATCH) return this
 
@@ -166,6 +153,21 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     this.clear()
     this.replay()
     return this
+  }
+
+  extent (update: UpdatePayload): Extent {
+    this.domain(update.domain)
+
+    const rightMostRange = this.container.width()
+    const [left, right] = update.span
+    const leftMostRender = this.invert(0)
+    const rightMostRender = this.invert(rightMostRange)
+
+    if (update.domain[right] < leftMostRender || update.domain[left] > rightMostRender) {
+      return [0, 0]
+    }
+
+    return [this.index(0) ?? 0, (this.index(rightMostRange) ?? right) + 1]
   }
 }
 

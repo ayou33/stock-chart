@@ -208,6 +208,15 @@ class IndicatorLayer extends AbstractLayer implements ILayer {
   applyTransform (transform: Transform) {
     this._zoom?.apply(transform)
   }
+
+  destroy () {
+    this._board.off('*')
+    this._cursor = null
+    this._externalBoard = null
+    this._externalContainer = null
+    this._innerContainer = null
+    this._innerContext = null
+  }
 }
 
 export default IndicatorLayer

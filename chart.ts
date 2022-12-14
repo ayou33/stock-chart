@@ -86,6 +86,15 @@ export class StockChart {
   home () {
     this._scene.home()
   }
+
+  activeChart () {
+    return this._scene.activeChart()
+  }
+
+  destroy () {
+    this._dataSource.destroy()
+    this._scene.destroy()
+  }
 }
 
 export default StockChart

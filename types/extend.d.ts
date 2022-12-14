@@ -11,11 +11,15 @@ declare namespace StockChart {
   }
 }
 
-type Rest<T> = T extends [infer P, ...infer Rest] ? Rest : never
+declare type Rest<T> = T extends [infer P, ...infer Rest] ? Rest : never
 
-type RestParams<T> = Rest<Parameters<T>>
+declare type RestParams<T> = Rest<Parameters<T>>
 
-type Extent = [from: number, to: number]
+declare type Vector = [x: number, y: number]
+
+declare type Extent = [from: number, to: number]
+
+declare type LayoutPosition = [rowIndex: number, cellIndex: number]
 
 declare type Fn = () => void
 
@@ -43,16 +47,14 @@ declare type Bar = {
   volume: number;
 }
 
-type BarValueField = Exclude<keyof Bar, 'DT' | 'volume'>
+declare type BarValueField = Exclude<keyof Bar, 'DT' | 'volume' | 'date'>
 
-type Vector = [x: number, y: number]
-
-type PointLocation = { x: number, y: number }
+declare type PointLocation = { x: number, y: number }
 
 /**
  * 如果union太复杂 非常吃性能
  */
-type Permutations<T extends string, U extends string = T> =
+declare type Permutations<T extends string, U extends string = T> =
   T extends string ? (T | `${T} ${Permutations<Exclude<U, T>>}`) : never;
 
 declare module '*.png' {

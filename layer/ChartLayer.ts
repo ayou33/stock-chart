@@ -14,15 +14,15 @@ import Segment from '../drawing/Segment'
 import Text from '../drawing/Text'
 import { DrawingOptions, DrawingType } from '../drawing/drawings'
 import PositionLine from '../drawing/PositionLine'
-import IGraph from '../interface/IGraph'
 import ILayer from '../interface/ILayer'
 import { StockChartOptions } from '../options'
+import AbstractChart from '../super/AbstractChart'
 import AbstractDrawing from '../super/AbstractDrawing'
 import AbstractLayer, { LayerOptions } from '../super/AbstractLayer'
 import Board from '../ui/Board'
 
 class ChartLayer extends AbstractLayer implements ILayer {
-  private _chart: IGraph | null = null
+  chart: AbstractChart | null = null
   private _drawing: AbstractDrawing | null = null
   private _drawings: AbstractDrawing[] = []
   private _board: Board
@@ -56,10 +56,10 @@ class ChartLayer extends AbstractLayer implements ILayer {
   }
 
   apply (update: UpdatePayload): this {
-    if (this._chart) {
-      this._chart.apply(update)
+    if (this.chart) {
+      this.chart.apply(update)
 
-      if (this._drawing) this._chart.save()
+      if (this._drawing) this.chart.save()
 
       if (update.level !== UpdateLevel.PATCH) {
         this.draw(true)
@@ -70,12 +70,12 @@ class ChartLayer extends AbstractLayer implements ILayer {
   }
 
   replay () {
-    this._chart?.replay()
+    this.chart?.replay()
     this.draw()
   }
 
   resize (): this {
-    this._chart?.resize()
+    this.chart?.resize()
 
     return this
   }
@@ -83,50 +83,50 @@ class ChartLayer extends AbstractLayer implements ILayer {
   addChart (options: StockChartOptions) {
     switch (options.type) {
       case 'candle':
-        this._chart = new Candle({
+        this.chart = new Candle({
           ...this.options,
           ...options,
         })
         break
       case 'mountain':
-        this._chart = new Mountain({
+        this.chart = new Mountain({
           ...this.options,
           ...options,
         })
         break
     }
 
-    this._chart?.prepend()
+    this.chart?.prepend()
 
     return this
   }
 
   createDrawing<T extends DrawingType> (type: T, options?: DrawingOptions[T]) {
-    if (!this._chart) {
+    if (!this.chart) {
       throw new ReferenceError('No context provide to draw!')
     }
 
     switch (type) {
       case 'position':
         this._drawings.unshift(
-          this._drawing = new PositionLine(this._chart, options as DrawingOptions['position']))
+          this._drawing = new PositionLine(this.chart, options as DrawingOptions['position']))
         break
       case 'segment':
         this._drawings.unshift(
-          this._drawing = new Segment(this._chart, options as DrawingOptions['segment']))
+          this._drawing = new Segment(this.chart, options as DrawingOptions['segment']))
         break
       case 'arrow':
         this._drawings.unshift(
-          this._drawing = new Arrow(this._chart, options as DrawingOptions['arrow']))
+          this._drawing = new Arrow(this.chart, options as DrawingOptions['arrow']))
         break
       case 'text':
         this._drawings.unshift(
-          this._drawing = new Text(this._chart, options as DrawingOptions['text']))
+          this._drawing = new Text(this.chart, options as DrawingOptions['text']))
         break
     }
 
     if (this._drawing) {
-      this._chart?.save()
+      this.chart?.save()
 
       return this._drawing
         .on('end done', () => {
@@ -168,6 +168,12 @@ class ChartLayer extends AbstractLayer implements ILayer {
     this._drawings = d ? R.reject(R.equals(d), this._drawings) : []
     this._drawing = null
     this.replay()
+  }
+
+  destroy () {
+    this._drawings = []
+    this._drawing = null
+    this.chart?.remove()
   }
 
   clearDrawing () {

@@ -39,7 +39,7 @@ export type BOLLValue = Record<typeof keys[number] | 'date', number>
 export function calcBOLL (
   quotes: Bar[],
   inputs: BOLLInputs,
-  defaults = defaultBOLLState,
+  defaults             = defaultBOLLState,
   field: BarValueField = 'close',
 ) {
   const channels = [-inputs.K, 0, inputs.K]

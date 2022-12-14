@@ -77,6 +77,10 @@ export type SeriesOptions = {
   position: 'right' | 'left';
   currentPrice: LabelStyle | null;
   focus: LabelStyle | null;
+  paddingTop: number;
+  paddingBottom: number;
+  lowField: BarValueField;
+  highField: BarValueField;
 } & AxisOptions
 
 export const seriesOptions: SeriesOptions = {
@@ -85,13 +89,17 @@ export const seriesOptions: SeriesOptions = {
   currentPrice: currentPriceLabel,
   focus: labelStyle,
   tickInterval: 60,
+  paddingTop: 0.1,
+  paddingBottom: 0.1,
+  highField: 'high',
+  lowField: 'low',
 }
 
 export type LayoutOptions = {
   axisHeight: number;
   seriesWidth: number;
   padding: BoxPadding;
-  positions: Record<ReservedRoles, Vector>;
+  positions: Record<ReservedRoles, LayoutPosition>;
 }
 
 export const layoutOptions: LayoutOptions = {

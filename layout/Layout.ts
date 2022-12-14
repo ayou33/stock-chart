@@ -582,6 +582,11 @@ export class Layout extends Event<'resize'> {
       this.$table.removeChild(row)
     }
   }
+
+  destroy () {
+    this._layout = []
+    this._computer = []
+  }
 }
 
 export default Layout

@@ -63,7 +63,7 @@ export const defaultEMAState: EMAState = {
 export function calcEMA (
   quotes: Bar[],
   inputs: EMAInputs,
-  defaults: EMAState = defaultEMAState,
+  defaults: EMAState   = defaultEMAState,
   field: BarValueField = 'close',
 ) {
   const count = quotes.length

@@ -16,10 +16,9 @@ export type DataSourceEventTypes = 'beforeUpdate' | 'update' | 'loading' | 'load
 
 export enum UpdateLevel {
   FULL, // 完全更新
-  REPLAY, // 重绘
   PATCH, // 补丁更新
-  APPEND, // x轴数据新增
   EXTENT,
+  REPLAY, // 重绘
 }
 
 export type UpdatePayload = {
@@ -113,7 +112,7 @@ class DataSource extends Event<DataSourceEventTypes> {
     this._latest = bar
     this._intuitiveBars.push(this._latest)
 
-    this.emit('update', this.makeUpdatePayload(UpdateLevel.APPEND))
+    this.emit('update', this.makeUpdatePayload(UpdateLevel.FULL))
   }
 
   attach (dataFeed: IDataFeed) {
@@ -130,6 +129,14 @@ class DataSource extends Event<DataSourceEventTypes> {
 
   stream (patch: Patch) {
     this._dataEngine.stream(patch)
+  }
+
+  destroy () {
+    this._dataEngine.stop()
+    this._intuitiveBars.empty()
+    this._symbol = null
+    this._latest = null
+    this._lastChange = null
   }
 }
 

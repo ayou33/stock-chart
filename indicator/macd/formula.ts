@@ -29,7 +29,7 @@ const defaultMACD: MACDState = {
 export function calcMACD (
   bars: Bar[],
   inputs: MACDInputs,
-  defaults = defaultMACD,
+  defaults             = defaultMACD,
   field: BarValueField = 'close',
 ) {
   const { fastPeriod = 12, slowPeriod = 26, signalPeriod = 9 } = inputs

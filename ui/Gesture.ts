@@ -23,7 +23,6 @@ class Gesture<T extends string = any> extends AbstractGraph<GestureEvents | T, S
       right: 0;
       bottom: 0;
       left: 0;
-      cursor: crosshair;
     `
 
     this.canvas.oncontextmenu = e => this.emit('contextmenu', e)

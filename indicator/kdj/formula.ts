@@ -31,8 +31,8 @@ export type KDJValue = {
 function makeStochasticCalculator (
   quotes: Bar[],
   period: number,
-  dftHigh = 0,
-  dftLow = 1000000,
+  dftHigh              = 0,
+  dftLow               = 1000000,
   field: BarValueField = 'close',
 ) {
   let high = dftHigh
@@ -57,7 +57,7 @@ function makeStochasticCalculator (
 export function calcStochastic (
   bars: Bar[],
   inputs: KDJInputs,
-  defaults = defaultStochasticState,
+  defaults             = defaultStochasticState,
   field: BarValueField = 'close',
 ) {
   const { period, smoothPeriod, slowPeriod } = inputs

@@ -110,17 +110,18 @@ class Scene {
     const d = update ?? this._lastUpdate
 
     if (d) {
-      if (d.level === UpdateLevel.APPEND || d.level === UpdateLevel.FULL) {
-        this._mainAxis.domain(d.domain)
-        d.span = this._mainAxis.span(d)
+      if (d.level === UpdateLevel.FULL) {
+        /**
+         * 限定主轴渲染区间[开始渲染index, 结束渲染index + 1]
+         */
+        d.span = this._mainAxis.extent(d)
       }
 
       if (d.level !== UpdateLevel.REPLAY) {
-        const extent = this._series.default.extent(d)
-        if (d.extent.toString() !== extent.toString()) {
-          d.level = UpdateLevel.EXTENT
-        }
-        d.extent = extent
+        /**
+         * 限定交叉轴渲染区间[最小值, 最大值]
+         */
+        d.extent = this._series.default.extent(d)
       }
 
       this.applyUpdate(this._lastUpdate = d)
@@ -165,6 +166,17 @@ class Scene {
 
   home (duration = 0) {
     this._reactiveLayer.board.applyTransform(new Transform(), duration)
+  }
+
+  activeChart () {
+    return this._chartLayer.chart
+  }
+
+  destroy () {
+    this._chartLayer.destroy()
+    this._reactiveLayer.destroy()
+    this._indicatorLayer.destroy()
+    this._layout.destroy()
   }
 }
 

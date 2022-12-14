@@ -25,9 +25,9 @@ export const defaultTrendPointState: TrendPointState = {
 
 const makeTurningPointCalculator = (
   defaults: TrendPointState,
-  period = 13,
-  kPeriod = 5,
-  dPeriod = 5,
+  period               = 13,
+  kPeriod              = 5,
+  dPeriod              = 5,
   field: BarValueField = 'close',
 ) => {
   const factors = [...defaults.factors]
@@ -137,7 +137,7 @@ export const defaultTrendState: TrendState = {
 export function calcTrend (
   quotes: Bar[],
   inputs: TrendInputs,
-  defaults = defaultTrendState,
+  defaults             = defaultTrendState,
   field: BarValueField = 'close',
 ) {
   const { period, fastPeriod, slowPeriod, signalPeriod } = inputs

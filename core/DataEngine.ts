@@ -121,6 +121,16 @@ class DataEngine extends Event<DataEvents> {
 
     return Promise.reject('No symbol applied!')
   }
+
+  stop () {
+    this.stopFeed()
+    if (this._symbol) {
+      this._dataFeed?.unSubscribe(this._symbol)
+      this._dataFeed = null
+      this._symbol = null
+    }
+    this._periodicity = null
+  }
 }
 
 export default DataEngine

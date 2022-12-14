@@ -7,6 +7,7 @@
 import Transform from 'nanie/src/Transform'
 import { drawSeriesLabel } from '../helper/drawSeriesLabel'
 import extend from '../helper/extend'
+import { isOut } from '../helper/range'
 import { fontSize } from '../helper/typo'
 import IAxis from '../interface/IAxis'
 import LayoutCell from '../layout/LayoutCell'
@@ -15,6 +16,7 @@ import Linear from '../scale/Linear'
 import AbstractAxis from '../super/AbstractAxis'
 import { BLACK } from '../theme'
 import { UpdateLevel, UpdatePayload } from './DataSource'
+import { extent } from '../helper/extent'
 
 class Series extends AbstractAxis<'transform'> implements IAxis {
   private readonly _options: SeriesOptions
@@ -27,6 +29,8 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
 
   private _tickInterval: number
 
+  private _extent: Extent = [0, 0]
+
   constructor (container: LayoutCell, options?: RecursivePartial<SeriesOptions>) {
     super(container, options?.context)
 
@@ -34,11 +38,15 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
 
     this._tickInterval = this._options.tickInterval
 
-    this.range([0, container.height()])
+    this.limitRange()
 
     this.injectAfter('resize', () => {
-      this.range([0, container.height()])
+      this.limitRange()
     })
+  }
+
+  private limitRange () {
+    this.range([this.container.height() * (1 - Math.min(0.8, this._options.paddingBottom)), this.container.height() * this._options.paddingTop])
   }
 
   makeScale () {
@@ -47,11 +55,6 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
 
   draw (update: UpdatePayload): this {
     this.clear()
-
-    if (update.level === UpdateLevel.EXTENT) {
-      this.domain(update.extent)
-    }
-    // this.domain(extent(update.bars.slice(update.span[0], update.span[1]), d => d.low, d => d.high).reverse())
 
     const options = this._options
     const ctx = this.context
@@ -150,6 +153,33 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
   ticks (interval: number): this {
     this._tickInterval = interval
     return this
+  }
+
+  private makeExtent (update: UpdatePayload) {
+    return extent(update.bars.slice(...update.span), d => d[this._options.lowField], d => d[this._options.highField])
+  }
+
+  extent (update: UpdatePayload): Extent {
+    let dirty = false
+
+    if (update.level === UpdateLevel.FULL) {
+      dirty = true
+    } else if (update.level === UpdateLevel.PATCH) {
+      if (isOut(...this._extent)(update.latest!.close)) {
+        dirty = true
+      }
+    }
+
+    if (dirty) {
+      const extent = this.makeExtent(update)
+
+      if (this._extent.toString() !== extent.toString()) {
+        this._extent = extent
+        this.domain(extent)
+      }
+    }
+
+    return this._extent
   }
 }
 

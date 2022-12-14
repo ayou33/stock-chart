@@ -7,17 +7,16 @@
  */
 export type BoundaryFlag = 'left' | 'right' | 'both' | 'none'
 
-export function isIn (from: number, to: number, flag: BoundaryFlag = 'both') {
-  return (n: number) => {
-    if (flag === 'both') return n >= from && n <= to
-    if (flag === 'none') return n > from && n < to
-    if (flag === 'left') return n >= from && n < to
-    return n > from && n <= to
-  }
+export function isIn (from: number, to: number, include: BoundaryFlag = 'both') {
+  if (include === 'left') return (n: number) => n >= from && n < to
+  if (include === 'right') return (n: number) => n > from && n <= to
+  if (include === 'none') return (n: number) => n > from && n < to
+  return (n: number) => n >= from && n <= to
 }
 
-export function isOut (from: number, to: number, flag: BoundaryFlag = 'both') {
-  return (n: number) => !isIn(from, to, flag)(n)
+export function isOut (from: number, to: number, include: BoundaryFlag = 'both') {
+  const test = isIn(from, to, include)
+  return (n: number) => !test(n)
 }
 
 export default isIn
