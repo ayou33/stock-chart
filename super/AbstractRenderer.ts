@@ -8,39 +8,39 @@
  */
 import Event from '../base/Event'
 import { UpdateLevel, UpdatePayload } from '../core/DataSource'
-import { InjectHandler, injectTypes, InjectTypes } from '../interface/IInjectable'
+import {
+  InjectionGroup,
+  InjectHandler,
+  InjectPosition,
+  injectTypes,
+  InjectTypes,
+} from '../interface/IInjectable'
 import IRenderer from '../interface/IRenderer'
 
 abstract class AbstractRenderer<E extends string = never> extends Event<E> implements IRenderer<E> {
   lastUpdate: UpdatePayload | null = null
 
-  protected readonly beforeInjections: Record<InjectTypes, InjectHandler[]> = {
-    update: [],
-    draw: [],
-    resize: [],
-  }
+  protected readonly beforeInjections: InjectionGroup = {}
+  protected readonly afterInjections: InjectionGroup = {}
 
-  protected readonly afterInjections: Record<InjectTypes, InjectHandler[]> = {
-    update: [],
-    draw: [],
-    resize: [],
-  }
-
-  injectBefore (name: InjectTypes, handler: InjectHandler): this {
-    this.beforeInjections[name].unshift(handler)
+  injectBefore (name: InjectTypes, handler: InjectHandler<any>): this {
+    (this.beforeInjections[name] ??= []).unshift(handler)
 
     return this
   }
 
-  injectAfter (name: InjectTypes, handler: InjectHandler): this {
-    this.afterInjections[name].push(handler)
+  injectAfter<T extends IRenderer = IRenderer> (
+    name: InjectTypes,
+    handler: InjectHandler<T>,
+  ): this {
+    (this.afterInjections[name] ??= []).push(handler)
 
     return this
   }
 
   ejectBefore (name: InjectTypes, handler?: InjectHandler | undefined): this {
-    if (handler) {
-      this.beforeInjections[name] = this.beforeInjections[name].filter(h => h === handler)
+    if (handler && this.beforeInjections[name]) {
+      this.beforeInjections[name] = this.beforeInjections[name]!.filter(h => h === handler)
     } else {
       this.beforeInjections[name] = []
     }
@@ -48,8 +48,8 @@ abstract class AbstractRenderer<E extends string = never> extends Event<E> imple
   }
 
   ejectAfter (name: InjectTypes, handler?: InjectHandler | undefined): this {
-    if (handler) {
-      this.afterInjections[name] = this.afterInjections[name].filter(h => h === handler)
+    if (handler && this.afterInjections[name]) {
+      this.afterInjections[name] = this.afterInjections[name]!.filter(h => h === handler)
     } else {
       this.afterInjections[name] = []
     }
@@ -111,7 +111,7 @@ abstract class AbstractRenderer<E extends string = never> extends Event<E> imple
 
   abstract draw (update: UpdatePayload): this;
 
-  abstract applyInject (name: InjectTypes, type: 'before' | 'after'): this
+  abstract applyInject (type: InjectTypes, position: InjectPosition): this
 
   resize (): this {
     this.replay()

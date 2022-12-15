@@ -4,16 +4,17 @@
  *  @date 2022/8/12 14:26
  *  @author 阿佑[ayooooo@petalmail.com]
  */
-import { UpdatePayload } from '../core/DataSource'
-
 export const injectTypes = ['update', 'draw', 'resize'] as const
 
 export type InjectTypes = typeof injectTypes[number]
 
 export type InjectPosition = 'before' | 'after'
 
-export type InjectHandler = (
-  context: CanvasRenderingContext2D, update: UpdatePayload | null) => void
+export type InjectionGroup = {
+  [P in InjectTypes]?: InjectHandler[]
+}
+
+export type InjectHandler<T extends IInjectable = IInjectable> = (ctx: T) => void
 
 interface IInjectable {
   injectBefore (name: InjectTypes, handler: InjectHandler): this;

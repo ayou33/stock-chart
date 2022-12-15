@@ -170,7 +170,7 @@ abstract class AbstractCanvas<E extends string = never> extends AbstractRenderer
     const handlers = position === 'before' ? this.beforeInjections[name]
                                            : this.afterInjections[name]
 
-    handlers.map(fn => fn(this.context, this.lastUpdate))
+    handlers?.map(fn => fn(this))
 
     return this
   }

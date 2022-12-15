@@ -5,11 +5,7 @@
  *  @date         2022/9/2 16:12
  *  @description
  */
-declare namespace StockChart {
-  declare type A = {
-    a: number;
-  }
-}
+declare type noting = never
 
 declare type Rest<T> = T extends [infer P, ...infer Rest] ? Rest : never
 
