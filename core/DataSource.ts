@@ -17,7 +17,6 @@ export type DataSourceEventTypes = 'beforeUpdate' | 'update' | 'loading' | 'load
 export enum UpdateLevel {
   FULL, // 完全更新
   PATCH, // 补丁更新
-  EXTENT,
   REPLAY, // 重绘
 }
 

@@ -52,7 +52,11 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
   }
 
   draw (update: UpdatePayload): this {
-    if (update.level === UpdateLevel.PATCH) return this
+    if (this.isPatch(update)) return this
+
+    if (this.isFullUpdate(update)) {
+      this.domain(update.domain)
+    }
 
     this.clear()
 
@@ -155,8 +159,10 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     return this
   }
 
-  extent (update: UpdatePayload): Extent {
-    this.domain(update.domain)
+  extent (update: UpdatePayload): [boolean, Extent] {
+    if (update.level !== UpdateLevel.FULL) {
+      return [false, update.span]
+    }
 
     const rightMostRange = this.container.width()
     const [left, right] = update.span
@@ -164,10 +170,10 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     const rightMostRender = this.invert(rightMostRange)
 
     if (update.domain[right] < leftMostRender || update.domain[left] > rightMostRender) {
-      return [0, 0]
+      return [true, [0, 0]]
     }
 
-    return [this.index(0) ?? 0, (this.index(rightMostRange) ?? right) + 1]
+    return [true, [this.index(0) ?? 0, (this.index(rightMostRange) ?? right) + 1]]
   }
 }
 

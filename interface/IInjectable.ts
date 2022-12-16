@@ -10,8 +10,8 @@ export type InjectTypes = typeof injectTypes[number]
 
 export type InjectPosition = 'before' | 'after'
 
-export type InjectionGroup = {
-  [P in InjectTypes]?: InjectHandler[]
+export type InjectionGroup<T extends IInjectable> = {
+  [P in InjectTypes]?: InjectHandler<T>[]
 }
 
 export type InjectHandler<T extends IInjectable = IInjectable> = (ctx: T) => void

@@ -7,6 +7,7 @@
 import Transform from 'nanie/src/Transform'
 import { drawSeriesLabel } from '../helper/drawSeriesLabel'
 import extend from '../helper/extend'
+import { extent } from '../helper/extent'
 import { isOut } from '../helper/range'
 import { fontSize } from '../helper/typo'
 import IAxis from '../interface/IAxis'
@@ -16,7 +17,6 @@ import Linear from '../scale/Linear'
 import AbstractAxis from '../super/AbstractAxis'
 import { BLACK } from '../theme'
 import { UpdateLevel, UpdatePayload } from './DataSource'
-import { extent } from '../helper/extent'
 
 class Series extends AbstractAxis<'transform'> implements IAxis {
   private readonly _options: SeriesOptions
@@ -55,6 +55,10 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
 
   draw (update: UpdatePayload): this {
     this.clear()
+
+    if (this.isFullUpdate(update)) {
+      this.domain(update.extent)
+    }
 
     const options = this._options
     const ctx = this.context
@@ -159,7 +163,7 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
     return extent(update.bars.slice(...update.span), d => d[this._options.lowField], d => d[this._options.highField])
   }
 
-  extent (update: UpdatePayload): Extent {
+  extent (update: UpdatePayload): [boolean, Extent] {
     let dirty = false
 
     if (update.level === UpdateLevel.FULL) {
@@ -172,14 +176,12 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
 
     if (dirty) {
       const extent = this.makeExtent(update)
-
       if (this._extent.toString() !== extent.toString()) {
-        this._extent = extent
-        this.domain(extent)
+        return [true, extent]
       }
     }
 
-    return this._extent
+    return [false, this._extent]
   }
 }
 

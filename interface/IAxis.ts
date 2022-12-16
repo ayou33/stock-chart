@@ -21,7 +21,7 @@ interface IAxis<T = Extent> extends ICanvas {
    */
   domain (domain?: T): T;
 
-  extent (update: UpdatePayload): Extent;
+  extent (update: UpdatePayload): [boolean, Extent];
 
   /**
    * 获取输出

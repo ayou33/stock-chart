@@ -9,8 +9,8 @@
 import Event from '../base/Event'
 import { UpdateLevel, UpdatePayload } from '../core/DataSource'
 import {
-  InjectionGroup,
   InjectHandler,
+  InjectionGroup,
   InjectPosition,
   injectTypes,
   InjectTypes,
@@ -20,20 +20,28 @@ import IRenderer from '../interface/IRenderer'
 abstract class AbstractRenderer<E extends string = never> extends Event<E> implements IRenderer<E> {
   lastUpdate: UpdatePayload | null = null
 
-  protected readonly beforeInjections: InjectionGroup = {}
-  protected readonly afterInjections: InjectionGroup = {}
+  protected readonly beforeInjections: InjectionGroup<IRenderer> = {}
+  protected readonly afterInjections: InjectionGroup<IRenderer> = {}
 
-  injectBefore (name: InjectTypes, handler: InjectHandler<any>): this {
-    (this.beforeInjections[name] ??= []).unshift(handler)
+  isFullUpdate (update: UpdatePayload) {
+    return update.level === UpdateLevel.FULL
+  }
+
+  isPatch (update: UpdatePayload) {
+    return update.level === UpdateLevel.PATCH
+  }
+
+  injectBefore<T extends IRenderer> (name: InjectTypes, handler: InjectHandler<T>): this {
+    (this.beforeInjections[name] ??= []).unshift(handler as InjectHandler<IRenderer>)
 
     return this
   }
 
-  injectAfter<T extends IRenderer = IRenderer> (
+  injectAfter<T extends IRenderer> (
     name: InjectTypes,
     handler: InjectHandler<T>,
   ): this {
-    (this.afterInjections[name] ??= []).push(handler)
+    (this.afterInjections[name] ??= []).push(handler as InjectHandler<IRenderer>)
 
     return this
   }

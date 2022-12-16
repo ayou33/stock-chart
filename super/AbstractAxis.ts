@@ -41,7 +41,7 @@ abstract class AbstractAxis<E extends string, U = Extent, T extends IScale = ISc
     return this.scale.range(range)
   }
 
-  abstract extent (update: UpdatePayload): Extent
+  abstract extent (update: UpdatePayload): [boolean, Extent]
 
   abstract tickFormat (format: (value: number, pos: number) => string): this
 

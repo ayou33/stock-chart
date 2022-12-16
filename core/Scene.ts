@@ -107,24 +107,30 @@ class Scene {
   }
 
   apply (update?: UpdatePayload) {
-    const d = update ?? this._lastUpdate
+    const p = update ?? this._lastUpdate
 
-    if (d) {
-      if (d.level === UpdateLevel.FULL) {
+    if (p) {
+      const update = { ...p }
+
+      if (update.level === UpdateLevel.FULL) {
         /**
          * 限定主轴渲染区间[开始渲染index, 结束渲染index + 1]
          */
-        d.span = this._mainAxis.extent(d)
+        update.span = this._mainAxis.extent(update)[1]
       }
 
-      if (d.level !== UpdateLevel.REPLAY) {
+      if (update.level !== UpdateLevel.REPLAY) {
         /**
          * 限定交叉轴渲染区间[最小值, 最大值]
          */
-        d.extent = this._series.default.extent(d)
+        const [isChanged, extent] = this._series.default.extent(update)
+        if (isChanged) {
+          update.extent = extent
+          update.level = UpdateLevel.FULL
+        }
       }
 
-      this.applyUpdate(this._lastUpdate = d)
+      this.applyUpdate(this._lastUpdate = update)
     }
   }
 
