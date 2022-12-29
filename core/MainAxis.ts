@@ -27,6 +27,8 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
 
   private _tickInterval: number
 
+  private _span: Extent | null = null
+
   constructor (container: LayoutCell, options: RecursivePartial<MainAxisOptions>) {
     super(container)
 
@@ -160,20 +162,16 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
   }
 
   extent (update: UpdatePayload): [boolean, Extent] {
-    if (update.level !== UpdateLevel.FULL) {
-      return [false, update.span]
+    if (update.level === UpdateLevel.PATCH && this._span) {
+      return [false, this._span]
     }
 
-    const rightMostRange = this.container.width()
-    const [left, right] = update.span
-    const leftMostRender = this.invert(0)
-    const rightMostRender = this.invert(rightMostRange)
+    /**
+     * index方法返回的值为索引，span[1]的值为索引 + 1 {@see DataSource#makeUpdatePayload}
+     */
+    this._span = [this.index(0) ?? 0, (this.index(this.container.width()) ?? (update.span[1] - 1)) + 1]
 
-    if (update.domain[right] < leftMostRender || update.domain[left] > rightMostRender) {
-      return [true, [0, 0]]
-    }
-
-    return [true, [this.index(0) ?? 0, (this.index(rightMostRange) ?? right) + 1]]
+    return [true, this._span]
   }
 }
 

@@ -112,12 +112,10 @@ class Scene {
     if (p) {
       const update = { ...p }
 
-      if (update.level === UpdateLevel.FULL) {
-        /**
-         * 限定主轴渲染区间[开始渲染index, 结束渲染index + 1]
-         */
-        update.span = this._mainAxis.extent(update)[1]
-      }
+      /**
+       * 限定主轴渲染区间[开始渲染index, 结束渲染index + 1]
+       */
+      update.span = this._mainAxis.extent(update)[1]
 
       if (update.level !== UpdateLevel.REPLAY) {
         /**

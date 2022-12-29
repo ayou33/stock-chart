@@ -71,14 +71,12 @@ class DataSource extends Event<DataSourceEventTypes> {
   private makeUpdatePayload (level: UpdateLevel): UpdatePayload {
     const bars = [...this._intuitiveBars.value()]
 
-    const ex = extent(bars, d => d.low, d => d.high)
-
     const payload = {
       level,
       bars,
       latest: this._latest ?? last(bars),
       span: [0, bars.length] as Extent,
-      extent: ex.reverse() as Extent,
+      extent: extent(bars, d => d.low, d => d.high),
       domain: pluck('date', bars),
       symbol: this._symbol,
       lastChange: this._lastChange,

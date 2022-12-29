@@ -59,6 +59,18 @@ export class Mountain extends AbstractChart {
       ctx.fill()
     }
 
+    ctx.beginPath()
+    ctx.strokeStyle = 'red'
+    const bottom = this.fy(update.extent[0])
+    ctx.moveTo(0, bottom)
+    ctx.lineTo(this.container.width(), bottom)
+    ctx.stroke()
+    const top = this.fy(update.extent[1])
+    ctx.beginPath()
+    ctx.moveTo(0, top)
+    ctx.lineTo(this.container.width(), top)
+    ctx.stroke()
+
     return this
   }
 

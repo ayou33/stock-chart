@@ -170,18 +170,22 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
       dirty = true
     } else if (update.level === UpdateLevel.PATCH) {
       if (isOut(...this._extent)(update.latest!.close)) {
-        dirty = true
       }
+      dirty = true
     }
 
     if (dirty) {
       const extent = this.makeExtent(update)
       if (this._extent.toString() !== extent.toString()) {
-        return [true, extent]
+        this._extent = extent
+      } else {
+        dirty = false
       }
     }
 
-    return [false, this._extent]
+    console.log('ayo series', this._extent)
+
+    return [true, this._extent]
   }
 }
 
