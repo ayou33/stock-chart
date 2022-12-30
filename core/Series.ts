@@ -46,7 +46,10 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
   }
 
   private limitRange () {
-    this.range([this.container.height() * (1 - Math.min(0.8, this._options.paddingBottom)), this.container.height() * this._options.paddingTop])
+    this.range([
+      this.container.height() * (1 - Math.min(0.8, this._options.paddingBottom)),
+      this.container.height() * this._options.paddingTop,
+    ])
   }
 
   makeScale () {
@@ -56,7 +59,8 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
   draw (update: UpdatePayload): this {
     this.clear()
 
-    if (this.isFullUpdate(update)) {
+    if (this.isExtentUpdate(update)) {
+      console.log('ayo extent jojo', update.extent)
       this.domain(update.extent)
     }
 
@@ -160,32 +164,33 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
   }
 
   private makeExtent (update: UpdatePayload) {
-    return extent(update.bars.slice(...update.span), d => d[this._options.lowField], d => d[this._options.highField])
+    return extent(
+      update.bars.slice(...update.span),
+      d => d[this._options.lowField],
+      d => d[this._options.highField],
+    )
   }
 
   extent (update: UpdatePayload): [boolean, Extent] {
-    let dirty = false
-
-    if (update.level === UpdateLevel.FULL) {
-      dirty = true
-    } else if (update.level === UpdateLevel.PATCH) {
-      if (isOut(...this._extent)(update.latest!.close)) {
-      }
-      dirty = true
-    }
+    let dirty = update.level === UpdateLevel.PATCH
+                ? isOut(...this._extent)(update.latest!.close)
+                : true
 
     if (dirty) {
       const extent = this.makeExtent(update)
       if (this._extent.toString() !== extent.toString()) {
         this._extent = extent
+
+        if (extent[0] === extent[1]) {
+          this._extent = [extent[0] - 1, extent[0] + 1]
+        }
       } else {
         dirty = false
       }
     }
 
-    console.log('ayo series', this._extent)
-
-    return [true, this._extent]
+    console.log('ayo series extent', dirty, this._extent.toString())
+    return [dirty, this._extent]
   }
 }
 

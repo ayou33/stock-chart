@@ -15,9 +15,11 @@ import DataEngine from './DataEngine'
 export type DataSourceEventTypes = 'beforeUpdate' | 'update' | 'loading' | 'loaded'
 
 export enum UpdateLevel {
-  FULL, // 完全更新
-  PATCH, // 补丁更新
   REPLAY, // 重绘
+  PATCH, // 补丁更新
+  APPEND, // 新增
+  EXTENT,
+  FULL, // 完全更新
 }
 
 export type UpdatePayload = {
@@ -55,7 +57,7 @@ class DataSource extends Event<DataSourceEventTypes> {
     })
 
     this._dataEngine.on('refresh', (_, symbol: SymbolDescriber, bar: Bar) => {
-      if (symbol === this._symbol) this.refresh(bar)
+      if (symbol === this._symbol) this.patch(bar)
     })
 
     this._dataEngine.on('append', (_, symbol: SymbolDescriber, bar: Bar) => {
@@ -98,7 +100,7 @@ class DataSource extends Event<DataSourceEventTypes> {
     this.emit('update', this.makeUpdatePayload(UpdateLevel.FULL))
   }
 
-  private refresh (bar: Bar) {
+  private patch (bar: Bar) {
     this._latest = bar
     this._intuitiveBars.update(0, this._latest)
 
@@ -109,7 +111,7 @@ class DataSource extends Event<DataSourceEventTypes> {
     this._latest = bar
     this._intuitiveBars.push(this._latest)
 
-    this.emit('update', this.makeUpdatePayload(UpdateLevel.FULL))
+    this.emit('update', this.makeUpdatePayload(UpdateLevel.APPEND))
   }
 
   attach (dataFeed: IDataFeed) {

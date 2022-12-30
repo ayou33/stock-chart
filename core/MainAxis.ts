@@ -54,9 +54,9 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
   }
 
   draw (update: UpdatePayload): this {
-    if (this.isPatch(update)) return this
+    if (update.level === UpdateLevel.PATCH) return this
 
-    if (this.isFullUpdate(update)) {
+    if (this.isDomainUpdate(update)) {
       this.domain(update.domain)
     }
 
@@ -171,6 +171,7 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
      */
     this._span = [this.index(0) ?? 0, (this.index(this.container.width()) ?? (update.span[1] - 1)) + 1]
 
+    console.log('ayo', this._span.toString())
     return [true, this._span]
   }
 }

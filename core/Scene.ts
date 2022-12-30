@@ -112,19 +112,22 @@ class Scene {
     if (p) {
       const update = { ...p }
 
-      /**
-       * 限定主轴渲染区间[开始渲染index, 结束渲染index + 1]
-       */
-      update.span = this._mainAxis.extent(update)[1]
-
       if (update.level !== UpdateLevel.REPLAY) {
+        /**
+         * 限定主轴渲染区间span[开始渲染index, 结束渲染index + 1]
+         */
+        update.span = this._mainAxis.extent(update)[1]
+
         /**
          * 限定交叉轴渲染区间[最小值, 最大值]
          */
         const [isChanged, extent] = this._series.default.extent(update)
+
         if (isChanged) {
           update.extent = extent
-          update.level = UpdateLevel.FULL
+          if (update.level < UpdateLevel.EXTENT) {
+            update.level = UpdateLevel.EXTENT
+          }
         }
       }
 
@@ -154,7 +157,7 @@ class Scene {
         <div class="mask"></div>
         <div class="halo"></div>
         <div class="face"></div>
-    `
+      `
 
       this._$loading = div
     }
