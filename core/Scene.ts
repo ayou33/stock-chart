@@ -106,33 +106,37 @@ class Scene {
     this._reactiveLayer.apply(update)
   }
 
-  apply (update?: UpdatePayload) {
-    const p = update ?? this._lastUpdate
+  apply (payload?: UpdatePayload) {
+    const p = payload ?? this._lastUpdate
 
-    if (p) {
-      const update = { ...p }
+    if (!p) return this
 
-      if (update.level !== UpdateLevel.REPLAY) {
-        /**
-         * 限定主轴渲染区间span[开始渲染index, 结束渲染index + 1]
-         */
-        update.span = this._mainAxis.extent(update)[1]
+    const update = { ...p }
 
-        /**
-         * 限定交叉轴渲染区间[最小值, 最大值]
-         */
-        const [isChanged, extent] = this._series.default.extent(update)
-
-        if (isChanged) {
-          update.extent = extent
-          if (update.level < UpdateLevel.EXTENT) {
-            update.level = UpdateLevel.EXTENT
-          }
-        }
-      }
-
-      this.applyUpdate(this._lastUpdate = update)
+    /**
+     * 更新主轴并限定渲染区间
+     * !!!主轴的渲染区间确定交叉轴的价值区间
+     */
+    if (update.level === UpdateLevel.FULL) {
+      this._mainAxis.domain(update.domain)
+      update.span = this._mainAxis.extent(update)[1]
     }
+
+    /**
+     * 更新交叉轴并限定价值区间
+     */
+    if (update.level !== UpdateLevel.REPLAY) {
+      const [isChanged, extent] = this._series.default.extent(update)
+
+      if (isChanged) {
+        this._series.default.domain(extent)
+        update.extent = extent
+      }
+    }
+
+    this.applyUpdate(this._lastUpdate = update)
+
+    return this
   }
 
   addStudy<T extends IndicatorNames> (name: T, inputs?: IndicatorInputs[T], typeUnique = false) {

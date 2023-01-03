@@ -23,14 +23,6 @@ abstract class AbstractRenderer<E extends string = never> extends Event<E> imple
   protected readonly beforeInjections: InjectionGroup<IRenderer> = {}
   protected readonly afterInjections: InjectionGroup<IRenderer> = {}
 
-  isDomainUpdate (update: UpdatePayload) {
-    return update.level === UpdateLevel.FULL || update.level === UpdateLevel.APPEND
-  }
-
-  isExtentUpdate (update: UpdatePayload) {
-    return update.level === UpdateLevel.FULL || update.level === UpdateLevel.EXTENT
-  }
-
   injectBefore<T extends IRenderer> (name: InjectTypes, handler: InjectHandler<T>): this {
     (this.beforeInjections[name] ??= []).unshift(handler as InjectHandler<IRenderer>)
 

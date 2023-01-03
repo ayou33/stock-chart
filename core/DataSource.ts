@@ -17,8 +17,6 @@ export type DataSourceEventTypes = 'beforeUpdate' | 'update' | 'loading' | 'load
 export enum UpdateLevel {
   REPLAY, // 重绘
   PATCH, // 补丁更新
-  APPEND, // 新增
-  EXTENT,
   FULL, // 完全更新
 }
 
@@ -111,7 +109,7 @@ class DataSource extends Event<DataSourceEventTypes> {
     this._latest = bar
     this._intuitiveBars.push(this._latest)
 
-    this.emit('update', this.makeUpdatePayload(UpdateLevel.APPEND))
+    this.emit('update', this.makeUpdatePayload(UpdateLevel.FULL))
   }
 
   attach (dataFeed: IDataFeed) {

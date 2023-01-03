@@ -57,12 +57,9 @@ class Series extends AbstractAxis<'transform'> implements IAxis {
   }
 
   draw (update: UpdatePayload): this {
-    this.clear()
+    // this.domain(update.extent)
 
-    if (this.isExtentUpdate(update)) {
-      console.log('ayo extent jojo', update.extent)
-      this.domain(update.extent)
-    }
+    this.clear()
 
     const options = this._options
     const ctx = this.context
