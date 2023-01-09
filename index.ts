@@ -3288,7 +3288,7 @@ chart.attach({
 chart.load('BTCUSD')
 
 chart.showStudy('ma', {
-  periods: [
+  series: [
     {
       period: 7,
       color: 'red',

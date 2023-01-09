@@ -11,8 +11,8 @@ import AbstractGraph from './AbstractGraph'
 abstract class AbstractChart extends AbstractGraph {
   draw (update: UpdatePayload): this {
     if (update.level === UpdateLevel.PATCH) {
-      this.resetLatest()
-      this.drawLatest(update)
+      this.resetLast()
+      this.drawLast(update)
     } else {
       this.clear()
       this.drawAll({
@@ -26,7 +26,7 @@ abstract class AbstractChart extends AbstractGraph {
 
   abstract drawAll (update: UpdatePayload): this
 
-  abstract drawLatest (update: UpdatePayload): this
+  abstract drawLast (update: UpdatePayload): this
 }
 
 export default AbstractChart

@@ -68,7 +68,7 @@ export function calcEMA (
 ) {
   const count = quotes.length
 
-  if (quotes.length < Math.max(...pluck('period', inputs.periods))) {
+  if (quotes.length < Math.max(...pluck('period', inputs.series))) {
     return {
       value: [],
       state: defaults,
@@ -77,7 +77,7 @@ export function calcEMA (
 
   const values: EMAValue[] = []
 
-  const computers = inputs.periods.map(i => ({
+  const computers = inputs.series.map(i => ({
     period: i.period,
     offset: i.offset ?? 0,
     compute: makeEMACalculator(i.period, defaults.index[`index_${i.period}_${i.offset ?? 0}`]),
@@ -90,7 +90,7 @@ export function calcEMA (
       date: quote.date,
     }
 
-    for (let k = 0; k < inputs.periods.length; k++) {
+    for (let k = 0; k < inputs.series.length; k++) {
       const calculator = computers[k]
       value[`index_${calculator.period}_${calculator.offset}`] = calculator.compute(quote[field], i)
     }

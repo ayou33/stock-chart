@@ -26,11 +26,11 @@ class CCI extends AbstractIndicator<CCIInputs, CCIValue> implements IIndicator<C
     return this
   }
 
-  compute (update: UpdatePayload): CCIValue[] {
+  computeInit (update: UpdatePayload): CCIValue[] {
     return calcCCI(update.bars.slice(0, -1), this.inputs)
   }
 
-  computeLatest (update: UpdatePayload): CCIValue[] {
+  computeLast (update: UpdatePayload): CCIValue[] {
     return calcCCI(update.bars.slice(-this.inputs.period), this.inputs)
   }
 

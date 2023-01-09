@@ -25,7 +25,7 @@ class ReactiveLayer extends AbstractLayer implements ILayer {
       .render()
       .on('focus', (_, x: number, y: number, date: number) => {
         layerOptions.xAxis.focus(x, date)
-        layerOptions.yAxis.focus(y, NaN)
+        layerOptions.yAxis.focus(y)
       })
       .on('blur', () => {
         layerOptions.xAxis.blur()

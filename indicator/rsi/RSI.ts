@@ -27,7 +27,7 @@ class RSI extends AbstractIndicator<RSIInputs, RSIValue> implements IIndicator<R
     return this
   }
 
-  compute (update: UpdatePayload): RSIValue[] {
+  computeInit (update: UpdatePayload): RSIValue[] {
     const result = calcRSI(update.bars.slice(0, -1), this.inputs)
 
     this.state = result.state
@@ -35,7 +35,7 @@ class RSI extends AbstractIndicator<RSIInputs, RSIValue> implements IIndicator<R
     return result.value
   }
 
-  computeLatest (update: UpdatePayload): RSIValue[] {
+  computeLast (update: UpdatePayload): RSIValue[] {
     if (this.state) {
       return calcRSI(update.bars, this.inputs, this.state).value
     }

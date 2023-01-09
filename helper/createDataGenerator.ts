@@ -73,6 +73,9 @@ export function createDataGenerator (consume: (bar: Bar, isCreate: boolean) => v
    */
   function insert (time: number, price: number) {
     if (_bar) {
+      // 忽略同一个周期内相同值的多次推送
+      if (time < _nextPeriod && price === _bar.close) return
+
       _bar.close = price
       _bar.high = Math.max(_bar.high, price)
       _bar.low = Math.min(_bar.low, price)

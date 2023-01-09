@@ -23,7 +23,7 @@ class SAR extends AbstractIndicator<SARInputs, SARValue> implements IIndicator<S
     return extend(sarInputs, options ?? {})
   }
 
-  compute (update: UpdatePayload): SARValue[] {
+  computeInit (update: UpdatePayload): SARValue[] {
     const result = calcSAR(update.bars.slice(0, -1), this.inputs)
 
     this.state = result.state
@@ -31,7 +31,7 @@ class SAR extends AbstractIndicator<SARInputs, SARValue> implements IIndicator<S
     return result.value
   }
 
-  computeLatest (update: UpdatePayload): SARValue[] {
+  computeLast (update: UpdatePayload): SARValue[] {
     if (this.state) {
       return calcSAR(update.bars.slice(-2), this.inputs, this.state).value
     }

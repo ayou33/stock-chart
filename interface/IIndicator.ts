@@ -21,13 +21,13 @@ interface IIndicator<I extends object = any, O = unknown, E extends string = nev
 
   inputs: I
 
-  output: O[]
+  initOutput: O[]
 
   config (inputs: I): this;
 
-  compute (update: UpdatePayload): O[]
+  computeInit (update: UpdatePayload): O[]
 
-  computeLatest (update: UpdatePayload): O[]
+  computeLast (update: UpdatePayload): O[]
 
   paint (values: O[]): this
 }

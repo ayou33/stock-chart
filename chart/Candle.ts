@@ -57,10 +57,10 @@ class Candle extends AbstractChart implements AbstractChart {
   }
 
   /**
-   * @implements {AbstractChart#drawLatest}
+   * @implements {AbstractChart#drawLast}
    * @param update
    */
-  drawLatest (update: UpdatePayload): this {
+  drawLast (update: UpdatePayload): this {
     if (update.latest) {
       this.drawBar(this.context, update.latest, this.xAxis.bandWidth())
     }

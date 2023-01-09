@@ -14,7 +14,7 @@ import { Color } from '../../theme'
 import calcMA, { MAValue } from './formula'
 
 class MA extends AbstractIndicator<MAInputs, MAValue> implements IIndicator<MAInputs> {
-  private _periods: number[] = []
+  private _series: number[] = []
   private colors: Record<IndexName, Color> = {}
 
   constructor (options: GraphOptions & RecursivePartial<MAInputs>) {
@@ -24,9 +24,9 @@ class MA extends AbstractIndicator<MAInputs, MAValue> implements IIndicator<MAIn
   }
 
   applyConfig (): this {
-    this._periods = pluck('period', this.inputs.periods)
+    this._series = pluck('period', this.inputs.series)
 
-    this.inputs.periods.map(p => {
+    this.inputs.series.map(p => {
       this.colors[`index_${p.period}`] = p.color
     })
 
@@ -58,18 +58,18 @@ class MA extends AbstractIndicator<MAInputs, MAValue> implements IIndicator<MAIn
     }
   }
 
-  compute (update: UpdatePayload) {
-    return calcMA(update.bars.slice(0, -1), this._periods)
+  computeInit (update: UpdatePayload) {
+    return calcMA(update.bars.slice(0, -1), this._series)
   }
 
-  computeLatest (update: UpdatePayload): MAValue[] {
-    return calcMA(update.bars.slice(-Math.max(...this._periods) - 1), this._periods).slice(-1)
+  computeLast (update: UpdatePayload): MAValue[] {
+    return calcMA(update.bars.slice(-Math.max(...this._series) - 1), this._series).slice(-1)
   }
 
   paint (result: MAValue[]): this {
-    for (let i = 0, l = this._periods.length; i < l; i++) {
+    for (let i = 0, l = this._series.length; i < l; i++) {
       this.context.beginPath()
-      this.paintMA(result, this._periods[i])
+      this.paintMA(result, this._series[i])
       this.context.stroke()
     }
 

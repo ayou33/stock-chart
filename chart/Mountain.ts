@@ -63,10 +63,10 @@ export class Mountain extends AbstractChart {
   }
 
   /**
-   * @implements {AbstractChart#drawLatest}
+   * @implements {AbstractChart#drawLast}
    * @param update
    */
-  drawLatest (update: UpdatePayload): this {
+  drawLast (update: UpdatePayload): this {
     const latest = update.bars.slice(-2)
     if (latest.length >= 2) {
       this.context.beginPath()

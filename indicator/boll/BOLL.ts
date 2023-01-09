@@ -23,7 +23,7 @@ class BOLL extends AbstractIndicator<BOLLInputs, BOLLValue> implements IIndicato
     return extend(bollInputs, options ?? {})
   }
 
-  compute (update: UpdatePayload): BOLLValue[] {
+  computeInit (update: UpdatePayload): BOLLValue[] {
     const result = calcBOLL(update.bars.slice(0, -1), this.inputs)
 
     this.state = result.state
@@ -31,7 +31,7 @@ class BOLL extends AbstractIndicator<BOLLInputs, BOLLValue> implements IIndicato
     return result.value
   }
 
-  computeLatest (update: UpdatePayload): BOLLValue[] {
+  computeLast (update: UpdatePayload): BOLLValue[] {
     if (this.state) {
       return calcBOLL(update.bars, this.inputs, this.state).value
     }

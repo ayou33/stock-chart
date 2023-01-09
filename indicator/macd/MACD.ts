@@ -108,13 +108,13 @@ class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicato
     return this
   }
 
-  compute (update: UpdatePayload) {
+  computeInit (update: UpdatePayload) {
     const result = calcMACD(update.bars.slice(0, -1), this.inputs)
     this.state = result.state
     return result.value
   }
 
-  computeLatest (update: UpdatePayload): MACDValue[] {
+  computeLast (update: UpdatePayload): MACDValue[] {
     if (this.state) {
       return calcMACD(update.bars, this.inputs, this.state).value
     }
@@ -122,7 +122,7 @@ class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicato
     return []
   }
 
-  resetLatest (): this {
+  resetLast (): this {
     const latest = this.lastUpdate?.latest
     if (latest) {
       const left = this.fx(latest.date) - this.xAxis.step() + this.xAxis.bandWidth() / 2

@@ -13,7 +13,7 @@ import LayoutCell from '../layout/LayoutCell'
 import { mainAxisOptions, MainAxisOptions } from '../options'
 import Band from '../scale/Band'
 import AbstractAxis from '../super/AbstractAxis'
-import { BLACK, WHITE } from '../theme'
+import { BLACK, GRAY, WHITE } from '../theme'
 import { UpdateLevel, UpdatePayload } from './DataSource'
 
 const defaultFormat: (date: number, p: number) => string = v => v.toString()
@@ -29,6 +29,8 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
 
   private _span: Extent | null = null
 
+  private _grid: Array<number> = []
+
   constructor (container: LayoutCell, options: RecursivePartial<MainAxisOptions>) {
     super(container)
 
@@ -39,6 +41,15 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     this.injectAfter('resize', () => {
       this.range([-Infinity, container.width()])
     })
+
+    this.makeGrid()
+  }
+
+  private makeGrid () {
+    this._grid = []
+    for (let x = this._tickInterval, w = this.container.width(); x < w; x += this._tickInterval) {
+      this._grid.push(x)
+    }
   }
 
   makeScale () {
@@ -69,7 +80,6 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
 
     const ctx = this.context
     const y = (this._options.tick ?? 0)
-    const width = this.container.width()
     const options = this._options
 
     ctx.beginPath()
@@ -77,8 +87,11 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     ctx.textAlign = 'center'
     ctx.font = fontSize(options.labelSize)
     ctx.fillStyle = BLACK
+    ctx.strokeStyle = GRAY
 
-    for (let x = this._tickInterval; x < width; x += this._tickInterval) {
+    for (let i = 0, l = this._grid.length; i < l; i++) {
+      const x = this._grid[i]
+
       if (options.tick) {
         ctx.moveTo(x, 0)
         ctx.lineTo(x, y)
@@ -116,7 +129,7 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
     return this.scale.domainIndex(this.invert(x))
   }
 
-  focus (x: number, date: number): this {
+  focus (x: number, date?: number): this {
     if (this._options.focus) {
       this.replay()
 
@@ -126,7 +139,8 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
       ctx.textBaseline = 'top'
       ctx.textAlign = 'center'
 
-      const text = this._format(date, x)
+      const d = date ?? this.invert(x)
+      const text = this._format(d, x)
       const y = (this._options.tick ?? 0) + this._options.labelPadding
 
       ctx.fillStyle = options.background ?? options.color
@@ -156,6 +170,7 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
 
   ticks (interval: number): this {
     this._tickInterval = interval
+    this.makeGrid()
     this.clear()
     this.replay()
     return this
@@ -171,8 +186,11 @@ class MainAxis extends AbstractAxis<'transform', number[], Band> implements IMai
      */
     this._span = [this.index(0) ?? 0, (this.index(this.container.width()) ?? (update.span[1] - 1)) + 1]
 
-    console.log('ayo', this._span.toString())
     return [true, this._span]
+  }
+
+  grid () {
+    return this._grid
   }
 }
 

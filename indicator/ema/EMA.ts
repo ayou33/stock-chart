@@ -5,10 +5,10 @@
  *  @date         2022/8/29 10:56
  *  @description
  */
-import { emaInputs, EMAInputs } from '../../options.indicator'
 import { UpdatePayload } from '../../core/DataSource'
 import extend from '../../helper/extend'
 import IIndicator from '../../interface/IIndicator'
+import { emaInputs, EMAInputs } from '../../options.indicator'
 import AbstractIndicator from '../../super/AbstractIndicator'
 import { calcEMA, EMAName, EMAValue } from './formula'
 
@@ -19,15 +19,15 @@ class EMA extends AbstractIndicator<EMAInputs, EMAValue> implements IIndicator<E
     return this
   }
 
-  compute (update: UpdatePayload): EMAValue[] {
-    const result = calcEMA(update.bars, this.inputs)
+  computeInit (update: UpdatePayload): EMAValue[] {
+    const result = calcEMA(update.bars.slice(0, -1), this.inputs)
     this.state = result.state
     return result.value
   }
 
-  computeLatest (update: UpdatePayload): EMAValue[] {
+  computeLast (update: UpdatePayload): EMAValue[] {
     if (this.state) {
-      return calcEMA(update.bars.slice(-1), this.inputs, this.state).value.slice(-1)
+      return calcEMA(update.bars, this.inputs, this.state).value.slice(-1)
     }
 
     return []
@@ -38,11 +38,11 @@ class EMA extends AbstractIndicator<EMAInputs, EMAValue> implements IIndicator<E
   }
 
   paint (values: EMAValue[]): this {
-    for (let i = 0, l = this.inputs.periods.length; i < l; i++) {
-      const key = `index_${this.inputs.periods[i].period}_${this.inputs.periods[i].offset ?? 0}` as EMAName
+    for (let i = 0, l = this.inputs.series.length; i < l; i++) {
+      const key = `index_${this.inputs.series[i].period}_${this.inputs.series[i].offset ?? 0}` as EMAName
 
       this.context.beginPath()
-      this.context.strokeStyle = this.inputs.periods[i].color
+      this.context.strokeStyle = this.inputs.series[i].color
 
       let start = false
       for (let j = 0, dl = values.length; j < dl; j++) {

@@ -53,7 +53,7 @@ class Gesture<T extends string = any> extends AbstractGraph<GestureEvents | T, S
     return this
   }
 
-  drawLatest (): this {
+  drawLast (): this {
     return this
   }
 

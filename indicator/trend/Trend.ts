@@ -25,7 +25,7 @@ class Trend extends AbstractIndicator<TrendInputs, TrendValue> implements IIndic
     return extend(trendInputs, options ?? {})
   }
 
-  compute (update: UpdatePayload): TrendValue[] {
+  computeInit (update: UpdatePayload): TrendValue[] {
     const result = calcTrend(update.bars.slice(0, -1), this.inputs)
 
     this.state = result.state
@@ -33,7 +33,7 @@ class Trend extends AbstractIndicator<TrendInputs, TrendValue> implements IIndic
     return result.value
   }
 
-  computeLatest (update: UpdatePayload): TrendValue[] {
+  computeLast (update: UpdatePayload): TrendValue[] {
     if (this.state) {
       return calcTrend(update.bars, this.inputs, this.state).value
     }
@@ -41,8 +41,8 @@ class Trend extends AbstractIndicator<TrendInputs, TrendValue> implements IIndic
     return []
   }
 
-  drawLatest (update: UpdatePayload): this {
-    this.paint(this.computeLatest(update))
+  drawLast (update: UpdatePayload): this {
+    this.paint(this.computeLast(update))
 
     return this
   }

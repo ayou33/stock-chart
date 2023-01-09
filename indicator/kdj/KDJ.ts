@@ -49,7 +49,7 @@ class KDJ extends AbstractIndicator<KDJInputs, KDJValue> implements IIndicator<K
     return this
   }
 
-  compute (update: UpdatePayload): KDJValue[] {
+  computeInit (update: UpdatePayload): KDJValue[] {
     const result = calcStochastic(update.bars.slice(0, -1), this.inputs)
 
     this.state = result.state
@@ -57,7 +57,7 @@ class KDJ extends AbstractIndicator<KDJInputs, KDJValue> implements IIndicator<K
     return result.value
   }
 
-  computeLatest (update: UpdatePayload): KDJValue[] {
+  computeLast (update: UpdatePayload): KDJValue[] {
     if (this.state) {
       return calcStochastic(update.bars, this.inputs, this.state).value
     }

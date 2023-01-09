@@ -47,8 +47,8 @@ abstract class AbstractGraph<E extends string = never, O = unknown> extends Abst
 
   draw (update: UpdatePayload): this {
     if (update.level === UpdateLevel.PATCH) {
-      this.resetLatest()
-      this.drawLatest(update)
+      this.resetLast()
+      this.drawLast(update)
     } else {
       this.clear()
       this.drawAll(update)
@@ -57,7 +57,7 @@ abstract class AbstractGraph<E extends string = never, O = unknown> extends Abst
     return this
   }
 
-  resetLatest (): this {
+  resetLast (): this {
     if (this.lastUpdate?.latest) {
       const step = this.xAxis.step()
       this.context.clearRect(
@@ -73,7 +73,7 @@ abstract class AbstractGraph<E extends string = never, O = unknown> extends Abst
 
   abstract drawAll (update: UpdatePayload): this
 
-  abstract drawLatest (update: UpdatePayload): this
+  abstract drawLast (update: UpdatePayload): this
 }
 
 export default AbstractGraph

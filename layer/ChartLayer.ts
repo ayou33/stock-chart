@@ -49,6 +49,8 @@ class ChartLayer extends AbstractLayer implements ILayer {
           this.remove(this._drawing)
         }
       })
+
+    layerOptions.xAxis
   }
 
   draw (redraw = false) {

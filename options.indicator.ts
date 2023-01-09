@@ -8,14 +8,14 @@
 import { Color, themeOptions } from './theme'
 
 export type MAInputs = {
-  periods: {
+  series: {
     period: number,
     color: Color,
   } [];
 }
 
 export const maInputs: MAInputs = {
-  periods: [
+  series: [
     {
       period: 14,
       color: themeOptions.primaryColor,
@@ -44,7 +44,7 @@ export const macdInputs: MACDInputs = {
 }
 
 export type EMAInputs = {
-  periods: {
+  series: {
     period: number;
     color: Color;
     offset?: number;
@@ -52,7 +52,7 @@ export type EMAInputs = {
 }
 
 export const emaInputs: EMAInputs = {
-  periods: [
+  series: [
     {
       period: 14,
       offset: 0,

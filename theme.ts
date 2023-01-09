@@ -9,6 +9,8 @@ export const BLACK = '#000'
 
 export const WHITE = '#fff'
 
+export const GRAY = '#D7DDE1'
+
 export const NONE = 'rgba(0, 0, 0, 0)'
 
 export type ThemeOptions = {

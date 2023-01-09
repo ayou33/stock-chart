@@ -26,9 +26,9 @@ interface IGraph<E extends string = never> extends ICanvas<E> {
 
   drawAll (update: UpdatePayload): this;
 
-  resetLatest (): this;
+  resetLast (): this;
 
-  drawLatest (update: UpdatePayload): this;
+  drawLast (update: UpdatePayload): this;
 }
 
 export default IGraph

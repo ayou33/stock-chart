@@ -17,7 +17,7 @@ abstract class AbstractIndicator<I extends Record<string, unknown>, O> extends A
 
   displayType = DisplayType.INNER
 
-  output: O[] = []
+  initOutput: O[] = []
 
   inputs: I
 
@@ -62,33 +62,33 @@ abstract class AbstractIndicator<I extends Record<string, unknown>, O> extends A
 
   drawAll (update: UpdatePayload): this {
     if (update.level === UpdateLevel.FULL || !this.isCached(update)) {
-      this.output = this.compute(update)
+      this.initOutput = this.computeInit(update)
     }
 
-    const values = this.output.slice(update.span[0], update.span[1])
+    const values = this.initOutput.slice(update.span[0], update.span[1])
 
     this.beforeRepaint(values)
 
     this.paint(values)
 
-    this.drawLatest(update)
+    this.drawLast(update)
 
     return this
   }
 
-  drawLatest (update: UpdatePayload): this {
-    this.paint(this.output.slice(-1).concat(this.computeLatest(update)))
+  drawLast (update: UpdatePayload): this {
+    this.paint(this.initOutput.slice(-1).concat(this.computeLast(update)))
 
     return this
   }
 
   isCached (update: UpdatePayload): boolean {
-    return this.output.length === update.bars.length - 1
+    return this.initOutput.length === update.bars.length - 1
   }
 
-  abstract compute (update: UpdatePayload): O[]
+  abstract computeInit (update: UpdatePayload): O[]
 
-  abstract computeLatest (update: UpdatePayload): O[]
+  abstract computeLast (update: UpdatePayload): O[]
 
   abstract paint (values: O[]): this
 
