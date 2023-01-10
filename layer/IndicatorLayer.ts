@@ -194,7 +194,10 @@ class IndicatorLayer extends AbstractLayer implements ILayer {
       ctx.clearRect(0, 0, this._externalContainer.width(), this._externalContainer.height())
       this._cursor?.transform([x, 0])
     }
-    // console.log(this.board.xAxis.scale.domainIndex(date))
+    // const index = this._board.xAxis.scale.domainIndex(this.options.xAxis.invert(x))
+    // for (const i in this._indicators) {
+    //   console.log('ayo', this._indicators[i].initOutput[index])
+    // }
   }
 
   blur () {

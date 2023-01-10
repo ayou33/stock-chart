@@ -40,20 +40,43 @@ class BOLL extends AbstractIndicator<BOLLInputs, BOLLValue> implements IIndicato
   }
 
   paint (values: BOLLValue[]): this {
-    this.context.beginPath()
-    this.context.strokeStyle = this.inputs.channelColor
+    const band: Array<Record<'date' | 'value', number>> = []
+    const ctx = this.context
 
+    ctx.beginPath()
+    ctx.strokeStyle = this.inputs.channelColor
+
+    const count = values.length
     let start = false
-    for (let i = 0, l = values.length; i < l; i++) {
+    for (let i = 0; i < count; i++) {
+      const value = values[i]
+      band[i] = {
+        date: value.date,
+        value: value.high,
+      }
+      band[count + i] = {
+        date: values[count - 1 - i].date,
+        value: values[count - 1 - i].low
+      }
+
       if (start) {
-        this.context.lineTo(this.fx(values[i].date), this.fy(values[i].index))
+        ctx.lineTo(this.fx(value.date), this.fy(values[i].index))
       } else {
-        this.context.moveTo(this.fx(values[i].date), this.fy(values[i].index))
+        ctx.moveTo(this.fx(values[i].date), this.fy(values[i].index))
         start = true
       }
     }
 
-    this.context.stroke()
+    ctx.stroke()
+
+    ctx.beginPath()
+    ctx.fillStyle = this.inputs.bandColor
+    ctx.moveTo(this.fx(band[0].date), this.fy(band[0].value))
+    for (let i = 1, l = band.length; i < l; i++) {
+      ctx.lineTo(this.fx(band[i].date), this.fy(band[i].value))
+    }
+    ctx.closePath()
+    ctx.fill()
 
     return this
   }

@@ -83,10 +83,9 @@ class MACD extends AbstractIndicator<MACDInputs, MACDValue> implements IIndicato
       let bottom = this.fy(0)
       this.context.fillStyle = this.inputs.histRaiseColor
       if (value.hist < 0) {
-        [top, bottom] = [bottom, top]
         this.context.fillStyle = this.inputs.histFallColor
       }
-      this.context.fillRect(x, top, width, Math.abs(top - bottom))
+      this.context.fillRect(x, bottom, width, bottom - top)
     }
   }
 
