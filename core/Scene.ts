@@ -119,8 +119,9 @@ class Scene {
      */
     if (update.level === UpdateLevel.FULL) {
       this._mainAxis.domain(update.domain)
-      update.span = this._mainAxis.extent(update)[1]
     }
+
+    update.span = this._mainAxis.extent(update)[1]
 
     /**
      * 更新交叉轴并限定价值区间
@@ -131,6 +132,7 @@ class Scene {
       if (isChanged) {
         this._series.default.domain(extent)
         update.extent = extent
+        update.level = UpdateLevel.FULL
       }
     }
 

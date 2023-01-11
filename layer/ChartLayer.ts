@@ -61,7 +61,7 @@ class ChartLayer extends AbstractLayer implements ILayer {
     if (this.chart) {
       this.chart.apply(update)
 
-      if (this._drawing) this.chart.save()
+      // if (this._drawing) this.chart.save()
 
       if (update.level !== UpdateLevel.PATCH) {
         this.draw(true)
