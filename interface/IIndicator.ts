@@ -23,6 +23,8 @@ interface IIndicator<I extends object = any, O = unknown, E extends string = nev
 
   initOutput: O[]
 
+  lastOutput: O | null
+
   config (inputs: I): this;
 
   computeInit (update: UpdatePayload): O[]
@@ -30,6 +32,8 @@ interface IIndicator<I extends object = any, O = unknown, E extends string = nev
   computeLast (update: UpdatePayload): O[]
 
   paint (values: O[]): this
+
+  resultOf (index: number): O | null | undefined
 }
 
 export interface IIndicatorCtor<I extends object = any, O = unknown> {

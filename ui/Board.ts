@@ -8,7 +8,7 @@ import Line from '../graphics/Line'
 import { GraphOptions, StockChartOptions } from '../options'
 import Gesture from './Gesture'
 
-export type CrosshairEvents = 'focus' | 'blur'
+export type CrosshairEvents = 'focus' | 'blur' | 'focused'
 
 class Board extends Gesture<CrosshairEvents> {
   private _lastX = 0

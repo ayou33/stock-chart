@@ -19,6 +19,8 @@ abstract class AbstractIndicator<I extends Record<string, unknown>, O> extends A
 
   initOutput: O[] = []
 
+  lastOutput: O | null = null
+
   inputs: I
 
   constructor (options: GraphOptions & RecursivePartial<Inputs<I>>, name?: string) {
@@ -77,13 +79,18 @@ abstract class AbstractIndicator<I extends Record<string, unknown>, O> extends A
   }
 
   drawLast (update: UpdatePayload): this {
-    this.paint(this.initOutput.slice(-1).concat(this.computeLast(update)))
+    this.lastOutput = this.computeLast(update)[0]
+    this.paint(this.initOutput.slice(-1).concat(this.lastOutput))
 
     return this
   }
 
   isCached (update: UpdatePayload): boolean {
     return this.initOutput.length === update.bars.length - 1
+  }
+
+  resultOf (index: number) {
+    return index === this.initOutput.length ? this.lastOutput : this.initOutput[index]
   }
 
   abstract computeInit (update: UpdatePayload): O[]
