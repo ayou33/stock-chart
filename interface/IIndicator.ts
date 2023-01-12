@@ -33,7 +33,7 @@ interface IIndicator<I extends object = any, O = unknown, E extends string = nev
 
   paint (values: O[]): this
 
-  resultOf (index: number): O | null | undefined
+  output (index: number): O | null | undefined
 }
 
 export interface IIndicatorCtor<I extends object = any, O = unknown> {

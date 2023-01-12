@@ -23,6 +23,10 @@ abstract class AbstractRenderer<E extends string = never> extends Event<E> imple
   protected readonly beforeInjections: InjectionGroup<IRenderer> = {}
   protected readonly afterInjections: InjectionGroup<IRenderer> = {}
 
+  of (index: number) {
+    return this.lastUpdate?.bars[index]
+  }
+
   injectBefore<T extends IRenderer> (name: InjectTypes, handler: InjectHandler<T>): this {
     (this.beforeInjections[name] ??= []).unshift(handler as InjectHandler<IRenderer>)
 

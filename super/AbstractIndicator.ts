@@ -89,7 +89,7 @@ abstract class AbstractIndicator<I extends Record<string, unknown>, O> extends A
     return this.initOutput.length === update.bars.length - 1
   }
 
-  resultOf (index: number) {
+  output (index: number) {
     return index === this.initOutput.length ? this.lastOutput : this.initOutput[index]
   }
 

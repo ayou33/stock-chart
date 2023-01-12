@@ -12,6 +12,7 @@ import Event from '../base/Event'
 interface IRenderer<E extends string = never> extends Event<E>, IInjectable {
   lastUpdate: UpdatePayload | null;
 
+  of (index: number): undefined | Bar;
   apply (update: UpdatePayload): this;
 
   replay (update?: UpdatePayload | null): this;

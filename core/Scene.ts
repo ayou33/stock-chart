@@ -185,6 +185,10 @@ class Scene {
     return this._chartLayer.chart
   }
 
+  a (f: Fn) {
+    this._reactiveLayer.board.on('focused', f)
+  }
+
   destroy () {
     this._chartLayer.destroy()
     this._reactiveLayer.destroy()

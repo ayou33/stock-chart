@@ -316,6 +316,10 @@ class Band implements IScale<number[]> {
     return this._domainIndex[domain]
   }
 
+  xToIndex (x: number) {
+    return this.domainIndex(this.invert(x))
+  }
+
   transformRange (x: number, k: number, ref?: number) {
     if (this._extendMode === ExtendMode.SHRINK) return
 

@@ -34,6 +34,9 @@ class ReactiveLayer extends AbstractLayer implements ILayer {
       .on('transform', () => {
         applyTransform()
       })
+      .on('focused', (_, a, b) => {
+        console.log('ayo', a, b)
+      })
   }
 
   apply (update: UpdatePayload): this {

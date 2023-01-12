@@ -42,6 +42,8 @@ class ChartLayer extends AbstractLayer implements ILayer {
         if (!this._busy){
           R.find(d => d.onPointerMove(x, y), this._drawings)
         }
+
+        this._board.focusChart(this.chart?.of(layerOptions.xAxis.scale.xToIndex(x)))
       })
       .on('contextmenu', (_, e: MouseEvent) => {
         if (this._drawing?.state.isPending()) {

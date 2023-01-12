@@ -115,6 +115,14 @@ class Board extends Gesture<CrosshairEvents> {
 
     return this
   }
+
+  focusChart (...args: unknown[]) {
+    this.emit('focused', 'chart', ...args)
+  }
+
+  focusIndicator (...args: unknown[]) {
+    this.emit('focused', 'indicator', ...args)
+  }
 }
 
 export default Board
